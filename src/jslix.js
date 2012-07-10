@@ -199,12 +199,7 @@
         function(name, required) {
             fields.Attr.call(this, name, required);
             
-            var objArr = Object();
-            objArr.prototype = this.prototype;
-            
-            objArr.type = types.StringType;
-            
-            return objArr;
+            this.type = types.StringType;
         }
     );
 
@@ -299,7 +294,7 @@
     fields.JIDNode = Class(
         fields.StringNode,
         function(name, required, listed) {
-            StringNode.call(this, name, undefined, required, listed);
+            fields.StringNode.call(this, name, undefined, required, listed);
             this.type = types.JIDType;
         }
     );
@@ -499,10 +494,10 @@
     jslix.stanzas.stanza = 
         jslix.Element({
             xmlns: STANZAS_NS,
-            to: fields.JIDAttr('to', false),
-            from: fields.JIDAttr('from', false),
-            id: fields.StringAttr('id', false),
-            type: fields.StringAttr('type', false),
+            to: new fields.JIDAttr('to', false),
+            from: new fields.JIDAttr('from', false),
+            id: new fields.StringAttr('id', false),
+            type: new fields.StringAttr('type', false),
 
             makeReply: function(type) {
                 var result = this.__definition__.create({
@@ -562,8 +557,8 @@
     jslix.stanzas.iq = 
         jslix.Element({
                 element_name: 'iq',
-                id: fields.StringAttr('id', true),
-                type: fields.StringAttr('type', true), // TODO: validate types everywhere
+                id: new fields.StringAttr('id', true),
+                type: new fields.StringAttr('type', true), // TODO: validate types everywhere
 
                 create: function(params) {
                     params.id = params.id || randomUUID();
