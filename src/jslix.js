@@ -40,12 +40,12 @@
     jslix.exceptions.Error =
         Class(Error,
               function(msg) {
-        		var me = jslix.exceptions.Error;
+        		var me = jslix.exceptions.Error;        		
                 var objArr = Error.call(me, msg);
 
                 objArr.prototype = me.prototype;
 
-                objArr.name = 'JslixError'
+                objArr.name = 'JslixError';
 
                 return objArr; 
     });
@@ -54,8 +54,7 @@
         Class(jslix.exceptions.Error,
               function(msg) {
         		
-                jslix.exceptions.Error.call(this, msg);
-                var objArr = Object();
+                var objArr = jslix.exceptions.Error.call(this, msg);                
                 objArr.prototype = this.prototype;
                 
                 objArr.name = 'ElementParseError';
@@ -119,17 +118,14 @@
     }
 
     // Fields
-    var Attr = function(name, required) {
-//    	var objArr = Object();
-//    	objArr.prototype = this.prototype;
-    	
+    var Attr = function(name, required) 
+    {
         this.name = name;
         this.required = required;
         this.type = null;
         this.field = true;
-        
-        //return objArr;
-    }
+    };
+
     Attr.prototype.get_from_el = function(el) {
         var attr = el.attributes.getNamedItem(this.name);
         if (attr == null) {
@@ -138,26 +134,30 @@
             return attr.value;
         }
     };
+    
     Attr.prototype.put_to_el = function(el, value) {
         var attr = document.createAttribute(this.name);
         attr.nodeValue = value;
         el.attributes.setNamedItem(attr);
     };
+    
     Attr.prototype.clean = function(value) {
         return value;
     };
+    
     Attr.prototype.clean_set = function(value) {
         return value;
     };
-
-    var Node = function(name, xmlns, required, listed) {
+    
+    var Node = function(name, xmlns, required, listed) 
+    {
         this.name = name;
         this.xmlns = xmlns;
         this.required = required;
         this.type = null;
         this.field = true;
         this.listed = listed;
-    }
+    };
 
     Node.prototype.get_from_el = function(el) {
         if (this.xmlns === undefined) {
@@ -173,20 +173,23 @@
         }
         if (!this.listed) return value[0] || null;
         return value;
-    },
+    };
+    
     Node.prototype.put_to_el = function(el, values) {
         if (! this.listed) values = [values];
         for (var i=0; i<values.length; i++) {
             el.appendChild(values[i]);
         }
-    },
+    };
+    
     Node.prototype.clean_set = function(value) {
         return value;
-    }
+    };
+    
     Node.prototype.clean = function(value) {
         return value;
-    }
-
+    };
+    
     jslix.fields = {
         Attr: Attr,
         Node: Node
@@ -197,8 +200,10 @@
     fields.StringAttr = Class(
         fields.Attr,
         function(name, required) {
+        	
             fields.Attr.call(this, name, required);
-            
+            //objAttr.prototype = this.prototype;
+
             this.type = types.StringType;
         }
     );
@@ -227,14 +232,14 @@
             this.type = types.StringType;
         },
         {
-            'put_to_el': function(stanza, value) {
+            put_to_el: function(stanza, value) {
                 var xmlns = this.xmlns || stanza.namespaceURI;
                 var node = document.createElementNS(xmlns, this.name);
                 var text_node = document.createTextNode(value);
                 node.appendChild(text_node);
                 stanza.appendChild(node);
             },
-            'get_from_el': function(el) {
+            get_from_el: function(el) {
                 var extract = function(value) {
                     if (value.childNodes.length != 1)
                         throw(ElementParseError('TextNode contains no one or more than one child'))
@@ -277,6 +282,9 @@
                 return values
             },
             put_to_el: function(stanza, values) {
+            	if(!stanza.__definition__) {
+            		values = this.definition.create(values);
+            	}
                 var prepared = jslix.build(values, true);
                 stanza.appendChild(prepared);
             }
