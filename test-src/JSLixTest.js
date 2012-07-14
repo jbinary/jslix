@@ -30,6 +30,7 @@ var compareDocuments = function(doc1, doc2)
 	}
 };
 
+
 var compareDocumentsFromString = function(doc1, str)
 {	
 	return compareDocuments(doc1, (new DOMParser()).parseFromString(str, "text/xml"));
@@ -43,6 +44,19 @@ JSLixTest.prototype.testBuildIQStanza = function()
 
 	
 	compareDocumentsFromString(iqStanzaDocument, '<iq xmlns="jabber:client" id="123" type="get"/>');
+};
+
+JSLixTest.prototype.testCompareDocuments = function()
+{
+	var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', type:'get'});
+	
+	var iqStanzaDocument = jslix.build(iqStanza);
+
+	var doc2 = (new DOMParser()).parseFromString('<iq xmlns="jabber:client" id="123" type="get"/>', "text/xml");
+	
+	compareDocuments(iqStanzaDocument, doc2);
+	
+	
 };
 
 
@@ -115,20 +129,21 @@ JSLixTest.prototype.testElementParseError = function()
 	assertException(function(){jslix.parse(myDocument, myDefinition);}, jslix.ElementParseError); 
 };
 
-JSLixTest.prototype.testIntegerType = function()
+JSLixTest.prototype.testInteger = function()
 {
-	var myDefinition = jslix.Element({node: new jslix.fields.IntegerNode('int_node', false), 
+	var myDefinition = jslix.Element({node: new jslix.fields.IntegerNode('int_node', false),
+									  int_attr: new jslix.fields.IntegerAttr('int_attr', false),
 									  xmlns:'int_xmlns'},
 									  [jslix.stanzas.query]);
 	
-	var myStanza = myDefinition.create({node: 123});
+	var myStanza = myDefinition.create({node: 123, int_attr: 100500});
 	
 	var iqParentIntegerNode = jslix.stanzas.iq.create({});
 	
 	iqParentIntegerNode.link(myStanza);
-	
-	var myDocument = jslix.build(myStanza.getTop());
-	
+
+	var myDocument = jslix.build(myStanza.getTop());	
+
 	assertNoException(function(){jslix.parse(myDocument, myDefinition);}); 
 };
 
@@ -172,4 +187,8 @@ JSLixTest.prototype.testElementNode = function()
 			"<myName xmlns='string_xmlns'>" +
 			"<string_node>qwer</string_node>" +
 			"</myName></qwer>");
+	
+	assertNoException(function(){
+							jslix.parse(myDocument, myDefinition);
+						});
 };
