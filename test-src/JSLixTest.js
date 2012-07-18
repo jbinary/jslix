@@ -30,10 +30,63 @@ var compareDocuments = function(doc1, doc2)
 	}
 };
 
+var compareDictionaries = function(d1, d2)
+{
+	var result = true;
+
+	for (var key in d1)
+	{
+		if (d1[key] instanceof Array)
+		{
+			return compareDictionaries(d1[key], d2[key]);
+		}
+
+		if (typeof d1[key] == "function") continue;
+		if (key.indexOf("__") != -1) continue;
+
+		if (d1[key] != d2[key]))
+		{
+			result = false;
+		}
+	}
+
+	return result;
+};
+
 
 var compareDocumentsFromString = function(doc1, str)
 {	
 	return compareDocuments(doc1, (new DOMParser()).parseFromString(str, "text/xml"));
+};
+
+JSLixTest.prototype.testCompareDictionaries = function()
+{
+	var d1 = new Object();
+	var d2 = new Object();
+	
+	d1.a = "a";
+	d2.a = "a";
+
+	var arr_1 = new Array();
+	arr_1[0] = "1";
+	arr_1[1] = "2";
+	arr_1[2] = "qwer";
+	
+	var arr_2 = new Array();
+	arr_2[0] = "1";
+	arr_2[1] = "2";
+	arr_2[2] = "qwer";
+	
+	d1.list = arr_1;
+	d2.list = arr_2;
+	
+	assertTrue(compareDictionaries(d1, d2));
+
+	arr_2[2] = "qwerNew";
+
+	d2.list = arr_2;
+
+	assertFalse(compareDictionaries(d1, d2));
 };
 
 JSLixTest.prototype.testBuildIQStanza = function()
@@ -49,14 +102,12 @@ JSLixTest.prototype.testBuildIQStanza = function()
 JSLixTest.prototype.testCompareDocuments = function()
 {
 	var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', type:'get'});
-	
+
 	var iqStanzaDocument = jslix.build(iqStanza);
 
 	var doc2 = (new DOMParser()).parseFromString('<iq xmlns="jabber:client" id="123" type="get"/>', "text/xml");
-	
+
 	compareDocuments(iqStanzaDocument, doc2);
-	
-	
 };
 
 
@@ -93,6 +144,14 @@ JSLixTest.prototype.testParseQueryStanza = function()
 	var myDocument = jslix.build(myStanza.getTop());
 	
 	assertNoException(function(){jslix.parse(myDocument, myDefinition);});
+
+	var parsedObject = jslix.parse(myDocument, myDefinition);
+
+	var trueObject = new Object();
+
+	trueObject.node = {node:'123'};
+
+	compareDictionaries(parsedObject, trueObject);
 };
 
 JSLixTest.prototype.testNoElementParseError = function()
@@ -110,6 +169,14 @@ JSLixTest.prototype.testNoElementParseError = function()
 	var myDocument = jslix.build(myStanza.getTop());
 	
 	assertNoException(function(){jslix.parse(myDocument, myDefinition);}); 
+
+	var parsedObject = jslix.parse(myDocument, myDefinition);
+
+	var trueObject = new Object();
+
+	trueObject.node = {node:'123'};
+
+	compareDictionaries(parsedObject, trueObject);
 };
 
 JSLixTest.prototype.testElementParseError = function()
@@ -145,6 +212,14 @@ JSLixTest.prototype.testInteger = function()
 	var myDocument = jslix.build(myStanza.getTop());	
 
 	assertNoException(function(){jslix.parse(myDocument, myDefinition);}); 
+
+	var parsedObject = jslix.parse(myDocument, myDefinition);
+
+	var trueObject = new Object();
+
+	trueObject.node = {node:'123'};
+
+	compareDictionaries(parsedObject, trueObject);
 };
 
 JSLixTest.prototype.testJIDType = function()
@@ -162,6 +237,14 @@ JSLixTest.prototype.testJIDType = function()
 	var myDocument = jslix.build(myStanza.getTop());
 	
 	assertNoException(function(){jslix.parse(myDocument, myDefinition);});
+
+	var parsedObject = jslix.parse(myDocument, myDefinition);
+
+	var trueObject = new Object();
+
+	trueObject.node = {node:'123'};
+
+	compareDictionaries(parsedObject, trueObject);
 };
 
 
@@ -187,8 +270,15 @@ JSLixTest.prototype.testElementNode = function()
 			"<myName xmlns='string_xmlns'>" +
 			"<string_node>qwer</string_node>" +
 			"</myName></qwer>");
-	
-	assertNoException(function(){
-							jslix.parse(myDocument, myDefinition);
-						});
+
+	assertNoException(function(){jslix.parse(myDocument, myDefinition);});
+
+	var parsedObject = jslix.parse(myDocument, myDefinition);
+
+	var trueObject = new Object();
+
+	trueObject.node = {node:'123'};
+
+	compareDictionaries(parsedObject, trueObject);
+
 };
