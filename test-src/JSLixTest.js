@@ -257,7 +257,7 @@ JSLixTest.prototype.testJIDType = function()
 									  xmlns:'jid_xmlns'},
 									  [jslix.stanzas.query]);
 	
-	var myStanza = myDefinition.create({node: 123, to:'abc', from:'qwe'});
+	var myStanza = myDefinition.create({node: 123, to:'abcd', from:'qwe'});
 	
 	var iqParentIntegerNode = jslix.stanzas.iq.create({id:'123', type:'get'});
 	
@@ -271,7 +271,7 @@ JSLixTest.prototype.testJIDType = function()
 
 	var trueObject = myDefinition.create({node: 123});
 
-	var parentTrueObject = jslix.stanzas.iq.create({to:'abc', from:'qwe', id:'123', type:'get'});
+	var parentTrueObject = jslix.stanzas.iq.create({to:'abcd', from:'qwe', id:'123', type:'get'});
 	parentTrueObject.link(trueObject);
 
 	assertTrue(compareDictionaries(parsedObject, trueObject));
