@@ -32,25 +32,53 @@ var compareDocuments = function(doc1, doc2)
 
 var compareDictionaries = function(d1, d2)
 {
-	var result = true;
 
-	for (var key in d1)
+	if (d1 instanceof Array)
 	{
-		if (d1[key] instanceof Array)
-		{
-			return compareDictionaries(d1[key], d2[key]);
-		}
-
-		if (typeof d1[key] == "function") continue;
-		if (key.indexOf("__") != -1) continue;
-
-		if (d1[key] != d2[key]))
-		{
-			result = false;
-		}
+		var type = "Array";
+	}
+	else
+	{
+		var type = typeof d1;
 	}
 
-	return result;
+	switch(type)
+	{
+		case "Array":
+			for (var i = 0; i < d1.length; ++i)
+			{
+				if (!compareDictionaries(d1[i], d2[i])) return false;
+			}
+			return true;
+
+		case "object":
+			for (var key in d1)
+			{
+
+				if (typeof d1[key] == "function")
+				{
+					continue;
+				}
+
+				if (key.indexOf("_") == 0 ) continue;
+
+				if (!d2.hasOwnProperty(key))
+				{
+					jstestdriver.console.log("key: " + key);
+					return false;
+				}
+
+				if (!compareDictionaries(d1[key], d2[key])) return false;
+			}
+			return true;
+
+		default:
+			if (d1 != d2)
+			{
+				return false;
+			}
+			return true;
+	}
 };
 
 
@@ -63,30 +91,29 @@ JSLixTest.prototype.testCompareDictionaries = function()
 {
 	var d1 = new Object();
 	var d2 = new Object();
-	
-	d1.a = "a";
-	d2.a = "a";
 
-	var arr_1 = new Array();
-	arr_1[0] = "1";
-	arr_1[1] = "2";
-	arr_1[2] = "qwer";
-	
-	var arr_2 = new Array();
-	arr_2[0] = "1";
-	arr_2[1] = "2";
-	arr_2[2] = "qwer";
-	
-	d1.list = arr_1;
-	d2.list = arr_2;
-	
+	var incapsObj_1 = new Object();
+	incapsObj_1.arrOfSpy = [1, 2, 3];
+
+	var incapsObj_2 = new Object();
+	incapsObj_2.arrOfSpy = [1, 2, 3];
+
+	d1.incapsObject = incapsObj_1;
+	d2.incapsObject = incapsObj_2;
+
 	assertTrue(compareDictionaries(d1, d2));
 
-	arr_2[2] = "qwerNew";
+	var oneMoreObject_1 = new Object();
+	var oneMoreObject_2 = new Object();
 
-	d2.list = arr_2;
+	oneMoreObject_1.soup = "1";
+	oneMoreObject_2.soup = "1";
 
-	assertFalse(compareDictionaries(d1, d2));
+	d1.incapsObject_2 = oneMoreObject_1;
+	d2.incapsObject_2 = oneMoreObject_2;
+
+	assertTrue(compareDictionaries(d1, d2));
+
 };
 
 JSLixTest.prototype.testBuildIQStanza = function()
@@ -95,7 +122,6 @@ JSLixTest.prototype.testBuildIQStanza = function()
 	
 	var iqStanzaDocument = jslix.build(iqStanza);
 
-	
 	compareDocumentsFromString(iqStanzaDocument, '<iq xmlns="jabber:client" id="123" type="get"/>');
 };
 
@@ -135,9 +161,9 @@ JSLixTest.prototype.testParseQueryStanza = function()
 									  xmlns:'my_xmlns'}, 
 									  [jslix.stanzas.query]);
 	
-	var myStanza = myDefinition.create({});
+	var myStanza = myDefinition.create({node: 123, to:'abc', from:'qwe'});
 	
-	var iqParent = jslix.stanzas.iq.create({});
+	var iqParent = jslix.stanzas.iq.create({id:'123', type:'get'});
 	
 	iqParent.link(myStanza);
 	
@@ -147,11 +173,12 @@ JSLixTest.prototype.testParseQueryStanza = function()
 
 	var parsedObject = jslix.parse(myDocument, myDefinition);
 
-	var trueObject = new Object();
+	var trueObject = myDefinition.create({node:123});
 
-	trueObject.node = {node:'123'};
+	var parentTrueObject = jslix.stanzas.iq.create({to:'abc', from:'qwe', id:'123', type:'get'});
+	parentTrueObject.link(trueObject);
 
-	compareDictionaries(parsedObject, trueObject);
+	assertTrue(compareDictionaries(parsedObject, trueObject));
 };
 
 JSLixTest.prototype.testNoElementParseError = function()
@@ -160,9 +187,9 @@ JSLixTest.prototype.testNoElementParseError = function()
 									  xmlns:'my_xmlns'}, 
 									  [jslix.stanzas.query]);
 	
-	var myStanza = myDefinition.create({node: "123"});
+	var myStanza = myDefinition.create({node: 123, to:'abc', from:'qwe'});
 	
-	var iqParent = jslix.stanzas.iq.create({});
+	var iqParent = jslix.stanzas.iq.create({id:'123', type:'get'});
 	
 	iqParent.link(myStanza);
 	
@@ -172,11 +199,12 @@ JSLixTest.prototype.testNoElementParseError = function()
 
 	var parsedObject = jslix.parse(myDocument, myDefinition);
 
-	var trueObject = new Object();
+	var trueObject = myDefinition.create({node:123});
 
-	trueObject.node = {node:'123'};
+	var parentTrueObject = jslix.stanzas.iq.create({to:'abc', from:'qwe', id:'123', type:'get'});
+	parentTrueObject.link(trueObject);
 
-	compareDictionaries(parsedObject, trueObject);
+	assertTrue(compareDictionaries(parsedObject, trueObject));
 };
 
 JSLixTest.prototype.testElementParseError = function()
@@ -203,9 +231,9 @@ JSLixTest.prototype.testInteger = function()
 									  xmlns:'int_xmlns'},
 									  [jslix.stanzas.query]);
 	
-	var myStanza = myDefinition.create({node: 123, int_attr: 100500});
+	var myStanza = myDefinition.create({node: 123, int_attr: 100500, to:'abc', from:'qwe'});
 	
-	var iqParentIntegerNode = jslix.stanzas.iq.create({});
+	var iqParentIntegerNode = jslix.stanzas.iq.create({id:'123', type:'get'});
 	
 	iqParentIntegerNode.link(myStanza);
 
@@ -215,11 +243,12 @@ JSLixTest.prototype.testInteger = function()
 
 	var parsedObject = jslix.parse(myDocument, myDefinition);
 
-	var trueObject = new Object();
+	var trueObject = myDefinition.create({node:123, int_attr: 100500});
 
-	trueObject.node = {node:'123'};
+	var parentTrueObject = jslix.stanzas.iq.create({to:'abc', from:'qwe', id:'123', type:'get'});
+	parentTrueObject.link(trueObject);
 
-	compareDictionaries(parsedObject, trueObject);
+	assertTrue(compareDictionaries(parsedObject, trueObject));
 };
 
 JSLixTest.prototype.testJIDType = function()
@@ -228,9 +257,9 @@ JSLixTest.prototype.testJIDType = function()
 									  xmlns:'jid_xmlns'},
 									  [jslix.stanzas.query]);
 	
-	var myStanza = myDefinition.create({node: 123});
+	var myStanza = myDefinition.create({node: 123, to:'abc', from:'qwe'});
 	
-	var iqParentIntegerNode = jslix.stanzas.iq.create({});
+	var iqParentIntegerNode = jslix.stanzas.iq.create({id:'123', type:'get'});
 	
 	iqParentIntegerNode.link(myStanza);
 	
@@ -240,11 +269,12 @@ JSLixTest.prototype.testJIDType = function()
 
 	var parsedObject = jslix.parse(myDocument, myDefinition);
 
-	var trueObject = new Object();
+	var trueObject = myDefinition.create({node: 123});
 
-	trueObject.node = {node:'123'};
+	var parentTrueObject = jslix.stanzas.iq.create({to:'abc', from:'qwe', id:'123', type:'get'});
+	parentTrueObject.link(trueObject);
 
-	compareDictionaries(parsedObject, trueObject);
+	assertTrue(compareDictionaries(parsedObject, trueObject));
 };
 
 
@@ -277,8 +307,9 @@ JSLixTest.prototype.testElementNode = function()
 
 	var trueObject = new Object();
 
-	trueObject.node = {node:'123'};
+	trueObject.node = {node:'test'};
 
-	compareDictionaries(parsedObject, trueObject);
+	assertTrue(compareDictionaries(parsedObject, trueObject));
 
 };
+
