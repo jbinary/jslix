@@ -157,11 +157,11 @@ JSLixTest.prototype.testParseIQStanza = function()
 
 JSLixTest.prototype.testParseQueryStanza = function()
 {
-	var myDefinition = jslix.Element({node: new jslix.fields.StringNode('my_node', false), 
+	var myDefinition = jslix.Element({node: new jslix.fields.StringNode('my_node', false, true), 
 									  xmlns:'my_xmlns'}, 
 									  [jslix.stanzas.query]);
 	
-	var myStanza = myDefinition.create({node: 123, to:'abc', from:'qwe'});
+	var myStanza = myDefinition.create({node: '123 456', to:'abc', from:'qwe'});
 	
 	var iqParent = jslix.stanzas.iq.create({id:'123', type:'get'});
 	
