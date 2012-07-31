@@ -139,7 +139,8 @@ JSLixTest.prototype.testCompareDocuments = function()
 
 JSLixTest.prototype.testParseIQStanza = function()
 {
-	var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', type:'string'});
+
+	var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', type:'get'});
 	
 	var iqStanzaDocument = jslix.build(iqStanza);
 	
@@ -173,7 +174,7 @@ JSLixTest.prototype.testParseQueryStanza = function()
 
 	var parsedObject = jslix.parse(myDocument, myDefinition);
 
-	var trueObject = myDefinition.create({node:123});
+	var trueObject = myDefinition.create({node:'123 456'});
 
 	var parentTrueObject = jslix.stanzas.iq.create({to:'abc', from:'qwe', id:'123', type:'get'});
 	parentTrueObject.link(trueObject);
@@ -313,3 +314,29 @@ JSLixTest.prototype.testElementNode = function()
 
 };
 
+
+JSLixTest.prototype.testCreateStanza = function()
+{	
+	var stanza = jslix.createStanza(jslix.stanzas.iq);
+
+	assertFunction(stanza.makeError);
+
+	assertFunction(stanza.makeResult);
+
+	assertFunction(stanza.makeReply);
+};
+
+JSLixTest.prototype.testParseStanza = function()
+{
+	var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
+	
+	var iqStanzaDocument = jslix.build(iqStanza);
+	
+	var parsedObject = jslix.parse(iqStanzaDocument, jslix.stanzas.iq);
+
+	assertFunction(iqStanza.makeError);
+
+	assertFunction(iqStanza.makeResult);
+
+	assertFunction(iqStanza.makeReply);
+};

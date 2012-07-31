@@ -308,7 +308,8 @@
     );
 
     jslix.createStanza = function(definition) {
-        return {
+	var retObj = 
+        {
             '__definition__': definition,
             '__links__': [],
             getTop: function() {
@@ -325,8 +326,18 @@
             setParent: function(parent) {
                 parent.link(this);
             }
-        }
-    }
+        };
+
+	for (var key in definition)
+	{
+	    var f = definition[key];
+
+	    if (typeof(f) == 'function') {
+                retObj[key] = f;
+            }
+	}
+	return retObj;
+    };
 
     jslix.parse = function(el, definition, path) {
         var path = path || [];
@@ -392,8 +403,6 @@
                 } // TODO: final validator?
 
                 result[key] = value;
-            } else if (typeof(f) == 'function') {
-                result[key] = f;
             }
         }
         /*if ('parent_element' in definition) {
@@ -465,8 +474,8 @@
     // Stanzas
     jslix.stanzas = {
         base_stanza: {
-            create: function(params) {
-                params = params || {};                
+            create : function(params) {
+                params = params || {};
                 var result = jslix.createStanza(this);                
                 for (var k in params) {
                     if (['parent', 'link'].indexOf(k) == -1) {
@@ -477,7 +486,7 @@
                 else if ('link' in params) result.link(params.link);                
                 return result;
             },
-            makeError: function(params_or_condition, text, type) {
+            makeError : function(params_or_condition, text, type) {
                 if (typeof params_or_condition == 'string') {
                     var params = {condition: params_or_condition,
                                   text: text,
@@ -492,12 +501,13 @@
                 var error = eclass.create(params);
                 return error;
             },
-            makeResult: function(params) {
+	    makeResult : function(params) {
                 params.parent = this.getTop().makeReply();
                 return this.__definition__.result_class.create(params);
             }
         }
     }
+
 
     jslix.stanzas.stanza = 
         jslix.Element({
@@ -519,14 +529,14 @@
                 result.type = type;
                 return result;
             }
-        })
+        });
 
     jslix.stanzas.message =
         jslix.Element({
                 element_name: 'message',
                 body: new fields.StringNode('body', false),
                 thread: new fields.StringNode('thread', false)
-                }, [jslix.stanzas.stanza])
+                }, [jslix.stanzas.stanza]);
 
     jslix.stanzas.presence =
         jslix.Element({
@@ -570,6 +580,7 @@
 
                 create: function(params) {
                     params.id = params.id || randomUUID();
+
                     return jslix.stanzas.stanza.create.call(this, params);
                 }
             }, [jslix.stanzas.stanza]);
