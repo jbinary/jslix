@@ -340,3 +340,16 @@ JSLixTest.prototype.testParseStanza = function()
 
 	assertFunction(iqStanza.makeReply);
 };
+
+JSLixTest.prototype.testMakeError = function()
+{
+	var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
+
+	var errorStanza = iqStanza.makeError({from:'a', to:'b'}, "iq_error_stanza", "get");
+
+	assertEquals(errorStanza.getTop().from, "abram");
+
+	assertEquals(errorStanza.getTop().to, "isaak");
+
+	assertEquals(errorStanza.getTop().type, "error");
+};
