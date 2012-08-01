@@ -42,6 +42,7 @@ var compareDictionaries = function(d1, d2)
 		var type = typeof d1;
 	}
 
+
 	switch(type)
 	{
 		case "Array":
@@ -64,7 +65,6 @@ var compareDictionaries = function(d1, d2)
 
 				if (!d2.hasOwnProperty(key))
 				{
-					jstestdriver.console.log("key: " + key);
 					return false;
 				}
 
@@ -162,7 +162,7 @@ JSLixTest.prototype.testParseQueryStanza = function()
 									  xmlns:'my_xmlns'}, 
 									  [jslix.stanzas.query]);
 	
-	var myStanza = myDefinition.create({node: '123 456', to:'abc', from:'qwe'});
+	var myStanza = myDefinition.create({node: ['1', '2', '3'], to:'abc', from:'qwe'});
 	
 	var iqParent = jslix.stanzas.iq.create({id:'123', type:'get'});
 	
@@ -174,7 +174,7 @@ JSLixTest.prototype.testParseQueryStanza = function()
 
 	var parsedObject = jslix.parse(myDocument, myDefinition);
 
-	var trueObject = myDefinition.create({node:'123 456'});
+	var trueObject = myDefinition.create({node: ['1', '2', '3']});
 
 	var parentTrueObject = jslix.stanzas.iq.create({to:'abc', from:'qwe', id:'123', type:'get'});
 	parentTrueObject.link(trueObject);
@@ -345,11 +345,20 @@ JSLixTest.prototype.testMakeError = function()
 {
 	var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
 
-	var errorStanza = iqStanza.makeError({from:'a', to:'b'}, "iq_error_stanza", "get");
+	var errorStanza = iqStanza.makeError('bad-request', 'bad-request', 'auth');
 
 	assertEquals(errorStanza.getTop().from, "abram");
 
 	assertEquals(errorStanza.getTop().to, "isaak");
 
 	assertEquals(errorStanza.getTop().type, "error");
+
+	assertEquals(errorStanza.text, "bad-request");
+
+	assertEquals(errorStanza.type, "auth");
+
+	var trueCondition = new jslix.fields.ErrorConditionNode();
+
+	compareDictionaries(errorStanza.__definition__.condition, trueCondition);
 };
+
