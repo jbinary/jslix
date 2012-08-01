@@ -53,19 +53,22 @@
     jslix.exceptions.ElementParseError =
         Class(jslix.exceptions.Error,
               function(msg) {
-        		
-                var objArr = jslix.exceptions.Error.call(this, msg);                
-                objArr.prototype = this.prototype;
-                
+        	
+		var me = jslix.exceptions.ElementParseError;
+                var objArr = jslix.exceptions.Error.call(me, msg);
+                objArr.prototype = me.prototype;
+
                 objArr.name = 'ElementParseError';
                 return objArr;
               }
     );
+
     var ElementParseError = jslix.exceptions.ElementParseError;
     jslix.exceptions.WrongElement =
         Class(jslix.exceptions.Error,
               function(msg) {
-        		var me = jslix.exceptions.WrongElement;
+
+        	var me = jslix.exceptions.WrongElement;
                 var objArr = jslix.exceptions.Error.call(me, msg);
                 objArr.prototype = me.prototype;
                 
