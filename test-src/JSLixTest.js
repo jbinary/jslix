@@ -360,3 +360,29 @@ JSLixTest.prototype.testMakeError = function()
 						});
 };
 
+
+JSLixTest.prototype.testPresenceStanza = function()
+{
+	var presenceStanza = jslix.stanzas.presence.create({from:'abc', to:'qwe', id:1, type:'get',
+							    show:'chat', status:'OK', priority:1});
+
+	var presenceDoc = jslix.build(presenceStanza);
+
+	assertNoException(function(){jslix.parse(presenceDoc, jslix.stanzas.presence)});
+
+	var parsedPresence = jslix.parse(presenceDoc, jslix.stanzas.presence);
+
+	compareDictionaries(parsedPresence, {show:'chat', status:'OK', priority:1, 
+						parent:{
+							    from:'abc', to:'qwe', id:1, type:'get'
+						       }
+					    });
+
+	var badPresenceStanza = jslix.stanzas.presence.create({from:'abc', to:'qwe', id:1, type:'get',
+							    show:'bad', status:'OK', priority:1});
+
+	var badPresenceDoc = jslix.build(badPresenceStanza);
+
+	assertException(function(){jslix.parse(badPresenceDoc, jslix.stanzas.presence)}, jslix.ElementParseError);
+};
+
