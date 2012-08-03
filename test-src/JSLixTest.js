@@ -137,7 +137,6 @@ JSLixTest.prototype.testCompareDocuments = function()
 
 JSLixTest.prototype.testParseIQStanza = function()
 {
-
 	var iqStanza = jslix.stanzas.iq.create({id:'123', type:'get', from:'abc', to:'qwe'});
 	
 	var iqStanzaDocument = jslix.build(iqStanza);
@@ -384,5 +383,20 @@ JSLixTest.prototype.testPresenceStanza = function()
 	var badPresenceDoc = jslix.build(badPresenceStanza);
 
 	assertException(function(){jslix.parse(badPresenceDoc, jslix.stanzas.presence)}, jslix.ElementParseError);
+};
+
+JSLixTest.prototype.testJSLixDispatcherSend = function()
+{
+	var iqStanza = jslix.stanzas.iq.create({id:'123', type:'get', from:'abc', to:'qwe'});
+
+	var dummyFunction = { send: function(packet)
+				    {
+					  //this is just a dummy
+				    }
+			    }
+
+	window.con = dummyFunction;
+
+	assertNoException(function(){jslix.dispatcher.send(iqStanza);});
 };
 
