@@ -40,26 +40,19 @@
     jslix.exceptions.Error =
         Class(Error,
               function(msg) {
-        		var me = jslix.exceptions.Error;        		
-                var objArr = Error.call(me, msg);
 
-                objArr.prototype = me.prototype;
+                Error.call(this, msg);
 
-                objArr.name = 'JslixError';
-
-                return objArr; 
+//              this.name = 'JslixError';
     });
 
     jslix.exceptions.ElementParseError =
         Class(jslix.exceptions.Error,
               function(msg) {
-        	
-		var me = jslix.exceptions.ElementParseError;
-                var objArr = jslix.exceptions.Error.call(me, msg);
-                objArr.prototype = me.prototype;
 
-                objArr.name = 'ElementParseError';
-                return objArr;
+                jslix.exceptions.Error.call(this, msg);
+
+//                this.name = 'ElementParseError';
               }
     );
 
@@ -68,13 +61,10 @@
         Class(jslix.exceptions.Error,
               function(msg) {
 
-        	var me = jslix.exceptions.WrongElement;
-                var objArr = jslix.exceptions.Error.call(me, msg);
-                objArr.prototype = me.prototype;
+                jslix.exceptions.Error.call(this, msg);
+
+                //this.name = 'WrongElement';
                 
-                objArr.name = 'WrongElement';
-                
-                return objArr;
               }
     );
     var WrongElement = jslix.exceptions.WrongElement;
@@ -108,7 +98,7 @@
                 return jid;
             } catch(e) {
                 if (e instanceof JSJaCJIDInvalidException) {
-                    throw(ElementParseError('Invalid JID'));
+                    throw new ElementParseError('Invalid JID');
                 } else {
                     throw(e);
                 }
@@ -245,12 +235,12 @@
             get_from_el: function(el) {
                 var extract = function(value) {
                     if (value.childNodes.length != 1)
-                        throw(ElementParseError('TextNode contains no one or more than one child'))
+                        throw new ElementParseError('TextNode contains no one or more than one child')
                     value = value.childNodes[0];
                     if (value.nodeName == '#text')
                         value = value.nodeValue;
                     else
-                        throw(ElementParseError("Wrong node type when TextNode parsing"));
+                        throw new ElementParseError("Wrong node type when TextNode parsing");
                     return value;
                 }
                 var values = fields.Node.prototype.get_from_el.call(this, el);
@@ -363,7 +353,7 @@
                 }
             }
             el = eel;
-            if (!link) throw (WrongElement('Can\'t find "' + eel.xmlns + ':' + eel.element_name + '" child'));
+            if (!link) throw new WrongElement('Can\'t find "' + eel.xmlns + ':' + eel.element_name + '" child');
             if (parent) {
                 link.parent = parent;
                 parent.__links__[parent.__links__.length] = link;
@@ -378,7 +368,7 @@
         if ((definition.element_name &&
              el.nodeName != definition.element_name) || 
             definition.xmlns != el.namespaceURI) {
-            throw(WrongElement());
+            throw new WrongElement();
         }
         var validate = function(value) {
             if (f.type)
@@ -392,7 +382,7 @@
             if (typeof(f) == 'object' && 'field' in f) {
                 var value = f.get_from_el(el);
                 if (f.listed) {
-                    if (!value.length && f.required) throw (ElementParseError(f.name + ' is required field'))
+                    if (!value.length && f.required) throw new ElementParseError(f.name + ' is required field')
                     for (var i=0; i<value.length; i++) {
                         value[i] = validate(value[i]);
                     }
@@ -550,7 +540,7 @@
                 
                 clean_show: function(value) {
                     if (['chat', 'away', 'xa', 'dnd'].indexOf(value) == -1)
-                        throw(ElementParseError('Presence show element has the wrong value'));
+                        throw new ElementParseError('Presence show element has the wrong value');
                     return value
                     }
                 }, [jslix.stanzas.stanza])
@@ -626,7 +616,7 @@
             // Validators
             clean_type: function(value) {
                 if (['cancel', 'continue', 'modify', 'auth', 'wait'].indexOf(value) == -1)
-                    throw(ElementParseError('Wrong error type ' + value));
+                    throw new ElementParseError('Wrong error type ' + value);
                 return value;
             }
         });

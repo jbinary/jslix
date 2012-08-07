@@ -339,17 +339,7 @@ JSLixTest.prototype.testMakeError = function()
 {
 	var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
 
-	var errorStanza = iqStanza.makeError('bad-request', 'bad-request', 'auth');
-
-	assertEquals(errorStanza.getTop().from, "abram");
-
-	assertEquals(errorStanza.getTop().to, "isaak");
-
-	assertEquals(errorStanza.getTop().type, "error");
-
-	assertEquals(errorStanza.text, "bad-request");
-
-	assertEquals(errorStanza.type, "auth");
+	var errorStanza = iqStanza.makeError('bad-request', 'bad-request', 'error');
 
 	compareDictionaries(errorStanza, {text:'bad-request',
 					  type:'auth',
@@ -398,5 +388,25 @@ JSLixTest.prototype.testJSLixDispatcherSend = function()
 	window.con = dummyFunction;
 
 	assertNoException(function(){jslix.dispatcher.send(iqStanza);});
+};
+
+JSLixTest.prototype.testDispatcher = function()
+{
+	var iqStanza = jslix.stanzas.iq.create({id:'123', type:'get', from:'abc', to:'qwe'});
+
+	var dummyFunction = { send: function(packet)
+				    {
+					  //this is just a dummy
+				    }
+			    }
+
+	window.con = dummyFunction;
+
+	var iqDoc = jslix.build(iqStanza);
+
+	assertNoException(function(){
+					jslix.dispatcher.dispatch(iqDoc);
+				    }
+			 );
 };
 
