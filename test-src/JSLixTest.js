@@ -422,3 +422,24 @@ JSLixTest.prototype.testErrorStanzaDispatch = function()
 			 );
 };
 
+
+JSLixTest.prototype.testMakeResult = function()
+{
+	var definitionIq = new jslix.Element({xmlns:'iq_xmlns',
+					      element_name:'iq', 
+					      result_class: jslix.stanzas.iq
+					     }, [jslix.stanzas.iq]);
+
+	var iqStanza = definitionIq.create({from:'a', to:'b', id:1, type:'set'});
+
+	var resultStanza = iqStanza.makeResult({id:2, type:'result'});
+
+	compareDictionaries(resultStanza, { id:2, 
+					    parent:
+						{
+							from:'b', to:'a', id:1, type:'result'
+						}
+
+					  });
+};
+
