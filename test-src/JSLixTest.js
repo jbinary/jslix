@@ -410,3 +410,15 @@ JSLixTest.prototype.testDispatcher = function()
 			 );
 };
 
+JSLixTest.prototype.testErrorStanzaDispatch = function()
+{
+	var iqStanza = jslix.stanzas.iq.create({from:'a', to:'b', type:'error', id:123});
+
+	var iqDoc = jslix.build(iqStanza);
+
+	assertNoException(function(){
+					jslix.dispatcher.dispatch(iqDoc);
+				    }
+			 );
+};
+
