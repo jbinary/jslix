@@ -392,7 +392,19 @@ JSLixTest.prototype.testJSLixDispatcherSend = function()
 
 JSLixTest.prototype.testDispatcher = function()
 {
-	var iqStanza = jslix.stanzas.iq.create({id:'123', type:'get', from:'abc', to:'qwe'});
+	var iqHandler = jslix.stanzas.iq;
+	var testHost = "127.0.0.1";
+
+	var resultDefinition = jslix.stanzas.iq;
+
+	var definitionIq = new jslix.Element({node: new jslix.fields.StringNode('string_node', false), 
+											   xmlns:'string_xmlns', 
+										result_class: resultDefinition},
+						[jslix.stanzas.iq]);
+
+	jslix.dispatcher.addHandler(definitionIq, testHost);
+
+	var iqStanza = definitionIq.create({id:'123', type:'get', from:'abc', to:'qwe'});
 
 	var dummyFunction = { send: function(packet)
 				    {
@@ -402,12 +414,24 @@ JSLixTest.prototype.testDispatcher = function()
 
 	window.con = dummyFunction;
 
-	var iqDoc = jslix.build(iqStanza);
+	jslix.dispatcher.send(iqStanza);
+
+	var resultStanza = jslix.stanzas.iq.create({type:'result', from:'qwe', to:'abc', id:1});
+
+	var resultDoc = jslix.build(resultStanza);
+
+	assertTrue(jslix.dispatcher.deferreds.hasOwnProperty('123'));
+
+	assertNotNull(jslix.dispatcher.handlers[definitionIq]);
 
 	assertNoException(function(){
-					jslix.dispatcher.dispatch(iqDoc);
+					jslix.dispatcher.dispatch(resultDoc);
 				    }
 			 );
+
+	compareDictionaries(resultDoc, {id:'123', type:'get', from:'abc', to:'qwe'});
+
+	compareDictionaries(jslix.dispatcher.deferreds, { });
 };
 
 JSLixTest.prototype.testErrorStanzaDispatch = function()
@@ -441,39 +465,5 @@ JSLixTest.prototype.testMakeResult = function()
 						}
 
 					  });
-};
-
-JSLixTest.prototype.testResultClassDispatch = function()
-{
-	var resultDefinition = jslix.stanzas.iq;
-
-	var definitionIq = new jslix.Element({node: new jslix.fields.StringNode('string_node', false), 
-											   xmlns:'string_xmlns', 
-										result_class: resultDefinition},
-						[jslix.stanzas.iq]);
-
-	var iqStanza = definitionIq.create({id:1, type:'set', from:'abc', to:'qwe'});
-
-	var dummyFunction = { send: function(packet)
-				    {
-					  //this is just a dummy
-				    }
-			    }
-
-	window.con = dummyFunction;
-	
-	jslix.dispatcher.send(iqStanza);
-
-	var resultStanza = jslix.stanzas.iq.create({type:'result', from:'qwe', to:'abc', id:1});
-
-	var resultDoc = jslix.build(resultStanza);
-
-
-	assertNoException(function(){
-					jslix.dispatcher.dispatch(resultDoc);
-				    }
-			 );
-
-	compareDictionaries(jslix.dispatcher.deferreds, { });
 };
 
