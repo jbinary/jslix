@@ -375,25 +375,69 @@ JSLixTest.prototype.testPresenceStanza = function()
 	assertException(function(){jslix.parse(badPresenceDoc, jslix.stanzas.presence)}, jslix.ElementParseError);
 };
 
+
 JSLixTest.prototype.testJSLixDispatcherSend = function()
 {
-	var iqStanza = jslix.stanzas.iq.create({id:'123', type:'get', from:'abc', to:'qwe'});
+	jslix.dispatcher.deferreds = {};
+
+	var firstIqStanza = jslix.stanzas.iq.create({id:'1', type:'get', from:'abc', to:'qwe'});
+	var secondIqStanza = jslix.stanzas.iq.create({id:'2', type:'get', from:'abc', to:'qwe'});
+	var thirdIqStanza = jslix.stanzas.iq.create({id:'3', type:'get', from:'abc', to:'qwe'});
 
 	var dummyFunction = { send: function(packet)
 				    {
-					  //this is just a dummy
+					dummyFunction.send.count++;
+					compareDocumentsFromString(packet.doc, 
+								   '<iq xmlns="jabber:client" to="qwe" from="abc" id="' + 							 		   dummyFunction.send.count + '" type="get"/>');
 				    }
 			    }
 
 	window.con = dummyFunction;
 
-	assertNoException(function(){jslix.dispatcher.send(iqStanza);});
+	dummyFunction.send.count = 0;
+
+	assertNoException(function(){jslix.dispatcher.send([firstIqStanza, secondIqStanza, thirdIqStanza]);});
+
+	var countStanzas = 0;
+
+	for (var key in jslix.dispatcher.deferreds)
+	{
+		countStanzas++;
+	}
+
+	assertEquals(countStanzas, 3);
+
+};
+
+JSLixTest.prototype.testNoPresenseDeferred = function()
+{
+	jslix.dispatcher.deferreds = {};
+
+	window.con = { send: function(packet)
+			     {
+				//really dummy
+			     }
+		     }
+
+	var presenceStanza = jslix.stanzas.presence.create({from:'abc', to:'qwe', id:'1', type:'get',
+						    show:'chat', status:'OK', priority:1});
+
+	assertNoException(function(){jslix.dispatcher.send([presenceStanza]);});
+
+	var countStanzas = 0;
+
+	for (var key in jslix.dispatcher.deferreds)
+	{
+		countStanzas++;
+	}
+
+	assertEquals(countStanzas, 0);
 };
 
 JSLixTest.prototype.testDispatcher = function()
 {
 	var iqHandler = jslix.stanzas.iq;
-	var testHost = "127.0.0.1";
+	var testHost = {};
 
 	var resultDefinition = jslix.stanzas.iq;
 
@@ -416,7 +460,7 @@ JSLixTest.prototype.testDispatcher = function()
 
 	jslix.dispatcher.send(iqStanza);
 
-	var resultStanza = jslix.stanzas.iq.create({type:'result', from:'qwe', to:'abc', id:1});
+	var resultStanza = jslix.stanzas.iq.create({type:'result', from:'qwe', to:'abc', id:'123'});
 
 	var resultDoc = jslix.build(resultStanza);
 
