@@ -1,7 +1,5 @@
 //copy-paste. source: jsjac.js, jsjac.JID
-(function(window){
-	
-	var jslix = window.jslix;
+(function(){
 	var fields = jslix.fields;
 
 	var JID_FORBIDDEN = ['"',' ','&','\'','/',':','<','>','@'];
@@ -132,4 +130,4 @@
 
       jslix.JID = JID;
       jslix.exceptions.JIDInvalidException = JIDInvalidException;
-})(window);
+})();
