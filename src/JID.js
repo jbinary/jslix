@@ -1,12 +1,12 @@
-
-//(function(window){
+//copy-paste. source: jsjac.js, jsjac.JID
+(function(window){
 	
 	var jslix = window.jslix;
 	var fields = jslix.fields;
 
 	var JID_FORBIDDEN = ['"',' ','&','\'','/',':','<','>','@'];
 
-	var jidObject = function(jid)
+	var JID = function(jid)
 	{
 	    this._node = '';
 
@@ -39,46 +39,46 @@
 	};
 
 
-	jidObject.prototype.getNode = function() 
+	JID.prototype.getNode = function() 
 	{ 
 		return this._node; 
 	};
 
-	jidObject.prototype.getDomain = function() 
+	JID.prototype.getDomain = function() 
 	{ 
 		return this._domain; 
 	};
 
-	jidObject.prototype.getResource = function() 
+	JID.prototype.getResource = function() 
 	{ 
 		return this._resource; 
 	};
 
-	jidObject.prototype.setNode = function(node)
+	JID.prototype.setNode = function(node)
 	{
-	    jidObject._checkNodeName(node);
+	    JID._checkNodeName(node);
 	    this._node = node || '';
 	    return this;
 	};
 
 
-	jidObject.prototype.setDomain = function(domain)
+	JID.prototype.setDomain = function(domain)
 	{
   	   if (!domain || domain == '')
   	   	throw new JIDObjectInvalidException("domain name missing");
 
-  	   jidObject._checkNodeName(domain);
+  	   JID._checkNodeName(domain);
   	   this._domain = domain;
   	   return this;
 	};
 
-	jidObject.prototype.setResource = function(resource) 
+	JID.prototype.setResource = function(resource) 
 	{
   	   this._resource = resource || '';
            return this;
 	};
 
-	jidObject.prototype.toString = function()
+	JID.prototype.toString = function()
 	{
   	   var jid = '';
 
@@ -93,27 +93,27 @@
 	   return jid;
 	};
 
-	jidObject.prototype.removeResource = function()
+	JID.prototype.removeResource = function()
 	{
 	   return this.setResource();
 	};
 
-	jidObject.prototype.clone = function()
+	JID.prototype.clone = function()
 	{
   	   return new jidObject(this.toString());
 	};
 
-	jidObject.prototype.isEntity = function(jid)
+	JID.prototype.isEntity = function(jid)
 	{
 	   if (typeof jid == 'string')
-	       jid = (new JSJaCJID(jid));
+	       jid = (new jidObject(jid));
 
 	   jid.removeResource();
 
 	   return (this.clone().removeResource().toString() === jid.toString());
 	};
 
-	jidObject._checkNodeName = function(nodeprep)
+	JID._checkNodeName = function(nodeprep)
 	{
 	    if (!nodeprep || nodeprep == '')
 	      return;
@@ -130,6 +130,6 @@
         };
   
 
-      jslix.JID = jidObject;
+      jslix.JID = JID;
       jslix.exceptions.JIDObjectInvalidException = JIDObjectInvalidException;
-//})(window);
+})(window);
