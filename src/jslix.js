@@ -69,7 +69,7 @@
     );
     var WrongElement = jslix.exceptions.WrongElement;
 
-    var JIDObjectInvalidException = jslix.exceptions.JIDObjectInvalidException;
+    var JIDInvalidException = jslix.exceptions.JIDInvalidException;
 
     // Types
     jslix.types = {};
@@ -99,7 +99,7 @@
                 var jid = new jslix.JID(value);
                 return jid;
             } catch(e) {
-                if (e instanceof JIDObjectInvalidException) {
+                if (e instanceof JIDInvalidException) {
                     throw new ElementParseError('Invalid JID');
                 } else {
                     throw(e);

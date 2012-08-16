@@ -100,13 +100,13 @@
 
 	JID.prototype.clone = function()
 	{
-  	   return new jidObject(this.toString());
+  	   return new JID(this.toString());
 	};
 
 	JID.prototype.isEntity = function(jid)
 	{
 	   if (typeof jid == 'string')
-	       jid = (new jidObject(jid));
+	       jid = (new JID(jid));
 
 	   jid.removeResource();
 
@@ -120,16 +120,16 @@
 
 	    for (var i=0; i< JID_FORBIDDEN.length; i++)
 	      if (nodeprep.indexOf(JID_FORBIDDEN[i]) != -1) 
-		  throw new JIDObjectInvalidException("forbidden char in nodename: " + JID_FORBIDDEN[i]);
+		  throw new JIDInvalidException("forbidden char in nodename: " + JID_FORBIDDEN[i]);
 	};
 
-        var JIDObjectInvalidException = function(message)
+        var JIDInvalidException = function(message)
         {
   	    this.message = message;
-	    this.name = "JIDObjectInvalidException";
+	    this.name = "JIDInvalidException";
         };
   
 
       jslix.JID = JID;
-      jslix.exceptions.JIDObjectInvalidException = JIDObjectInvalidException;
+      jslix.exceptions.JIDInvalidException = JIDInvalidException;
 })(window);
