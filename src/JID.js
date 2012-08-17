@@ -124,27 +124,28 @@
 	   return (this.clone().removeResource().toString() === jid.toString());
 	};
 
-	JID.prototype.escape = function()
+	JID.escape = function(node, domain, resource)
 	{
 	     var escapeNode = '';
 
-	     for (var i = 0; i < this._node.length; ++i)
-		if (JID_FORBIDDEN.indexOf(this._node[i]) != -1)
-			escapeNode += '\\' + codesForEscape[this._node[i]];
+	     for (var i = 0; i < node.length; ++i)
+		if (JID_FORBIDDEN.indexOf(node[i]) != -1)
+			escapeNode += '\\' + codesForEscape[node[i]];
 		else
-			escapeNode += this._node[i];
+			escapeNode += node[i];
 
 		var jid = new JID({ node: escapeNode,
-				    domain: this.getDomain(),
-				    resource: this.getResource()
+				    domain: domain,
+				    resource: resource
 				});
-		return jid;
+	    return jid;
 	};
 
-	JID.prototype.unescape = function(node, domain, resource)
+	JID.prototype.unescape = function()
 	{
 		var resultJID = '';
 		var i = 0;
+		var node = this.getNode();
 
 		while (i < node.length)
 		{
@@ -180,10 +181,10 @@
 		   i++;
 		}
 
-		resultJID += '@' + domain;
-		resultJID += '/' + resource;
+	    resultJID += '@' + this.getDomain();
+	    resultJID += '/' + this.getResource();
 
-		return resultJID;
+	    return resultJID;
 	};
 
 	JID._checkNodeName = function(nodeprep)

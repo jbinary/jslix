@@ -1,5 +1,7 @@
 JIDTest = TestCase("JIDTest");
 
+var badStrings = ["\\2plus\\2is\\4", "foo\\bar", "foob\\41r"];
+
 JIDTest.prototype.testJIDBasic = function()
 {
 	var jid = new jslix.JID("ruutu@finland/keys");
@@ -39,52 +41,24 @@ JIDTest.prototype.testThrowedException = function()
 
 JIDTest.prototype.testEscapeCorrect = function()
 {
-	var jid = new jslix.JID("ruutu@finland/keys");
-
-	jid._node = "r:@u&tu";
-
-	var escapedJID = jid.escape();
+	var escapedJID = jslix.JID.escape("r:@u&tu", "finland", "keys");
 
 	assertEquals(escapedJID.getNode(), "r\\3a\\40u\\26tu");
 
-	var unescapedJID = escapedJID.unescape("r\\3a\\40u\\26tu", escapedJID.getDomain(), escapedJID.getResource());
+	var unescapedJID = escapedJID.unescape();
 
 	assertEquals(unescapedJID, "r:@u&tu@finland/keys");
 };
 
 JIDTest.prototype.testUnescapeExceptions = function()
 {
-	var jid = new jslix.JID("ruutu@finland/keys");
 
-	jid._node = "r:@u&tu";
-
-	var escapedJID = jid.escape();
-
-	escapedJID._node = "r\\3a\\40@u\\26tu";
-
-	assertException(function(){
-				   var unescapedJID = escapedJID.unescape("r\\3a\\40@u\\26tu", 
-									  escapedJID.getDomain(), 
-									  escapedJID.getResource());
-				  }, jslix.JIDInvalidException);
-
-	assertException(function(){
-				   var unescapedJID = escapedJID.unescape("r\\20\\40u\\26tu\\2", 
-									  escapedJID.getDomain(), 
-									  escapedJID.getResource());
-				  }, jslix.JIDInvalidException);
-
-	
-	assertException(function(){
-				   var unescapedJID = escapedJID.unescape("\\20r\\3a\\40u\\26tu", 
-									  escapedJID.getDomain(), 
-									  escapedJID.getResource());
-				  }, jslix.JIDInvalidException);
-
-	assertException(function(){
-				   var unescapedJID = escapedJID.unescape("r\\39\\40u\\26tu", 
-									  escapedJID.getDomain(), 
-									  escapedJID.getResource());
-				  }, jslix.JIDInvalidException);
+	for (var i = 0; i < badStrings.length; ++i)
+	{
+		assertException(function(){
+						var escapedJID = jslix.JID.escape(badStrings[i], "what", "is");
+						var unescapedJID = escapedJID.unescape();
+					   }, jslix.JIDInvalidException);
+	}
 };
 
