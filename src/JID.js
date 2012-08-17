@@ -153,7 +153,7 @@
 
 		   if (node[i] == '\\')
 		   {
-		       if (i > node.length - 2)
+		       if (i > node.length - 3)
 			  throw new JIDInvalidException("wrong escape message: " + node[i]);
 
 		       var code = node[i + 1] + node[i + 2];
