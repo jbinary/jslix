@@ -67,7 +67,7 @@ JIDTest.prototype.testThrowedException = function()
 
 JIDTest.prototype.testEscapeCorrect = function()
 {
-	for (var i = 8; i < goodNodes.length; ++i)
+	for (var i = 0; i < goodNodes.length; ++i)
 	{
 		assertNoException(function(){
 					       var escapedJID = jslix.JID.escape(goodNodes[i], "example.com");
