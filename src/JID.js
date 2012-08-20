@@ -130,9 +130,29 @@
 
 	     for (var i = 0; i < node.length; ++i)
 		if (JID_FORBIDDEN.indexOf(node[i]) != -1)
-			escapeNode += '\\' + codesForEscape[node[i]];
+			escapeNode += '\\' + codesForEscape[node[i]];		
 		else
-			escapeNode += node[i];
+		{
+			var isSituation = false;
+
+			//if situation like c:\5ccommon
+			if (i < node.length - 2 && node[i] == '\\')
+			{
+				var code = node[i + 1] + node[i + 2];
+
+				for (var key in codesForEscape)
+				{
+					if (codesForEscape[key] == code)
+					{
+						escapeNode += '\\' + codesForEscape[key];
+						isSituation = true;
+						break;
+					}
+				}
+			}
+
+			if (!isSituation)  escapeNode += node[i];
+		}
 
 		var jid = new JID({ node: escapeNode,
 				    domain: domain,
@@ -154,11 +174,9 @@
 
 		   if (node[i] == '\\')
 		   {
-		       if (i > node.length - 3)
-			  throw new JIDInvalidException("wrong escape message: " + node[i]);
-
 		       var code = node[i + 1] + node[i + 2];
-		       var isWrong = true;
+
+		       var isJustBackSlash = true;
 
 		       for (var key in codesForEscape)
 			 if (codesForEscape[key] == code)
@@ -168,12 +186,12 @@
 
 			    resultJID += key;
 			    i += 2;
-			    isWrong = false;
+			    isJustBackSlash = false;
 			    break;
 			 }
 
-			if (isWrong)
-			   throw new JIDInvalidException("wrong escape message: no allowed symbols");
+			if (isJustBackSlash) resultJID += node[i];
+
 		   }
 		   else
 		      resultJID += node[i];
@@ -182,7 +200,9 @@
 		}
 
 	    resultJID += '@' + this.getDomain();
-	    resultJID += '/' + this.getResource();
+
+	    if (this.getResource() && this.getResource() != '')
+	    	resultJID += '/' + this.getResource();
 
 	    return resultJID;
 	};
