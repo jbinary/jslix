@@ -70,7 +70,8 @@ JIDTest.prototype.testEscapeCorrect = function()
 	for (var i = 0; i < goodNodes.length; ++i)
 	{
 		assertNoException(function(){
-					       var escapedJID = jslix.JID.escape(goodNodes[i], "example.com");
+					       var jidForEscape = new jslix.JID("test", "test");
+					       var escapedJID = jidForEscape.escape(goodNodes[i], "example.com");
 					       assertEquals(escapedJID.toString(), escapedGoodJIDs[i]);
 
 					       var unescapedJID = escapedJID.unescape();
@@ -86,10 +87,11 @@ JIDTest.prototype.testUnescapeExceptions = function()
 	for (var i = 0; i < badStrings.length; ++i)
 	{
 		assertException(function(){
-						var escapedJID = jslix.JID.escape("ruutu", "what", "is");
+						var escapedJID = new jslix.JID("test", "test");
 						escapedJID.setNode(badStrings[i]);
 						var unescapedJID = escapedJID.unescape();
 					   }, jslix.JIDInvalidException);
 	}
 };
+
 
