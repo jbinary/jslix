@@ -18,6 +18,13 @@
 	    '\\' : '5c'
        }
 
+   var codesForUnescape = {};
+
+   (function(){
+		for (var key in codesForEscape)
+		  codesForUnescape[codesForEscape[key]] = key;
+		})();
+
     var JID = function(jid)
     {
         this._node = '';
@@ -125,17 +132,6 @@
         return (this.clone().removeResource().toString() === jid.toString());
     };
 
-    JID._keyCode = function(code)
-    {
-	for (var key in codesForEscape)
-        {
-	  if (codesForEscape[key] == code)
-		return key;
-        }
-
-	return "none";
-    };
-
     JID.prototype.escape = function(node, domain, resource)
     {
         var escapeNode = '';
@@ -149,9 +145,9 @@
 	    if (i < node.length - 2 && node[i] == '\\')
 	    {
 	       var code = node.slice(i + 1, i + 3);
-	       var key = JID._keyCode(code);
+	       var key = codesForUnescape[code];
 
-	       if (key != "none")
+	       if (key)
 	       {
 		     escapeNode += '\\' + codesForEscape[key];
 	       }
@@ -184,9 +180,9 @@
 	  if (node[i] == '\\')
 	  {
 	     var code = node.slice(i + 1, i + 3);
-	     var key = JID._keyCode(code);
+	     var key = codesForUnescape[code];
 
-	     if (key != "none")
+	     if (key)
 	     {
 	       if (key == ' ' && (i == 0 || i == node.length - 3))
 		 throw new JIDInvalidException("wrong unescape: space at the beginning or at the end");
