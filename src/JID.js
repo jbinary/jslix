@@ -18,12 +18,10 @@
 	    '\\' : '5c'
        }
 
-   var codesForUnescape = {};
+    var codesForUnescape = {};
 
-   (function(){
-		for (var key in codesForEscape)
-		  codesForUnescape[codesForEscape[key]] = key;
-		})();
+    for (var key in codesForEscape)
+      codesForUnescape[codesForEscape[key]] = key;
 
     var JID = function(jid)
     {
