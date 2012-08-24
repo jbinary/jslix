@@ -14,23 +14,23 @@
 
         _os = jslix.version._defineOs();
         
-        this.setName = function(name){
+        jslix.version.prototype.setName = function(name){
             _name = name;
         }
 
-        this.getName = function(){
+        jslix.version.prototype.getName = function(){
             return _name;
         }
 
-        this.setVersion = function(version){
+        jslix.version.prototype.setVersion = function(version){
             _version = version;
         }
 
-        this.getVersion = function(){
+        jslix.version.prototype.getVersion = function(){
             return _version;
         }
 
-        this.getOs = function(){
+        jslix.version.prototype.getOs = function(){
             return _os;
         }
 
