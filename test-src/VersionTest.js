@@ -38,3 +38,14 @@ VersionTest.prototype.testGet = function(){
     assertTrue(requestId in jslix.dispatcher.deferreds);
 
 };
+
+VersionTest.prototype.testEqualityNames = function(){
+    var version1 = new jslix.version(jslix.dispatcher);
+    var version2 = new jslix.version(jslix.dispatcher);
+
+    version1.setName('v1');
+    version2.setName('v2');
+
+    assertEquals(version1.getName(), 'v1');
+    assertEquals(version2.getName(), 'v2');
+};

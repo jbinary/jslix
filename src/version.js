@@ -6,35 +6,35 @@
     var NS = 'jabber:iq:version';
 
     jslix.version = function(dispatcher) {
-        var _name = '';
-        var _version = '';
-        var _os = '';
+        this._name = '';
+        this._version = '';
+        this._os = '';
 
         this._dispatcher = dispatcher;
 
-        _os = jslix.version._defineOs();
-        
-        jslix.version.prototype.setName = function(name){
-            _name = name;
-        }
-
-        jslix.version.prototype.getName = function(){
-            return _name;
-        }
-
-        jslix.version.prototype.setVersion = function(version){
-            _version = version;
-        }
-
-        jslix.version.prototype.getVersion = function(){
-            return _version;
-        }
-
-        jslix.version.prototype.getOs = function(){
-            return _os;
-        }
+        this._os = jslix.version._defineOs();
 
     };
+
+    jslix.version.prototype.setName = function(name){
+        this._name = name;
+    }
+
+    jslix.version.prototype.getName = function(){
+        return this._name;
+    }
+
+    jslix.version.prototype.setVersion = function(version){
+        this._version = version;
+    }
+
+    jslix.version.prototype.getVersion = function(){
+        return this._version;
+    }
+
+    jslix.version.prototype.getOs = function(){
+        return this._os;
+    }
 
     jslix.version._defineOs = function(){
         var type = '';
