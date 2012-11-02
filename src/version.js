@@ -80,7 +80,7 @@
         this.setName(name);
         this.setVersion(version);
 
-        if (this._dispatcher) this._dispatcher.addHandler(jslix.version.stanzas.request, jslix.version);
+        if (this._dispatcher) this._dispatcher.addHandler(jslix.version.stanzas.request, this);
     };
 
     jslix.version.stanzas = {
