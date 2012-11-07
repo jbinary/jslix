@@ -163,7 +163,7 @@
         var value = [];
         for (var i=0; i<el.childNodes.length; i++) {
             var node = el.childNodes[i];
-            if ((this.name === undefined || node.nodeName == this.name) && 
+            if ((this.name === undefined || node.localName == this.name) && 
                  xmlns == node.namespaceURI) value[value.length] = node;
         }
         if (!this.listed) return value[0] || null;
@@ -378,7 +378,7 @@
     jslix._parse = function(el, definition) {
         if (el.nodeName == '#document') el = el.childNodes[0];
         if ((definition.element_name &&
-             el.nodeName != definition.element_name) || 
+             el.localName != definition.element_name) || 
             definition.xmlns != el.namespaceURI) {
             throw new WrongElement();
         }
@@ -607,7 +607,7 @@
         {
             'get_from_el': function(el) {
                 var value = fields.Node.prototype.get_from_el.call(this, el);
-                return value.nodeName;
+                return value.localName;
             },
             'put_to_el': function(el, value) {
                 value = document.createElementNS(this.xmlns, value);
