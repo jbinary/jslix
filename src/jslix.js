@@ -222,17 +222,23 @@
     // Node fields
     fields.StringNode = Class(
         fields.Node,
-        function(name, required, listed, uri) {
+        function(name, required, listed, uri, self) {
             fields.Node.call(this, name, uri, required, listed);
             this.type = types.StringType;
+            this.self = self;
         },
         {
             put_to_el: function(stanza, value) {
                 var xmlns = this.xmlns || stanza.namespaceURI;
-                var node = document.createElementNS(xmlns, this.name);
+                if (this.self) {
+                    var node = stanza;
+                } else {
+                    var node = document.createElementNS(xmlns, this.name);
+                }
                 var text_node = document.createTextNode(value);
                 node.appendChild(text_node);
-                stanza.appendChild(node);
+                if (!this.self)
+                    stanza.appendChild(node);
             },
             get_from_el: function(el) {
                 var extract = function(value) {
@@ -245,7 +251,11 @@
                         throw new ElementParseError("Wrong node type when TextNode parsing");
                     return value;
                 }
-                var values = fields.Node.prototype.get_from_el.call(this, el);
+                if (!this.self) {
+                    var values = fields.Node.prototype.get_from_el.call(this, el);
+                } else {
+                    var values = [el];
+                }
                 if (!values) return values;
                 if (this.listed)
                     for (var i=0; i<values.length; i++) {
@@ -502,7 +512,6 @@
             }
         }
     }
-
 
     jslix.stanzas.stanza = 
         jslix.Element({
