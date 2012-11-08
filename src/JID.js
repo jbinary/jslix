@@ -66,6 +66,10 @@
 	return this._domain; 
     };
 
+    JID.prototype.getBareJID = function(){
+        return this._node + '@' + this._domain;
+    }
+
     JID.prototype.getResource = function() 
     { 
 	return this._resource; 
