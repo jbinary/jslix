@@ -3,13 +3,31 @@
     jslix.dispatcher = function(myjid) {
         this.myjid = myjid;
         this.handlers = [];
+        this.top_handlers = [];
     }
     var dispatcher = jslix.dispatcher;
     dispatcher.prototype.addHandler = function(handler, host) {
         this.handlers[this.handlers.length] = [handler, host];
         this.deferreds = {};
     }
+    dispatcher.prototype.addTopHandler = function(top_handler, host){
+        this.top_handlers[this.top_handlers.length] = [top_handler, host];
+    }
     dispatcher.prototype.dispatch = function(el) {
+        for (var i=0; i<this.top_handlers.length; i++) {
+            try {
+                var top = jslix.parse(el, this.top_handlers[i][0]);
+                var host = this.top_handlers[i][1];
+                break;
+            } catch (e) {}
+        }
+        if (top) {
+            var func = top.handler;
+            var result = func.call(host, top);
+            this.send(result);
+            return;
+        }
+
         var tops = [jslix.stanzas.iq, jslix.stanzas.presence,
                     jslix.stanzas.message];
         for (var i=0; i<tops.length; i++) {
