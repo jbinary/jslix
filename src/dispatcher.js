@@ -4,11 +4,11 @@
         this.myjid = myjid;
         this.handlers = [];
         this.top_handlers = [];
+        this.deferreds = {};
     }
     var dispatcher = jslix.dispatcher;
     dispatcher.prototype.addHandler = function(handler, host) {
         this.handlers[this.handlers.length] = [handler, host];
-        this.deferreds = {};
     }
     dispatcher.prototype.addTopHandler = function(top_handler, host){
         this.top_handlers[this.top_handlers.length] = [top_handler, host];
