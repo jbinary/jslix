@@ -261,7 +261,7 @@
                     for (var i=0; i<values.length; i++) {
                         values[i] = extract(values[i]);
                     }
-                else values = extract(values);
+                else values = extract(values[values.length-1]);
                 return values;
             }
         }
