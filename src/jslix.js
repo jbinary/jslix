@@ -597,7 +597,7 @@
         });
 
     // Definition of error stanza
-    fields.ErrorConditionNode = Class(
+    fields.ConditionNode = Class(
         fields.Node,
         function() {
             var uri = 'urn:ietf:params:xml:ns:xmpp-stanzas';
@@ -621,7 +621,7 @@
             xmlns: STANZAS_NS,
             element_name: 'error',
             type: new fields.StringAttr('type', true),
-            condition: new fields.ErrorConditionNode(),
+            condition: new fields.ConditionNode(),
             text: new fields.StringNode('text', false, false,
                                     'urn:ietf:params:xml:ns:xmpp-stanzas'),
             // Validators
