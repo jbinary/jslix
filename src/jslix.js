@@ -253,15 +253,16 @@
                 }
                 if (!this.self) {
                     var values = fields.Node.prototype.get_from_el.call(this, el);
-                } else {
+                } else if(this.listed){
                     var values = [el];
-                }
+                }else
+                    var values = el;
                 if (!values) return values;
                 if (this.listed)
                     for (var i=0; i<values.length; i++) {
                         values[i] = extract(values[i]);
                     }
-                else values = extract(values[values.length-1]);
+                else values = extract(values);
                 return values;
             }
         }
