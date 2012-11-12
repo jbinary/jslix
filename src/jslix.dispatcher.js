@@ -143,15 +143,13 @@
         for (var i=0; i<els.length; i++) {
             var el = els[i];
             var top = el.getTop();
-            var packet = new window.JSJaCPacket(top.__definition__.element_name);
             if (top.__definition__.element_name == 'iq' && 
                 ['get', 'set'].indexOf(top.type) != -1) {
                 d = new $.Deferred();
                 this.deferreds[top.id] = [d, el];
                 // TODO: implement timeouts
             }
-            packet.doc = jslix.build(top);
-            window.con.send(packet);
+            this.connection.sendRaw(jslix.build(top));
         }
         return d;
     }
