@@ -1,7 +1,7 @@
 (function(window) {
     var jslix = window.jslix;
-    jslix.dispatcher = function(myjid) {
-        this.myjid = myjid;
+    jslix.dispatcher = function(connection) {
+        this.connection = connection;
         this.handlers = [];
         this.top_handlers = [];
         this.deferreds = {};
