@@ -6,16 +6,16 @@
     var JID_FORBIDDEN = ['"',' ','&','\'','/',':','<','>','@'];
 
     var codesForEscape = {
-	    ' ' : '20',
-	    '"' : '22',
-	    '&' : '26',
-	    '\'' : '27',
-	    '/' : '2f',
-	    ':' : '3a',
-	    '<' : '3c',
-	    '>' : '3e',
-	    '@' : '40',
-	    '\\' : '5c'
+        ' ' : '20',
+        '"' : '22',
+        '&' : '26',
+        '\'' : '27',
+        '/' : '2f',
+        ':' : '3a',
+        '<' : '3c',
+        '>' : '3e',
+        '@' : '40',
+        '\\' : '5c'
        }
 
     var codesForUnescape = {};
@@ -35,8 +35,8 @@
         {
            if (jid.indexOf('@') != -1)
            {
-	      this.setNode(jid.substring(0, jid.indexOf('@')));
-	      jid = jid.substring(jid.indexOf('@') + 1);
+          this.setNode(jid.substring(0, jid.indexOf('@')));
+          jid = jid.substring(jid.indexOf('@') + 1);
            }
 
           if (jid.indexOf('/') != -1) 
@@ -58,12 +58,12 @@
 
     JID.prototype.getNode = function() 
     {
-	 return this._node; 
+     return this._node; 
     };
 
     JID.prototype.getDomain = function() 
     {
-	return this._domain; 
+    return this._domain; 
     };
 
     JID.prototype.getBareJID = function(){
@@ -72,7 +72,7 @@
 
     JID.prototype.getResource = function() 
     { 
-	return this._resource; 
+    return this._resource; 
     };
 
     JID.prototype.setNode = function(node)
@@ -86,7 +86,7 @@
     JID.prototype.setDomain = function(domain)
     {
         if (!domain || domain == '')
-   	  throw new JIDInvalidException("domain name missing");
+         throw new JIDInvalidException("domain name missing");
 
         JID._checkNodeName(domain);
         this._domain = domain;
@@ -139,73 +139,73 @@
         var escapeNode = '';
 
         for (var i = 0; i < node.length; ++i)
-	  if (JID_FORBIDDEN.indexOf(node[i]) != -1)
-	    escapeNode += '\\' + codesForEscape[node[i]];		
-	  else
-	  {
-	    //if situation like c:\5ccommon
-	    if (i < node.length - 2 && node[i] == '\\')
-	    {
-	       var code = node.slice(i + 1, i + 3);
-	       var key = codesForUnescape[code];
+      if (JID_FORBIDDEN.indexOf(node[i]) != -1)
+        escapeNode += '\\' + codesForEscape[node[i]];        
+      else
+      {
+        //if situation like c:\5ccommon
+        if (i < node.length - 2 && node[i] == '\\')
+        {
+           var code = node.slice(i + 1, i + 3);
+           var key = codesForUnescape[code];
 
-	       if (key)
-	       {
-		     escapeNode += '\\' + codesForEscape[key];
-	       }
-	       else
-		 escapeNode += node[i];
-	      
-	    }
-	    else
-	      escapeNode += node[i];
-	  }
+           if (key)
+           {
+             escapeNode += '\\' + codesForEscape[key];
+           }
+           else
+         escapeNode += node[i];
+          
+        }
+        else
+          escapeNode += node[i];
+      }
 
-	var jid = new JID({ node: escapeNode,
-			    domain: domain,
-			    resource: resource
-			});
+    var jid = new JID({ node: escapeNode,
+                domain: domain,
+                resource: resource
+            });
         return jid;
     };
 
     JID.prototype.unescape = function()
     {
-	var resultJID = '';
-	var i = 0;
-	var node = this.getNode();
+    var resultJID = '';
+    var i = 0;
+    var node = this.getNode();
 
-	while (i < node.length)
-	{
-	  if (JID_FORBIDDEN.indexOf(node[i]) != -1 && node[i] != '\\')
-	    throw new JIDInvalidException("forbidden char in escape nodename: " + JID_FORBIDDEN[i]);
+    while (i < node.length)
+    {
+      if (JID_FORBIDDEN.indexOf(node[i]) != -1 && node[i] != '\\')
+        throw new JIDInvalidException("forbidden char in escape nodename: " + JID_FORBIDDEN[i]);
 
-	  if (node[i] == '\\')
-	  {
-	     var code = node.slice(i + 1, i + 3);
-	     var key = codesForUnescape[code];
+      if (node[i] == '\\')
+      {
+         var code = node.slice(i + 1, i + 3);
+         var key = codesForUnescape[code];
 
-	     if (key)
-	     {
-	       if (key == ' ' && (i == 0 || i == node.length - 3))
-		 throw new JIDInvalidException("wrong unescape: space at the beginning or at the end");
+         if (key)
+         {
+           if (key == ' ' && (i == 0 || i == node.length - 3))
+         throw new JIDInvalidException("wrong unescape: space at the beginning or at the end");
 
-	       resultJID += key;
-	       i += 2;
-	     }
-	     else
-	       resultJID += node[i];
+           resultJID += key;
+           i += 2;
+         }
+         else
+           resultJID += node[i];
 
-	   }
-	   else
-	     resultJID += node[i];
+       }
+       else
+         resultJID += node[i];
 
-	   i++;
-	 }
+       i++;
+     }
 
         resultJID += '@' + this.getDomain();
 
         if (this.getResource() && this.getResource() != '')
-    	  resultJID += '/' + this.getResource();
+          resultJID += '/' + this.getResource();
 
         return resultJID;
     };
@@ -217,7 +217,7 @@
 
         for (var i=0; i< JID_FORBIDDEN.length; i++)
           if (nodeprep.indexOf(JID_FORBIDDEN[i]) != -1)
-	    throw new JIDInvalidException("forbidden char in nodename: " + JID_FORBIDDEN[i]);
+        throw new JIDInvalidException("forbidden char in nodename: " + JID_FORBIDDEN[i]);
     };
 
     var JIDInvalidException = function(message)

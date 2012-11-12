@@ -23,13 +23,13 @@ VersionTest.prototype.testGet = function(){
     var requestId;
 
     var dummyFunction = { send: function(packet)
-				    {
+                    {
                         var parsedStanza = jslix.parse(packet.doc, jslix.version.stanzas.response);
                         requestId = parsedStanza.parent.id;
-				    }
-			    }
+                    }
+                }
 
-	window.con = dummyFunction;
+    window.con = dummyFunction;
 
     assertNoException(function(){
                             version.get(jid);

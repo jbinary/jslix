@@ -195,7 +195,7 @@
     fields.StringAttr = Class(
         fields.Attr,
         function(name, required) {
-        	
+            
             fields.Attr.call(this, name, required);
             //objAttr.prototype = this.prototype;
 
@@ -287,9 +287,9 @@
                 return values
             },
             put_to_el: function(stanza, values) {
-            	if(!stanza.__definition__) {
-            		values = this.definition.create(values);
-            	}
+                if(!stanza.__definition__) {
+                    values = this.definition.create(values);
+                }
                 var prepared = jslix.build(values, true);
                 stanza.appendChild(prepared);
             }
@@ -313,7 +313,7 @@
     );
 
     jslix.createStanza = function(definition) {
-	var retObj = 
+    var retObj = 
         {
             '__definition__': definition,
             '__links__': [],
@@ -333,15 +333,15 @@
             }
         };
 
-	for (var key in definition)
-	{
-	    var f = definition[key];
+    for (var key in definition)
+    {
+        var f = definition[key];
 
-	    if (typeof(f) == 'function') {
+        if (typeof(f) == 'function') {
                 retObj[key] = f;
             }
-	}
-	return retObj;
+    }
+    return retObj;
     };
 
     jslix.parse = function(el, definition, path) {
@@ -506,7 +506,7 @@
                 var error = eclass.create(params);
                 return error;
             },
-	    makeResult : function(params) {
+        makeResult : function(params) {
                 params.parent = this.getTop().makeReply();
                 return this.__definition__.result_class.create(params);
             }
