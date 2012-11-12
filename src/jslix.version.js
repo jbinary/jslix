@@ -3,7 +3,6 @@
 
     var jslix = window.jslix;
     var fields = jslix.fields;
-    var NS = 'jabber:iq:version';
 
     jslix.version = function(dispatcher) {
         this._name = '';
@@ -15,6 +14,10 @@
         this._os = jslix.version._defineOs();
 
     };
+
+    jslix.version.NS_VERSION = 'jabber:iq:version';
+
+    jslix.version.stanzas = {};
 
     jslix.version.prototype.setName = function(name){
         this._name = name;
@@ -83,21 +86,18 @@
         if (this._dispatcher) this._dispatcher.addHandler(jslix.version.stanzas.request, this);
     };
 
-    jslix.version.stanzas = {
-            response: jslix.Element({
-                //Definition
-                xmlns: NS,
-                //Fields
-                name: new fields.StringNode('name', true),
-                version: new fields.StringNode('version', true),
-                os: new fields.StringNode('os')
-            }, [jslix.stanzas.query])
-   
-    };
+    jslix.version.stanzas.response = jslix.Element({
+        //Definition
+        xmlns: jslix.version.NS_VERSION,
+        //Fields
+        name: new fields.StringNode('name', true),
+        version: new fields.StringNode('version', true),
+        os: new fields.StringNode('os')
+    }, [jslix.stanzas.query]);
 
     jslix.version.stanzas.request = jslix.Element({
         //Definition
-        xmlns: NS,
+        xmlns: jslix.version.NS_VERSION,
         //Handlers
         result_class: jslix.version.stanzas.response,
         getHandler: function(query, top) {
