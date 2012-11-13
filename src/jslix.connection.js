@@ -6,13 +6,24 @@
         this.jid = new jslix.JID(jid);
         this.password = password;
         this._connection = window.con;
+        if(!this.jid.getResource())
+            this.jid.setResource('default');
     }
 
     jslix.connection.prototype.reInitStream = function(){
         if(!this._connection)
             return false;
-        return this._connection._reInitStream(JSJaC.bind(
-            this._connection._doStreamBind, this._connection));
+        var connection = this;
+        return this._connection._reInitStream(function(){
+            var iq = jslix.stanzas.iq.create({
+                id: 'bind_1',
+                type: 'set'
+            });
+            iq.link(jslix.bind.stanzas.request.create({
+                resource: connection.jid.getResource()
+            }));
+            connection.sendRaw(jslix.build(iq.getTop()));
+        });
     }
 
     jslix.connection.prototype.sendRaw = function(doc){
