@@ -16,13 +16,12 @@
         var connection = this;
         return this._connection._reInitStream(function(){
             var iq = jslix.stanzas.iq.create({
-                id: 'bind_1',
-                type: 'set'
+                type: 'set',
+                link: jslix.bind.stanzas.request.create({
+                    resource: connection.jid.getResource()
+                })
             });
-            iq.link(jslix.bind.stanzas.request.create({
-                resource: connection.jid.getResource()
-            }));
-            connection.sendRaw(jslix.build(iq.getTop()));
+            connection.sendRaw(jslix.build(iq));
         });
     }
 
