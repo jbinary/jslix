@@ -2,9 +2,10 @@
     
     var jslix = window.jslix;
 
+    if(jslix.sasl === undefined)
+        throw Error('Load sasl plugin first.');
+
     jslix.sasl.mechanisms['PLAIN'] = function(dispatcher){
-        if(jslix.sasl === undefined)
-            throw Error('Load sasl plugin first.');
         this._dispatcher = dispatcher;
     };
 

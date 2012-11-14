@@ -2,9 +2,10 @@
 
     var jslix = window.jslix;
 
+    if(jslix.sasl === undefined)
+        throw Error('Load sasl plugin first.');
+
     jslix.sasl.mechanisms['DIGEST-MD5']= function(dispatcher){
-        if(jslix.sasl === undefined)
-            throw Error('Load sasl plugin first.');
         this._dispatcher = dispatcher;
         this._challenge = {};
         this._dispatcher.addTopHandler(jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge, this);
