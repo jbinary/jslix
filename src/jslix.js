@@ -425,8 +425,8 @@
                                                obj.__definition__.element_name)
             var stanza = doc;
         } else {
-            var doc = window.XmlDocument.create(obj.__definition__.element_name,
-                                                obj.__definition__.xmlns);
+            var doc = document.implementation.createDocument(
+                obj.__definition__.xmlns, obj.__definition__.element_name, null);
             var stanza = doc.childNodes[0];
         }
         function put(value) {
