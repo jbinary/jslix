@@ -10,8 +10,9 @@
     };
 
     jslix.sasl.mechanisms['PLAIN'].prototype.getPlainMessage = function(){
-        // TODO: Replace with CryptoJS
-        return b64encode(this._dispatcher.connection.jid.getBareJID() + '\0' + this._dispatcher.connection.jid.getNode() + '\0' + this._dispatcher.connection.password);
+        return CryptoJS.enc.Base64.stringify(
+            CryptoJS.enc.Latin1.parse(
+                this._dispatcher.connection.jid.getBareJID() + '\0' + this._dispatcher.connection.jid.getNode() + '\0' + this._dispatcher.connection.password));
     }
 
     jslix.sasl.mechanisms['PLAIN'].prototype.auth = function(){

@@ -9,6 +9,15 @@
         this._dispatcher.addTopHandler(jslix.sasl.stanzas.success, this);
     }
 
+    jslix.sasl.generate_random_string = function(length){
+        var tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+            result = '';
+          for (var i=0; i<length; i++)
+            result += tab.charAt(Math.round(Math.random(
+                new Date().getTime())*(tab.length-1)));
+        return result;
+    }
+
     jslix.sasl.NS_SASL = 'urn:ietf:params:xml:ns:xmpp-sasl';
 
     jslix.sasl.stanzas = {};
