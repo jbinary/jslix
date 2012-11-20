@@ -14,6 +14,11 @@
         this.top_handlers[this.top_handlers.length] = [top_handler, host];
     }
     dispatcher.prototype.dispatch = function(el) {
+        if(el.nodeName != '#document'){
+            var doc = document.implementation.createDocument(null, null, null);
+            doc.appendChild(el);
+            el = doc;
+        }
         for (var i=0; i<this.top_handlers.length; i++) {
             try {
                 var top = jslix.parse(el, this.top_handlers[i][0]);
@@ -24,7 +29,8 @@
         if (top) {
             var func = top.handler;
             var result = func.call(host, top);
-            this.send(result);
+            if(result)
+                this.send(result);
             return;
         }
 
@@ -149,7 +155,7 @@
                 this.deferreds[top.id] = [d, el];
                 // TODO: implement timeouts
             }
-            this.connection.sendRaw(jslix.build(top));
+            this.connection.send(jslix.build(top));
         }
         return d;
     }
