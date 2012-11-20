@@ -1,7 +1,5 @@
-"debugger";
 "use strict";
 (function(window) {
-    var STANZAS_NS = 'jabber:client';
     var jslix = {
         Element: function(object, bases) {
             bases = bases || [jslix.stanzas.base_stanza];
@@ -33,6 +31,9 @@
             return constructor;
         }
     }
+
+    jslix.STANZAS_NS = 'jabber:client';
+
     var Class = jslix.Class;
 
     // Exceptions
@@ -516,7 +517,7 @@
 
     jslix.stanzas.stanza = 
         jslix.Element({
-            xmlns: STANZAS_NS,
+            xmlns: jslix.STANZAS_NS,
             to: new fields.JIDAttr('to', false),
             from: new fields.JIDAttr('from', false),
             id: new fields.StringAttr('id', false),
@@ -619,7 +620,7 @@
     jslix.stanzas.error =
         jslix.Element({
             parent_element: jslix.stanzas.stanza,
-            xmlns: STANZAS_NS,
+            xmlns: jslix.STANZAS_NS,
             element_name: 'error',
             type: new fields.StringAttr('type', true),
             condition: new fields.ConditionNode(),
