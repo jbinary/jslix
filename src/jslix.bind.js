@@ -7,12 +7,12 @@
         this._dispatcher.addTopHandler(jslix.bind.stanzas.response, this);
     }
 
-    jslix.bind.NS_BIND = 'urn:ietf:params:xml:ns:xmpp-bind';
+    jslix.bind.BIND_NS = 'urn:ietf:params:xml:ns:xmpp-bind';
 
     jslix.bind.stanzas = {};
 
     jslix.bind.stanzas.base = jslix.Element({
-        xmlns: jslix.bind.NS_BIND,
+        xmlns: jslix.bind.BIND_NS,
         element_name: 'bind',
         parent_element: jslix.stanzas.iq
     });

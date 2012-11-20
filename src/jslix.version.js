@@ -15,7 +15,7 @@
 
     };
 
-    jslix.version.NS_VERSION = 'jabber:iq:version';
+    jslix.version.VERSION_NS = 'jabber:iq:version';
 
     jslix.version.stanzas = {};
 
@@ -88,7 +88,7 @@
 
     jslix.version.stanzas.response = jslix.Element({
         //Definition
-        xmlns: jslix.version.NS_VERSION,
+        xmlns: jslix.version.VERSION_NS,
         //Fields
         name: new fields.StringNode('name', true),
         version: new fields.StringNode('version', true),
@@ -97,7 +97,7 @@
 
     jslix.version.stanzas.request = jslix.Element({
         //Definition
-        xmlns: jslix.version.NS_VERSION,
+        xmlns: jslix.version.VERSION_NS,
         //Handlers
         result_class: jslix.version.stanzas.response,
         getHandler: function(query, top) {
