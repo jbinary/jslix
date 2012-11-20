@@ -404,7 +404,7 @@
                 }
 
                 var validator = definition['clean_' + key];
-                if (validator !== undefined && value) {
+                if (validator !== undefined && f.required) {
                     value = validator.call(definition, value);
                 } // TODO: final validator?
 
