@@ -4,6 +4,7 @@
 
     jslix.bind = function(dispatcher){
         this._dispatcher = dispatcher;
+        this._dispatcher.addTopHandler(jslix.bind.stanzas.restart_result, this);
         this._dispatcher.addTopHandler(jslix.bind.stanzas.response, this);
     }
 
@@ -14,17 +15,30 @@
     jslix.bind.stanzas.base = jslix.Element({
         xmlns: jslix.bind.BIND_NS,
         element_name: 'bind',
-        parent_element: jslix.stanzas.iq
     });
 
+    jslix.bind.stanzas.restart_result = jslix.Element({
+        parent_element: jslix.stanzas.features,
+        handler: function(top){
+            return jslix.stanzas.iq.create({
+                type: 'set',
+                link: jslix.bind.stanzas.request.create({
+                    resource: this._dispatcher.connection.jid.getResource()
+                })
+            });
+        }
+    }, [jslix.bind.stanzas.base]);
+
     jslix.bind.stanzas.request = jslix.Element({
+        parent_element: jslix.stanzas.iq,
         resource: new jslix.fields.StringNode('resource', true)
     }, [jslix.bind.stanzas.base]);
 
     jslix.bind.stanzas.response = jslix.Element({
+        parent_element: jslix.stanzas.iq,
         jid: new jslix.fields.StringNode('jid', true),
-        handler: function(result, top){
-            this._dispatcher.connection.jid = new jslix.JID(result.jid);
+        handler: function(top){
+            this._dispatcher.connection.jid = new jslix.JID(top.jid);
         }
     }, [jslix.bind.stanzas.base]);
 
