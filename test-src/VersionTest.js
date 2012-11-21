@@ -22,14 +22,14 @@ VersionTest.prototype.testGet = function(){
     var jid = new jslix.JID("posoh@urta");
     var requestId;
 
-    var dummyFunction = { send: function(packet)
+    var dummyFunction = { send: function(doc)
                     {
-                        var parsedStanza = jslix.parse(packet.doc, jslix.version.stanzas.response);
+                        var parsedStanza = jslix.parse(doc, jslix.version.stanzas.response);
                         requestId = parsedStanza.parent.id;
                     }
                 }
 
-    window.con = dummyFunction;
+    jslix.dispatcher.connection  = dummyFunction;
 
     assertNoException(function(){
                             version.get(jid);

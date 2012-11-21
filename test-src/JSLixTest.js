@@ -384,19 +384,24 @@ JSLixTest.prototype.testJSLixDispatcherSend = function()
     var secondIqStanza = jslix.stanzas.iq.create({id:'2', type:'get', from:'abc', to:'qwe'});
     var thirdIqStanza = jslix.stanzas.iq.create({id:'3', type:'get', from:'abc', to:'qwe'});
 
-    var dummyFunction = { send: function(packet)
+    var dummyFunction = { send: function(doc)
                     {
                     dummyFunction.send.count++;
-                    compareDocumentsFromString(packet.doc, 
+                    compareDocumentsFromString(doc, 
                                    '<iq xmlns="jabber:client" to="qwe" from="abc" id="' +                                         dummyFunction.send.count + '" type="get"/>');
                     }
                 }
 
-    window.con = dummyFunction;
+    jslix.dispatcher.connection = dummyFunction;
 
     dummyFunction.send.count = 0;
 
-    assertNoException(function(){jslix.dispatcher.send([firstIqStanza, secondIqStanza, thirdIqStanza]);});
+    assertNoException(function(){
+        var stanzas = [firstIqStanza, secondIqStanza, thirdIqStanza];
+        for(var i=0; i<stanzas.length; i++){
+            jslix.dispatcher.send(stanzas[i]);
+        }
+    });
 
     var countStanzas = 0;
 
@@ -413,7 +418,7 @@ JSLixTest.prototype.testNoPresenseDeferred = function()
 {
     jslix.dispatcher.deferreds = {};
 
-    window.con = { send: function(packet)
+    jslix.dispatcher.connection = { send: function(doc)
                  {
                 //really dummy
                  }
@@ -450,13 +455,13 @@ JSLixTest.prototype.testDispatcher = function()
 
     var iqStanza = definitionIq.create({id:'123', type:'get', from:'abc', to:'qwe'});
 
-    var dummyFunction = { send: function(packet)
+    var dummyFunction = { send: function(doc)
                     {
                       //this is just a dummy
                     }
                 }
 
-    window.con = dummyFunction;
+    jslix.dispatcher.connection = dummyFunction;
 
     jslix.dispatcher.send(iqStanza);
 
