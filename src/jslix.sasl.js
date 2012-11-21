@@ -58,7 +58,7 @@
     jslix.sasl.stanzas.success = jslix.Element({
         xmlns: jslix.sasl.SASL_NS,
         element_name: 'success',
-        handler: function(host, top){
+        handler: function(top){
             this._dispatcher.connection.restart();
         }
     });
@@ -67,9 +67,9 @@
         xmlns: jslix.sasl.SASL_NS,
         mechanisms: new jslix.fields.StringNode('mechanism', true, true),
         parent_element: jslix.stanzas.features,
-        handler: function(host, top){
-            for(var i=0; i<host.mechanisms.length; i++){
-                var mechanism = host.mechanisms[i];
+        handler: function(top){
+            for(var i=0; i<top.mechanisms.length; i++){
+                var mechanism = top.mechanisms[i];
                 if(jslix.sasl.mechanisms[mechanism]){
                     mechanism = new jslix.sasl.mechanisms[mechanism](
                         this._dispatcher);
