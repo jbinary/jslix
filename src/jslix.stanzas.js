@@ -125,7 +125,7 @@
             if (['chat', 'away', 'xa', 'dnd'].indexOf(value) == -1)
                 throw new ElementParseError('Presence show element has the wrong value');
             return value
-            }
+        }
     }, [jslix.stanzas.stanza]);
 
     jslix.stanzas.iq = jslix.Element({
