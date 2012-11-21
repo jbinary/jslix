@@ -75,6 +75,10 @@
         xmlns_xmpp: new jslix.fields.StringAttr('xmlns:xmpp', true)
     }, [jslix.connection.transports.bosh.stanzas.empty]);
 
+    jslix.connection.transports.bosh.stanzas.terminate = jslix.Element({
+        type: new jslix.fields.StringAttr('type', true)
+    }, [jslix.connection.transports.bosh.stanzas.empty]);
+
     jslix.connection.transports.bosh.prototype.connect = function(){
         this.send(jslix.build(
             jslix.connection.transports.bosh.stanzas.request.create({
@@ -152,6 +156,12 @@
     }
 
     jslix.connection.transports.bosh.prototype.disconnect = function(){
+        this.send(jslix.build(
+            jslix.connection.transports.bosh.stanzas.terminate.create({
+                sid: this._sid,
+                rid: this._rid,
+                type: 'terminate'
+            })));
     }
 
 })();
