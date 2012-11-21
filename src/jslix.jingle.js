@@ -1,5 +1,5 @@
 "use strict";
-(function(window) {
+(function(){
 
     var jslix = window.jslix;
     var fields = jslix.fields;
@@ -466,4 +466,4 @@ var initiate = jslix.Element({
     }
 }, [jingle.stanzas.jingle]);
 jslix.dispatcher.addHandler(initiate, state);
-})(window);
+})();

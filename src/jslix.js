@@ -1,5 +1,5 @@
 "use strict";
-(function(window) {
+(function(){
     var jslix = {
         Element: function(object, bases) {
             bases = bases || [jslix.stanzas.base_stanza];
@@ -473,5 +473,4 @@
     }
 
   window.jslix = jslix;
-})(window);
-
+})();

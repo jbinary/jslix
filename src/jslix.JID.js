@@ -1,4 +1,4 @@
-//copy-paste. source: jsjac.js, jsjac.JID
+"use strict";
 (function(){
 
     var fields = jslix.fields;

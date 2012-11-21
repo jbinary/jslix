@@ -25,10 +25,7 @@
 
     jslix.connection.transports.bosh.stanzas.body = jslix.Element({
         xmlns: jslix.connection.transports.bosh.BOSH_NS,
-        element_name: 'body',
-        handler: function(top){
-            debugger;
-        }
+        element_name: 'body'
     });
 
     jslix.connection.transports.bosh.stanzas.empty = jslix.Element({

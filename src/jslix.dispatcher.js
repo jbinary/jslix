@@ -1,4 +1,5 @@
-(function(window) {
+"use strict";
+(function(){
     var jslix = window.jslix;
     jslix.dispatcher = function(connection) {
         this.connection = connection;
@@ -160,4 +161,4 @@
         return d;
     }
 
-})(window);
+})();
