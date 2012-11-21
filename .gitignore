@@ -1,2 +1,4 @@
 *.swp
 *.jar
+libs/*
+examples/*
