@@ -1,4 +1,6 @@
 jslix
 =====
 
-jslix and all about it
+Requirements:
+- jQuery;
+- CryptoJS.
