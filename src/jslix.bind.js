@@ -40,10 +40,6 @@
         jid: new jslix.fields.StringNode('jid', true),
         handler: function(top){
             this._dispatcher.connection.jid = new jslix.JID(top.jid);
-            return jslix.stanzas.iq.create({
-                type: 'set',
-                link: jslix.session.stanzas.request.create({})
-            });
         }
     }, [jslix.bind.stanzas.base]);
 

@@ -11,6 +11,15 @@
 
     jslix.session.stanzas = {};
 
+    jslix.session.stanzas.bind_result = jslix.Element({
+        handler: function(to){
+            return jslix.stanzas.iq.create({
+                type: 'set',
+                link: jslix.session.stanzas.request.create({})
+            });
+        }
+    }, [jslix.bind.stanzas.response]);
+
     jslix.session.stanzas.request = jslix.Element({
         xmlns: jslix.session.SESSION_NS,
         element_name: 'session',
