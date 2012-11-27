@@ -24,15 +24,17 @@
             try {
                 var top = jslix.parse(el, this.top_handlers[i][0]);
                 var host = this.top_handlers[i][1];
-                break;
-            } catch (e) {}
-        }
-        if (top) {
-            var func = top.handler;
-            var result = func.call(host, top);
-            if(result)
-                this.send(result);
-            return;
+            } catch (e) {
+                var top = null;
+            }
+            if(top){
+                var func = top.handler;
+                var result = func.call(host, top);
+                if(result){
+                    this.send(result);
+                    return;
+                }
+            }
         }
 
         var tops = [jslix.stanzas.iq, jslix.stanzas.presence,
@@ -43,6 +45,8 @@
                 break;
             } catch (e) {}
         }
+        if(!top)
+            return;
         var results = [];
         var bad_request = false;
         var i = 0;
