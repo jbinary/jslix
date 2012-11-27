@@ -15,8 +15,9 @@
         this.password = password;
         this.http_base = http_base;
         this._dispatcher = dispatcher;
-        this._sasl = new jslix.sasl(this._dispatcher);
-        this._bind = new jslix.bind(this._dispatcher);
+        this._dispatcher.addTopHandler(jslix.connection.transports.bosh.stanzas.features, this);
+        this.plugins = [];
+        this.plugins.push(new jslix.sasl(this._dispatcher));
     }
 
     jslix.connection.transports.bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
@@ -77,6 +78,18 @@
         xmpp_restart: new jslix.fields.StringAttr('xmpp:restart', true),
         xmlns_xmpp: new jslix.fields.StringAttr('xmlns:xmpp', true)
     }, [jslix.connection.transports.bosh.stanzas.empty]);
+
+    jslix.connection.transports.bosh.stanzas.features = jslix.Element({
+        bind: new jslix.fields.FlagNode('bind', false, jslix.bind.BIND_NS),
+        session: new jslix.fields.FlagNode('session', false, jslix.session.SESSION_NS),
+        handler: function(top){
+            if(top.bind)
+                this.plugins.push(new jslix.bind(this._dispatcher));
+            if(top.session)
+                this.plugins.push(new jslix.session(this._dispatcher));
+            return false;
+        }
+    }, [jslix.stanzas.features]);
 
     jslix.connection.transports.bosh.prototype.connect = function(){
         this.send(jslix.build(
