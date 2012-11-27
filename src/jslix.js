@@ -75,6 +75,14 @@
     // Types
     jslix.types = {};
     var types = jslix.types;
+    types.FlagType = {
+        to_js: function(value){
+            return value;
+        },
+        from_js: function(value){
+            return value;
+        }
+    }
     types.StringType = {
         to_js: function(value) {
             if (typeof(value) == 'string')
@@ -221,6 +229,34 @@
     );
 
     // Node fields
+    fields.FlagNode = Class(
+        fields.Node,
+        function(name, required, uri){
+            fields.Node.call(this, name, uri, required, false);
+            this.type = types.FlagType;
+        },
+        {
+            put_to_el: function(stanza, value){
+                if(!value)
+                    return;
+                var xmlns = this.xmlns || stanza.namespaceURI,
+                    node = document.createElementNS(xmlns, this.name);
+                stanza.appendChild(node);
+            },
+            get_from_el: function(el){
+                var xmlns = this.xmlns || el.namespaceURI,
+                    value = false;
+                for(var i=0; i<el.childNodes.length; i++){
+                    var node = el.childNodes[i];
+                    if(this.name == node.localName && xmlns == node.namespaceURI){
+                        value = true;
+                        break;
+                    }
+                }
+                return value;
+            }
+        });
+
     fields.StringNode = Class(
         fields.Node,
         function(name, required, listed, uri, self) {
