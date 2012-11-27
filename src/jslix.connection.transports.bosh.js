@@ -89,7 +89,9 @@
                 xml_lang: 'en',
                 xmpp_version: '1.0',
                 xmlns_xmpp: jslix.connection.transports.bosh.XBOSH_NS
-        })));
+            })
+        ));
+
         this.process_queue();
     }
 
@@ -115,7 +117,8 @@
                 xml_lang: 'en',
                 xmpp_restart: 'true',
                 xmlns_xmpp: jslix.connection.transports.bosh.XBOSH_NS
-            })));
+            })
+        ));
     }
 
     jslix.connection.transports.bosh.prototype.clean_slots = function(){
@@ -131,7 +134,8 @@
                 jslix.connection.transports.bosh.stanzas.empty.create({
                     rid: this._rid,
                     sid: this._sid
-            })));
+                })
+            ));
         }
         while(this._queue.length){
             this.clean_slots();
@@ -187,7 +191,8 @@
                 sid: this._sid,
                 rid: this._rid,
                 type: 'terminate'
-            })));
+            })
+        ));
         this.established = false;
     }
 
