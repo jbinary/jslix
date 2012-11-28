@@ -160,8 +160,9 @@
             this._slots.push(req);
         }
         var connection = this;
-        // TODO: Save id and clear it on disconnect
-        setTimeout(function(){ connection.process_queue(); }, 300);
+        if(this._queue.length || this._slots.length || this.established){
+            setTimeout(function(){ connection.process_queue(); }, 300);
+        }
     }
 
     jslix.connection.transports.bosh.prototype.create_request = function(){
