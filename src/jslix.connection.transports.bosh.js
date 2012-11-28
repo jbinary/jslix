@@ -4,8 +4,12 @@
     var jslix = window.jslix;
 
     jslix.connection.transports.bosh = function(dispatcher, jid, password, http_base){
+        this.queue_check_interval = 250;
         this.established = false;
         this.requests = 1;
+        this.inactivity = 0;
+        this.polling = 0;
+        this.wait = 60;
         this._sid = null;
         this._slots = [];
         this._queue = [];
@@ -97,8 +101,8 @@
                 rid: this._rid,
                 to: this.jid.getDomain(),
                 ver: '1.8',
-                wait: 60,
-                hold: 1,
+                wait: this.wait,
+                hold: this.requests,
                 xml_lang: 'en',
                 xmpp_version: '1.0',
                 xmlns_xmpp: jslix.connection.transports.bosh.XBOSH_NS
@@ -140,7 +144,7 @@
         });
     }
 
-    jslix.connection.transports.bosh.prototype.process_queue = function(){
+    jslix.connection.transports.bosh.prototype.process_queue = function(timestamp){
         this.clean_slots();
         if(this.established && !(this._slots.length || this._queue.length)){
             this.send(jslix.build(
@@ -157,11 +161,13 @@
             if(!req)
                 break;
             req.send(doc);
+            timestamp = new Date().getTime();
             this._slots.push(req);
         }
         var connection = this;
         if(this._queue.length || this._slots.length || this.established){
-            setTimeout(function(){ connection.process_queue(); }, 300);
+            setTimeout(function(){ connection.process_queue(timestamp); },
+                this.queue_check_interval);
         }
     }
 
@@ -184,6 +190,8 @@
                 }
                 if(!connection.established){
                     connection.requests = top.requests;
+                    connection.wait = top.wait;
+                    connection.polling = top.polling;
                     connection._sid = top.sid;
                     connection.established = true;
                 }else{
