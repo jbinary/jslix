@@ -1,10 +1,15 @@
 VersionTest = new TestCase("VersionTest");
 
+VersionTest.prototype.setUp = function(){
+    this.dispatcher = new jslix.dispatcher();
+}
+
 VersionTest.prototype.testInitVersion = function(){
-    var version;
+    var version,
+        test = this;
 
     assertNoException(function(){
-                        version = new jslix.version(jslix.dispatcher);
+                        version = new jslix.version(test.dispatcher);
                         });
 
     assertNoException(function(){
@@ -16,7 +21,7 @@ VersionTest.prototype.testInitVersion = function(){
 };
 
 VersionTest.prototype.testGet = function(){
-    var version = new jslix.version(jslix.dispatcher);
+    var version = new jslix.version(this.dispatcher);
     version.init('Deadushka Moroz', '2.0');
 
     var jid = new jslix.JID("posoh@urta");
@@ -29,19 +34,19 @@ VersionTest.prototype.testGet = function(){
                     }
                 }
 
-    jslix.dispatcher.connection  = dummyFunction;
+    this.dispatcher.connection  = dummyFunction;
 
     assertNoException(function(){
                             version.get(jid);
                         });
 
-    assertTrue(requestId in jslix.dispatcher.deferreds);
+    assertTrue(requestId in this.dispatcher.deferreds);
 
 };
 
 VersionTest.prototype.testEqualityNames = function(){
-    var version1 = new jslix.version(jslix.dispatcher);
-    var version2 = new jslix.version(jslix.dispatcher);
+    var version1 = new jslix.version(this.dispatcher);
+    var version2 = new jslix.version(this.dispatcher);
 
     version1.setName('v1');
     version2.setName('v2');

@@ -85,6 +85,10 @@ var compareDocumentsFromString = function(doc1, str)
     return compareDocuments(doc1, (new DOMParser()).parseFromString(str, "text/xml"));
 };
 
+JSLixTest.prototype.setUp = function(){
+    this.dispatcher = new jslix.dispatcher();
+}
+
 JSLixTest.prototype.testCompareDictionaries = function()
 {
     var d1 = new Object();
@@ -378,7 +382,7 @@ JSLixTest.prototype.testPresenceStanza = function()
 
 JSLixTest.prototype.testJSLixDispatcherSend = function()
 {
-    jslix.dispatcher.deferreds = {};
+    this.dispatcher.deferreds = {};
 
     var firstIqStanza = jslix.stanzas.iq.create({id:'1', type:'get', from:'abc', to:'qwe'});
     var secondIqStanza = jslix.stanzas.iq.create({id:'2', type:'get', from:'abc', to:'qwe'});
@@ -392,20 +396,22 @@ JSLixTest.prototype.testJSLixDispatcherSend = function()
                     }
                 }
 
-    jslix.dispatcher.connection = dummyFunction;
+    this.dispatcher.connection = dummyFunction;
 
     dummyFunction.send.count = 0;
+
+    var test = this;
 
     assertNoException(function(){
         var stanzas = [firstIqStanza, secondIqStanza, thirdIqStanza];
         for(var i=0; i<stanzas.length; i++){
-            jslix.dispatcher.send(stanzas[i]);
+            test.dispatcher.send(stanzas[i]);
         }
     });
 
     var countStanzas = 0;
 
-    for (var key in jslix.dispatcher.deferreds)
+    for (var key in this.dispatcher.deferreds)
     {
         countStanzas++;
     }
@@ -416,9 +422,9 @@ JSLixTest.prototype.testJSLixDispatcherSend = function()
 
 JSLixTest.prototype.testNoPresenseDeferred = function()
 {
-    jslix.dispatcher.deferreds = {};
+    this.dispatcher.deferreds = {};
 
-    jslix.dispatcher.connection = { send: function(doc)
+    this.dispatcher.connection = { send: function(doc)
                  {
                 //really dummy
                  }
@@ -426,12 +432,12 @@ JSLixTest.prototype.testNoPresenseDeferred = function()
 
     var presenceStanza = jslix.stanzas.presence.create({from:'abc', to:'qwe', id:'1', type:'get',
                             show:'chat', status:'OK', priority:1});
-
-    assertNoException(function(){jslix.dispatcher.send([presenceStanza]);});
+    var test = this;
+    assertNoException(function(){test.dispatcher.send([presenceStanza]);});
 
     var countStanzas = 0;
 
-    for (var key in jslix.dispatcher.deferreds)
+    for (var key in this.dispatcher.deferreds)
     {
         countStanzas++;
     }
@@ -451,7 +457,7 @@ JSLixTest.prototype.testDispatcher = function()
                                         result_class: resultDefinition},
                         [jslix.stanzas.iq]);
 
-    jslix.dispatcher.addHandler(definitionIq, testHost);
+    this.dispatcher.addHandler(definitionIq, testHost);
 
     var iqStanza = definitionIq.create({id:'123', type:'get', from:'abc', to:'qwe'});
 
@@ -461,26 +467,28 @@ JSLixTest.prototype.testDispatcher = function()
                     }
                 }
 
-    jslix.dispatcher.connection = dummyFunction;
+    this.dispatcher.connection = dummyFunction;
 
-    jslix.dispatcher.send(iqStanza);
+    this.dispatcher.send(iqStanza);
 
     var resultStanza = jslix.stanzas.iq.create({type:'result', from:'qwe', to:'abc', id:'123'});
 
     var resultDoc = jslix.build(resultStanza);
 
-    assertTrue(jslix.dispatcher.deferreds.hasOwnProperty('123'));
 
-    assertNotNull(jslix.dispatcher.handlers[definitionIq]);
+    assertTrue(this.dispatcher.deferreds.hasOwnProperty('123'));
 
+    assertNotNull(this.dispatcher.handlers[definitionIq]);
+
+    var test = this;
     assertNoException(function(){
-                    jslix.dispatcher.dispatch(resultDoc);
+                    test.dispatcher.dispatch(resultDoc);
                     }
              );
 
     compareDictionaries(resultDoc, {id:'123', type:'get', from:'abc', to:'qwe'});
 
-    compareDictionaries(jslix.dispatcher.deferreds, { });
+    compareDictionaries(this.dispatcher.deferreds, { });
 };
 
 JSLixTest.prototype.testErrorStanzaDispatch = function()
@@ -489,8 +497,12 @@ JSLixTest.prototype.testErrorStanzaDispatch = function()
 
     var iqDoc = jslix.build(iqStanza);
 
+    var test = this;
+    this.dispatcher.connection = {
+        send: function(doc){}
+    }
     assertNoException(function(){
-                    jslix.dispatcher.dispatch(iqDoc);
+                    test.dispatcher.dispatch(iqDoc);
                     }
              );
 };

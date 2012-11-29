@@ -2,6 +2,10 @@
 
 ChildVersionTest = new TestCase('ChildVersionTest');
 
+ChildVersionTest.prototype.setUp = function(){
+    this.dispatcher = new jslix.dispatcher();
+}
+
 ChildVersionTest.prototype.testInheritance = function(){
    var testClassExample = jslix.Class(
             jslix.version,
@@ -11,9 +15,10 @@ ChildVersionTest.prototype.testInheritance = function(){
             }
         );
 
-    var sample;
+    var sample,
+        test = this;
     assertNoException(function(){
-                        sample = new testClassExample(jslix.dispatcher)
+                        sample = new testClassExample(test.dispatcher)
                       });
 
     assertNotNull(sample.getVersion());
