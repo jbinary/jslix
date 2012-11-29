@@ -15,7 +15,7 @@
 
     jslix.bind.stanzas.base = jslix.Element({
         xmlns: jslix.bind.BIND_NS,
-        element_name: 'bind',
+        element_name: 'bind'
     });
 
     jslix.bind.stanzas.restart_result = jslix.Element({
