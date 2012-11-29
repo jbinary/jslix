@@ -146,6 +146,10 @@
                 deferred.fail(loop_fail);
             }
         }
+        if(!this.handlers.length){
+            this.send(top.makeError('feature-not-implemented'));
+            return;
+        }
         loop();
     }
     dispatcher.prototype.send = function(els) {
