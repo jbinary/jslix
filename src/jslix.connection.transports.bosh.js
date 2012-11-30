@@ -171,6 +171,32 @@
         }
     }
 
+    jslix.connection.transports.bosh.prototype.process_response = function(response){
+        if(response.readyState == 4 && response.responseXML){
+            var doc = response.responseXML,
+                stanzas = jslix.connection.transports.bosh.stanzas;
+            try{
+                var top = jslix.parse(doc, (this.established ? stanzas.body : stanzas.response));
+            } catch(e){
+                return;
+            }
+            if(!this.established){
+                this.requests = top.requests;
+                this.wait = top.wait;
+                this.polling = top.polling;
+                this._sid = top.sid;
+                this.established = true;
+            }else{
+                if(top.type == 'terminate')
+                    this.established = false;
+            }
+            for(var j=0; j<doc.firstChild.childNodes.length; j++){
+                this._dispatcher.dispatch(doc.firstChild.childNodes[j]);
+            }
+        }
+        response.closed = true;
+    }
+
     jslix.connection.transports.bosh.prototype.create_request = function(){
         if(this._slots.length >= this.requests)
             return null;
@@ -180,29 +206,7 @@
         req.setRequestHeader('Content-Type', 'text/xml; charset=utf-8');
         req.closed = false;
         req.onreadystatechange = function(){
-            if(this.readyState == 4 && this.responseXML){
-                var doc = this.responseXML,
-                    stanzas = jslix.connection.transports.bosh.stanzas;
-                try{
-                    var top = jslix.parse(doc, (connection.established ? stanzas.body : stanzas.response));
-                } catch(e){
-                    return;
-                }
-                if(!connection.established){
-                    connection.requests = top.requests;
-                    connection.wait = top.wait;
-                    connection.polling = top.polling;
-                    connection._sid = top.sid;
-                    connection.established = true;
-                }else{
-                    if(top.type == 'terminate')
-                        connection.established = false;
-                }
-                for(var j=0; j<doc.firstChild.childNodes.length; j++){
-                    connection._dispatcher.dispatch(doc.firstChild.childNodes[j]);
-                }
-            }
-            this.closed = true;
+            connection.process_response(this);
         }
         return req;
     }
