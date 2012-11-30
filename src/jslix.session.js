@@ -5,6 +5,7 @@
 
     jslix.session = function(dispatcher){
         this._dispatcher = dispatcher;
+        this._dispatcher.addTopHandler(jslix.session.stanzas.bind_result, this);
     }
 
     jslix.session.SESSION_NS = 'urn:ietf:params:xml:ns:xmpp-session';
