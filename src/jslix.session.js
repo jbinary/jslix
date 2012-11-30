@@ -12,7 +12,7 @@
     jslix.session.stanzas = {};
 
     jslix.session.stanzas.bind_result = jslix.Element({
-        handler: function(to){
+        handler: function(top){
             return jslix.stanzas.iq.create({
                 type: 'set',
                 link: jslix.session.stanzas.request.create({})
