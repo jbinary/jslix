@@ -15,8 +15,8 @@
     jslix.sasl.mechanisms['DIGEST-MD5'].stanzas = {};
 
     jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge = jslix.Element({
-        handler: function(host, top){
-            var hash = CryptoJS.enc.Latin1.stringify(CryptoJS.enc.Base64.parse(host.content)),
+        handler: function(top){
+            var hash = CryptoJS.enc.Latin1.stringify(CryptoJS.enc.Base64.parse(top.content)),
                 params = hash.split(',');
             for(var i=0; i<params.length; i++){
                 var el = params[i].replace(/"/g, '').split('='),
