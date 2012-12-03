@@ -10,8 +10,9 @@
     }
 
     jslix.sasl.generate_random_string = function(length){
-        var tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-            result = '';
+        var result = '',
+            length = length || 14,
+            tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
           for (var i=0; i<length; i++)
             result += tab.charAt(Math.round(Math.random(
                 new Date().getTime())*(tab.length-1)));

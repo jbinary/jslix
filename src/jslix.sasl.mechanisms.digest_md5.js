@@ -39,7 +39,7 @@
 
     jslix.sasl.mechanisms['DIGEST-MD5'].prototype.getFirstResponse  = function(){
         this._challenge['digest-uri'] = 'xmpp/' + this._dispatcher.connection.jid.getDomain();
-        this._challenge['cnonce'] = jslix.sasl.generate_random_string(14);
+        this._challenge['cnonce'] = jslix.sasl.generate_random_string();
         this._challenge['nc'] = '00000001';
         var a1_sub_params_1 = CryptoJS.MD5([
                 this._dispatcher.connection.jid.getNode(),
