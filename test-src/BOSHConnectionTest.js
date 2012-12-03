@@ -127,6 +127,5 @@ BOSHConnectionTest.prototype.testProcessResponse = function(){
             link: jslix.stanzas.features.create({})
         })
     );
-    console.log(req.responseXML);
     this.connection.process_response(req);
 }
