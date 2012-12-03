@@ -211,7 +211,7 @@
         req.setRequestHeader('Content-Type', 'text/xml; charset=utf-8');
         req.closed = false;
         req.onreadystatechange = function(){
-            connection.process_response(this);
+            return connection.process_response(this);
         }
         return req;
     }
