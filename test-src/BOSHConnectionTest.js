@@ -8,8 +8,6 @@ BOSHConnectionTest.prototype.setUp = function(){
     this.dispatcher.connection = this.connection;
     this.connection._create_request = this.connection.create_request;
     this.connection.create_request = function(){
-        if(this._slots.length >= this.request)
-            return null;
         var connection = this,
             response = {
                 closed: false,
@@ -71,14 +69,8 @@ BOSHConnectionTest.prototype.testDisconnect = function(){
 }
 
 BOSHConnectionTest.prototype.testRestart = function(){
-    this.connection.restart();
-    this.connection.process_queue();
-    var stnz = this.connection.lst_stnz,
-        result = null;
-    assertNoException(function(){
-        result = jslix.parse(stnz, jslix.connection.transports.bosh.stanzas.restart);
-    });
-    assertEquals('true', result.xmpp_restart);
+    var stnz = this.connection.restart();
+    assertEquals('true', stnz.xmpp_restart);
 }
 
 BOSHConnectionTest.prototype.testResponse = function(){
@@ -106,8 +98,9 @@ BOSHConnectionTest.prototype.testFeatures = function(){
 }
 
 BOSHConnectionTest.prototype.testCleanSlots = function(){
-    this.connection.restart();
-    this.connection.process_queue();
+    var req = this.connection.create_request();
+    req.closed = true;
+    this.connection._slots.push(req);
     assertEquals(1, this.connection._slots.length);
     this.connection.clean_slots();
     assertEquals(0, this.connection._slots.length);
