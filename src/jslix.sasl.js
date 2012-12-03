@@ -60,7 +60,7 @@
         xmlns: jslix.sasl.SASL_NS,
         element_name: 'success',
         handler: function(top){
-            this._dispatcher.connection.restart();
+            return this._dispatcher.connection.restart();
         }
     });
 

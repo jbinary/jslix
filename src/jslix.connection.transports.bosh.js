@@ -127,15 +127,13 @@
     }
 
     jslix.connection.transports.bosh.prototype.restart = function(){
-        this.send(jslix.build(
-            jslix.connection.transports.bosh.stanzas.restart.create({
-                sid: this._sid,
-                rid: this._rid,
-                xml_lang: 'en',
-                xmpp_restart: 'true',
-                xmlns_xmpp: jslix.connection.transports.bosh.XBOSH_NS
-            })
-        ));
+        return jslix.connection.transports.bosh.stanzas.restart.create({
+            sid: this._sid,
+            rid: this._rid,
+            xml_lang: 'en',
+            xmpp_restart: 'true',
+            xmlns_xmpp: jslix.connection.transports.bosh.XBOSH_NS
+        });
     }
 
     jslix.connection.transports.bosh.prototype.clean_slots = function(){
