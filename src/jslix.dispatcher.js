@@ -31,7 +31,8 @@
                 var func = top.handler;
                 var result = func.call(host, top);
                 if(result){
-                    this.send(result);
+                    if(typeof result == 'object')
+                        this.send(result);
                     return;
                 }
             }
