@@ -172,29 +172,34 @@
     }
 
     jslix.connection.transports.bosh.prototype.process_response = function(response){
-        if(response.readyState == 4 && response.responseXML){
-            var doc = response.responseXML,
-                stanzas = jslix.connection.transports.bosh.stanzas;
-            try{
-                var top = jslix.parse(doc, (this.established ? stanzas.body : stanzas.response));
-            } catch(e){
-                return;
+        var result = false;
+        if(response.readyState == 4){
+            if(response.status == 200 && response.responseXML){
+                var doc = response.responseXML,
+                    stanzas = jslix.connection.transports.bosh.stanzas;
+                try{
+                    var top = jslix.parse(doc, (this.established ? stanzas.body : stanzas.response));
+                } catch(e){
+                    return result;
+                }
+                if(!this.established){
+                    this.requests = top.requests;
+                    this.wait = top.wait;
+                    this.polling = top.polling;
+                    this._sid = top.sid;
+                    this.established = true;
+                }else{
+                    if(top.type == 'terminate')
+                        this.established = false;
+                }
+                for(var j=0; j<doc.firstChild.childNodes.length; j++){
+                    this._dispatcher.dispatch(doc.firstChild.childNodes[j]);
+                }
+                result = true;
             }
-            if(!this.established){
-                this.requests = top.requests;
-                this.wait = top.wait;
-                this.polling = top.polling;
-                this._sid = top.sid;
-                this.established = true;
-            }else{
-                if(top.type == 'terminate')
-                    this.established = false;
-            }
-            for(var j=0; j<doc.firstChild.childNodes.length; j++){
-                this._dispatcher.dispatch(doc.firstChild.childNodes[j]);
-            }
+            response.closed = true;
         }
-        response.closed = true;
+        return result;
     }
 
     jslix.connection.transports.bosh.prototype.create_request = function(){
