@@ -14,9 +14,5 @@ SASLMechanismsPlainTest.prototype.testAuth = function(){
         jid = this.connection.jid,
         password = this.connection.password;
     assertNotUndefined(stanza.content);
-    assertEquals(CryptoJS.enc.Base64.stringify(
-        CryptoJS.enc.Latin1.parse(
-            jid.getBareJID() + '\0' + jid.getNode() + '\0' + password
-        )
-    ), stanza.content);
+    assertEquals('dXNlckBzZXJ2ZXIuY29tAHVzZXIAcGFzc3dvcmQ=', stanza.content);
 }
