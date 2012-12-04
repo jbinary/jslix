@@ -8,7 +8,10 @@
 
     jslix.sasl.mechanisms['DIGEST-MD5']= function(dispatcher){
         this._dispatcher = dispatcher;
-        this._challenge = {};
+        this._challenge = {
+            'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.getDomain(),
+            'nc': '00000001'
+        };
         this._dispatcher.addTopHandler(jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge, this);
     }
 
@@ -25,7 +28,7 @@
                 this._challenge[key] = value;
             }
             if(this._challenge['rspauth'] === undefined)
-                return this.getFirstResponse();
+                return this.getFirstResponse(jslix.sasl.generate_random_string());
             else
                 return this.getSecondResponse();
         }
@@ -37,10 +40,8 @@
         });
     }
 
-    jslix.sasl.mechanisms['DIGEST-MD5'].prototype.getFirstResponse  = function(){
-        this._challenge['digest-uri'] = 'xmpp/' + this._dispatcher.connection.jid.getDomain();
-        this._challenge['cnonce'] = jslix.sasl.generate_random_string();
-        this._challenge['nc'] = '00000001';
+    jslix.sasl.mechanisms['DIGEST-MD5'].prototype.getFirstResponse  = function(cnonce){
+        this._challenge['cnonce'] = cnonce;
         var a1_sub_params_1 = CryptoJS.MD5([
                 this._dispatcher.connection.jid.getNode(),
                 this._dispatcher.connection.jid.getDomain(),
