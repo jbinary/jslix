@@ -21,21 +21,15 @@
     }
 
     jslix.connection.prototype.restart = function(){
-        if(!this._connection)
-            return false;
-        return this._connection.restart();
+        return this._connection ? this._connection.restart() : false;
     }
 
     jslix.connection.prototype.send = function(doc){
-        if(!this._connection)
-            return false;
-        return this._connection.send(doc);
+        return this._connection ? this._connection.send(doc) : false;
     }
 
     jslix.connection.prototype.disconnect = function(){
-        if(!this._connection)
-            return false;
-        return this._connection.disconnect();
+        return this._connection ? this._connection.disconnect() : false;
     }
 
 })();
