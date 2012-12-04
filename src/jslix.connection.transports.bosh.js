@@ -215,14 +215,12 @@
     }
 
     jslix.connection.transports.bosh.prototype.disconnect = function(){
-        this.send(jslix.build(
-            jslix.connection.transports.bosh.stanzas.empty.create({
-                sid: this._sid,
-                rid: this._rid,
-                type: 'terminate'
-            })
-        ));
         this.established = false;
+        return jslix.connection.transports.bosh.stanzas.empty.create({
+            sid: this._sid,
+            rid: this._rid,
+            type: 'terminate'
+        });
     }
 
 })();

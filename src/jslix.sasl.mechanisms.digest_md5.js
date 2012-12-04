@@ -92,8 +92,8 @@
                     'auth',
                     CryptoJS.MD5(a2).toString(CryptoJS.enc.Hex)].join(':')).toString(CryptoJS.enc.Hex);
         if(rsptest != this._challenge['rspauth'])
-            this._dispatcher.connection.disconnect();
-        return jslix.sasl.stanzas.response.create();
+            return this._dispatcher.connection.disconnect();
+        return jslix.sasl.stanzas.response.create({content: ''});
 
     }
 
