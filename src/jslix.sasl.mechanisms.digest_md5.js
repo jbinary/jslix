@@ -28,7 +28,7 @@
                 this._challenge[key] = value;
             }
             if(this._challenge['rspauth'] === undefined)
-                return this.getFirstResponse(jslix.sasl.generate_random_string());
+                return this.getFirstResponse();
             else
                 return this.getSecondResponse();
         }
@@ -41,7 +41,7 @@
     }
 
     jslix.sasl.mechanisms['DIGEST-MD5'].prototype.getFirstResponse  = function(cnonce){
-        this._challenge['cnonce'] = cnonce;
+        this._challenge['cnonce'] = cnonce || jslix.sasl.generate_random_string();
         var a1_sub_params_1 = CryptoJS.MD5([
                 this._dispatcher.connection.jid.getNode(),
                 this._dispatcher.connection.jid.getDomain(),
