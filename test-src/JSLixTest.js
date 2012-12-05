@@ -518,3 +518,17 @@ JSLixTest.prototype.testEmptyStanza = function(){
     this.dispatcher.send(jslix.stanzas.empty_stanza.create());
     assertEquals(0, this.dispatcher.connection.count);
 }
+
+JSLixTest.prototype.testBreakStanza = function(){
+    var test_def = jslix.Element({
+        element_name: 'test',
+        handler: function(top){
+            console.log('bang!');
+            return jslix.stanzas.break_stanza.create();
+        }
+    });
+    assertEquals(0, this.dispatcher.connection.count);
+    this.dispatcher.addTopHandler(test_def, this);
+    this.dispatcher.dispatch(jslix.build(test_def.create()));
+    assertEquals(0, this.dispatcher.connection.count);
+}
