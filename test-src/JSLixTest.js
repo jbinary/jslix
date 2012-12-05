@@ -523,7 +523,6 @@ JSLixTest.prototype.testBreakStanza = function(){
     var test_def = jslix.Element({
         element_name: 'test',
         handler: function(top){
-            console.log('bang!');
             return jslix.stanzas.break_stanza.create();
         }
     });
