@@ -31,7 +31,7 @@
                 var func = top.handler;
                 var result = func.call(host, top);
                 if(result){
-                    if(typeof result == 'object')
+                    if(!(result instanceof jslix.stanzas.break_stanza))
                         this.send(result);
                     return;
                 }
@@ -158,6 +158,8 @@
         var d = null;
         for (var i=0; i<els.length; i++) {
             var el = els[i];
+            if(el instanceof jslix.stanzas.empty_stanza)
+                continue;
             var top = el.getTop();
             if (top.__definition__.element_name == 'iq' && 
                 ['get', 'set'].indexOf(top.type) != -1) {

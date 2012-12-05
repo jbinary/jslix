@@ -54,6 +54,22 @@
 
     jslix.stanzas = {};
 
+    jslix.stanzas.empty_stanza = function(){
+        this.__definition__ = jslix.stanzas.empty_stanza;
+    }
+
+    jslix.stanzas.empty_stanza.create = function(){
+        return new jslix.stanzas.empty_stanza();
+    }
+
+    jslix.stanzas.break_stanza = function(){
+        this.__definition__ = jslix.stanzas.break_stanza;
+    }
+
+    jslix.stanzas.break_stanza = function(){
+        return new jslix.stanzas.break_stanza();
+    }
+
     jslix.stanzas.base_stanza = {
         create : function(params) {
             params = params || {};
