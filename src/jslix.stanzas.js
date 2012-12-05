@@ -66,7 +66,7 @@
         this.__definition__ = jslix.stanzas.break_stanza;
     }
 
-    jslix.stanzas.break_stanza = function(){
+    jslix.stanzas.break_stanza.create = function(){
         return new jslix.stanzas.break_stanza();
     }
 
