@@ -87,6 +87,15 @@ var compareDocumentsFromString = function(doc1, str)
 
 JSLixTest.prototype.setUp = function(){
     this.dispatcher = new jslix.dispatcher();
+    this.dispatcher.connection = {
+        count: 0,
+        send: function(doc, cb){
+            this.count++;
+            if(typeof cb == 'function')
+                return cb.call(this, doc);
+            return doc;
+        }
+    }
 }
 
 JSLixTest.prototype.testCompareDictionaries = function()
@@ -388,24 +397,16 @@ JSLixTest.prototype.testJSLixDispatcherSend = function()
     var secondIqStanza = jslix.stanzas.iq.create({id:'2', type:'get', from:'abc', to:'qwe'});
     var thirdIqStanza = jslix.stanzas.iq.create({id:'3', type:'get', from:'abc', to:'qwe'});
 
-    var dummyFunction = { send: function(doc)
-                    {
-                    dummyFunction.send.count++;
-                    compareDocumentsFromString(doc, 
-                                   '<iq xmlns="jabber:client" to="qwe" from="abc" id="' +                                         dummyFunction.send.count + '" type="get"/>');
-                    }
-                }
-
-    this.dispatcher.connection = dummyFunction;
-
-    dummyFunction.send.count = 0;
 
     var test = this;
 
     assertNoException(function(){
         var stanzas = [firstIqStanza, secondIqStanza, thirdIqStanza];
         for(var i=0; i<stanzas.length; i++){
-            test.dispatcher.send(stanzas[i]);
+            test.dispatcher.send(stanzas[i], function(doc){
+                compareDocumentsFromString(doc, 
+                    '<iq xmlns="jabber:client" to="qwe" from="abc" id="' + this.count + '" type="get"/>');
+            });
         }
     });
 
@@ -423,12 +424,6 @@ JSLixTest.prototype.testJSLixDispatcherSend = function()
 JSLixTest.prototype.testNoPresenseDeferred = function()
 {
     this.dispatcher.deferreds = {};
-
-    this.dispatcher.connection = { send: function(doc)
-                 {
-                //really dummy
-                 }
-             }
 
     var presenceStanza = jslix.stanzas.presence.create({from:'abc', to:'qwe', id:'1', type:'get',
                             show:'chat', status:'OK', priority:1});
@@ -461,14 +456,6 @@ JSLixTest.prototype.testDispatcher = function()
 
     var iqStanza = definitionIq.create({id:'123', type:'get', from:'abc', to:'qwe'});
 
-    var dummyFunction = { send: function(doc)
-                    {
-                      //this is just a dummy
-                    }
-                }
-
-    this.dispatcher.connection = dummyFunction;
-
     this.dispatcher.send(iqStanza);
 
     var resultStanza = jslix.stanzas.iq.create({type:'result', from:'qwe', to:'abc', id:'123'});
@@ -498,9 +485,7 @@ JSLixTest.prototype.testErrorStanzaDispatch = function()
     var iqDoc = jslix.build(iqStanza);
 
     var test = this;
-    this.dispatcher.connection = {
-        send: function(doc){}
-    }
+
     assertNoException(function(){
                     test.dispatcher.dispatch(iqDoc);
                     }
@@ -527,4 +512,3 @@ JSLixTest.prototype.testMakeResult = function()
 
                       });
 };
-
