@@ -5,7 +5,7 @@ SASLTest.prototype.setUp = function(){
         status: null,
         restart: function(){
             this.status = 'restart';
-            return true;
+            return jslix.stanzas.break_stanza.create();
         }
     };
     this.dispatcher = new jslix.dispatcher(this.connection);
@@ -20,7 +20,7 @@ SASLTest.prototype.testGenerateRandomString = function(){
 
 SASLTest.prototype.testSuccess = function(){
     this.dispatcher.dispatch(jslix.build(
-        jslix.sasl.stanzas.success.create({})
+        jslix.sasl.stanzas.success.create()
     ));
     assertEquals('restart', this.connection.status);
 }
