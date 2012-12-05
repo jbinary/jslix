@@ -512,3 +512,9 @@ JSLixTest.prototype.testMakeResult = function()
 
                       });
 };
+
+JSLixTest.prototype.testEmptyStanza = function(){
+    assertEquals(0, this.dispatcher.connection.count);
+    this.dispatcher.send(jslix.stanzas.empty_stanza.create());
+    assertEquals(0, this.dispatcher.connection.count);
+}
