@@ -91,7 +91,6 @@
                 this.plugins.push(new jslix.bind(this._dispatcher));
             if(top.session)
                 this.plugins.push(new jslix.session(this._dispatcher));
-            return false;
         }
     }, [jslix.stanzas.features]);
 
