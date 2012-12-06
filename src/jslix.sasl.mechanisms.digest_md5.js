@@ -91,7 +91,7 @@
                     this._challenge['cnonce'],
                     'auth',
                     CryptoJS.MD5(a2).toString(CryptoJS.enc.Hex)].join(':')).toString(CryptoJS.enc.Hex),
-            valid = rstest == this._challenge['rspauth'];
+            valid = rsptest == this._challenge['rspauth'];
             this._challenge['rspauth'] = undefined;
         return valid ? jslix.sasl.stanzas.response.create({content: ''}) : this._dispatcher.connection.disconnect();
 
