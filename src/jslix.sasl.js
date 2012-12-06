@@ -7,6 +7,7 @@
         this._dispatcher = dispatcher;
         this._dispatcher.addTopHandler(jslix.sasl.stanzas.mechanisms, this);
         this._dispatcher.addTopHandler(jslix.sasl.stanzas.success, this);
+        this._mechanism = null;
     }
 
     jslix.sasl.generate_random_string = function(length){
@@ -69,15 +70,18 @@
         mechanisms: new jslix.fields.StringNode('mechanism', true, true),
         parent_element: jslix.stanzas.features,
         handler: function(top){
-            for(var i=0; i<top.mechanisms.length; i++){
-                var mechanism = top.mechanisms[i];
-                if(jslix.sasl.mechanisms[mechanism]){
-                    mechanism = new jslix.sasl.mechanisms[mechanism](
-                        this._dispatcher);
-                    return mechanism.auth();
+            if(!this._mechanism){
+                for(var i=0; i<top.mechanisms.length; i++){
+                    var mechanism = top.mechanisms[i];
+                    if(jslix.sasl.mechanisms[mechanism]){
+                        this._mechanism = new jslix.sasl.mechanisms[mechanism](
+                            this._dispatcher);
+                        break;
+                    }
                 }
             }
             // FIXME: What if we can't find valid mechanism?
+            return this._mechanism ? this._mechanism.auth() : false;
         }
     });
 
