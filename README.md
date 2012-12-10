@@ -3,5 +3,9 @@ jslix
 
 Requirements:
 - jQuery;
-- CryptoJS;
-- JsTestDriver (if you wish run tests).
+- CryptoJS.
+
+To run the tests, you will need:
+- node.js;
+- buster.js;
+- buster-coverage.
