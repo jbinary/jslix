@@ -3,4 +3,5 @@ jslix
 
 Requirements:
 - jQuery;
-- CryptoJS.
+- CryptoJS;
+- JsTestDriver (if you wish run tests).
