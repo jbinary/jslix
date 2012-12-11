@@ -1,20 +1,34 @@
 "use strict";
 (function(){
+
     var jslix = window.jslix;
+
     jslix.dispatcher = function(connection) {
         this.connection = connection;
         this.handlers = [];
         this.top_handlers = [];
         this.deferreds = {};
+        this.plugins = {};
     }
+
     jslix.dispatcher.name = 'jslix.dispatcher';
+
     var dispatcher = jslix.dispatcher;
+
+    dispatcher.prototype.register_plugin = function(plugin){
+        if(!this.plugins[plugin.name]){
+            this.plugins[plugin.name] = new plugin(this.dispatcher);
+        }
+    }
+
     dispatcher.prototype.addHandler = function(handler, host) {
         this.handlers[this.handlers.length] = [handler, host];
     }
+
     dispatcher.prototype.addTopHandler = function(top_handler, host){
         this.top_handlers[this.top_handlers.length] = [top_handler, host];
     }
+
     dispatcher.prototype.dispatch = function(el) {
         if(el.nodeName != '#document'){
             var doc = document.implementation.createDocument(null, null, null);
@@ -154,6 +168,7 @@
         }
         loop();
     }
+
     dispatcher.prototype.send = function(els) {
         if(els.length === undefined) els = [els];
         var d = null;

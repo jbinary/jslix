@@ -9,7 +9,6 @@
         this.connection = null;
         this.dispatcher = null;
         this.options = options;
-        this.plugins = {};
     }
 
     jslix.BaseClient.prototype.connect = function(){
@@ -22,9 +21,7 @@
     }
 
     jslix.BaseClient.prototype.register_plugin = function(plugin){
-        if(!plugin.name in this.plugins){
-            this.plugins[plugin.name] = new plugin(this.dispatcher);
-        }
+        this.dispatcher.register_plugin(plugin);
     }
 
     jslix.BaseClient.prototype.send = function(stanza){
