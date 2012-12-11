@@ -32,6 +32,8 @@
         }
     }
 
+    jslix.name = 'jslix';
+
     jslix.STANZAS_NS = 'jabber:client';
 
     var Class = jslix.Class;

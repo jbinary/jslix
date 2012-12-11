@@ -12,6 +12,8 @@
             this.jid.setResource('default');
     }
 
+    jslix.connection.name = 'jslix.connection';
+
     jslix.connection.transports = {};
 
     jslix.connection.prototype.connect = function(dispatcher){

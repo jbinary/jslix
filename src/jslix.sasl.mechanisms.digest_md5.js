@@ -6,7 +6,7 @@
     if(jslix.sasl === undefined)
         throw Error('Load sasl plugin first.');
 
-    jslix.sasl.mechanisms['DIGEST-MD5']= function(dispatcher){
+    jslix.sasl.mechanisms['DIGEST-MD5'] = function(dispatcher){
         this._dispatcher = dispatcher;
         this._challenge = {
             'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.getDomain(),
@@ -14,6 +14,8 @@
         };
         this._dispatcher.addTopHandler(jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge, this);
     }
+
+    jslix.sasl.mechanisms.['DIGEST-MD5'].name = 'jslix.sasl.mechanisms.DIGEST-MD5';
 
     jslix.sasl.mechanisms['DIGEST-MD5'].stanzas = {};
 

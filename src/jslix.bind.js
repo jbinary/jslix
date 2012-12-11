@@ -9,6 +9,8 @@
         this._dispatcher.addTopHandler(jslix.bind.stanzas.response, this);
     }
 
+    jslix.bind.name = 'jslix.bind';
+
     jslix.bind.BIND_NS = 'urn:ietf:params:xml:ns:xmpp-bind';
 
     jslix.bind.stanzas = {};

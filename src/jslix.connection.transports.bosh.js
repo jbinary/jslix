@@ -24,6 +24,8 @@
         this.plugins.push(new jslix.sasl(this._dispatcher));
     }
 
+    jslix.connection.transports.bosh.name = 'jslix.connection.transports.bosh';
+
     jslix.connection.transports.bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
 
     jslix.connection.transports.bosh.XBOSH_NS = 'urn:xmpp:xbosh';

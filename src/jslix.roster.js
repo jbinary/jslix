@@ -7,6 +7,8 @@
         this._dispatcher = dispatcher;
     }
 
+    jslix.roster.name = 'jslix.roster';
+
     jslix.roster.ROSTER_NS = 'jabber:iq:roster';
 
     jslix.roster.stanzas = {};

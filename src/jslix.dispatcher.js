@@ -7,6 +7,7 @@
         this.top_handlers = [];
         this.deferreds = {};
     }
+    jslix.dispatcher.name = 'jslix.dispatcher';
     var dispatcher = jslix.dispatcher;
     dispatcher.prototype.addHandler = function(handler, host) {
         this.handlers[this.handlers.length] = [handler, host];

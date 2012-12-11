@@ -8,6 +8,8 @@
         this._dispatcher.addTopHandler(jslix.session.stanzas.bind_result, this);
     }
 
+    jslix.session.name = 'jslix.session';
+
     jslix.session.SESSION_NS = 'urn:ietf:params:xml:ns:xmpp-session';
 
     jslix.session.stanzas = {};

@@ -10,6 +10,8 @@
         this._mechanism = null;
     }
 
+    jslix.sasl.name = 'jslix.sasl';
+
     jslix.sasl.generate_random_string = function(length){
         var result = '',
             length = length || 14,

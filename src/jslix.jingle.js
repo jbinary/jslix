@@ -5,7 +5,8 @@
     var fields = jslix.fields;
 
     jslix.jingle = {
-        stanzas: {}
+        stanzas: {},
+        name: 'jslix.jingle'
     }
     var jingle = jslix.jingle;
 
