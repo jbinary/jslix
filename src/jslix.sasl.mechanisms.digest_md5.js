@@ -15,7 +15,7 @@
         this._dispatcher.addTopHandler(jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge, this);
     }
 
-    jslix.sasl.mechanisms.['DIGEST-MD5'].name = 'jslix.sasl.mechanisms.DIGEST-MD5';
+    jslix.sasl.mechanisms['DIGEST-MD5'].name = 'jslix.sasl.mechanisms.DIGEST-MD5';
 
     jslix.sasl.mechanisms['DIGEST-MD5'].stanzas = {};
 
