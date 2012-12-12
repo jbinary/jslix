@@ -42,32 +42,9 @@
     }
 
     jslix.version._defineOs = function(){
-        var type = '';
-        var vers = '';
-        var os = '';
-
-        if (window.navigator.userAgent.indexOf ("Opera") >= 0){ // Opera
-           type = 'Opera';
-           vers = window.navigator.userAgent.substr(window.navigator.userAgent.indexOf("Opera")+6,4);
-        }
-        else
-        if (window.navigator.userAgent.indexOf ("Gecko") >= 0){ // (Mozilla, Netscape, FireFox)
-           type = 'Netscape';
-           vers=window.navigator.userAgent.substr(window.navigator.userAgent.indexOf("Gecko")+6, 8)
-                                                        +' ('+window.navigator.userAgent.substr(8,3) + ')';
-        }
-        else
-        if (window.navigator.userAgent.indexOf ("MSIE") >= 0){ //IE
-           type = 'Explorer';
-           vers=window.navigator.userAgent.substr(window.navigator.userAgent.indexOf("MSIE")+5,3);
-        }
-        else
-           type = window.navigator.appName;
-
-        os = type;
-        if (vers) os += ' ' + vers;
-
-        return os;
+        var os = window.navigator ? window.navigator.appName : 'n/a';
+        var version = window.navigator ? window.navigator.appVersion: 'n/a';
+        return version != 'n/a' ? os + ' ' + version : os;
     };
 
     jslix.version.prototype.get = function(jid) {
