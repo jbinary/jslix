@@ -12,10 +12,10 @@
             'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.getDomain(),
             'nc': '00000001'
         };
-        this._dispatcher.addTopHandler(jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge, this);
+        this._dispatcher.addHandler(jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge, this);
     }
 
-    jslix.sasl.mechanisms['DIGEST-MD5'].name = 'jslix.sasl.mechanisms.DIGEST-MD5';
+    jslix.sasl.mechanisms['DIGEST-MD5']._name = 'jslix.sasl.mechanisms.DIGEST-MD5';
 
     jslix.sasl.mechanisms['DIGEST-MD5'].stanzas = {};
 

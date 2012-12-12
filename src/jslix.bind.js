@@ -5,11 +5,11 @@
 
     jslix.bind = function(dispatcher){
         this._dispatcher = dispatcher;
-        this._dispatcher.addTopHandler(jslix.bind.stanzas.restart_result, this);
-        this._dispatcher.addTopHandler(jslix.bind.stanzas.response, this);
+        this._dispatcher.addHandler(jslix.bind.stanzas.restart_result, this);
+        this._dispatcher.addHandler(jslix.bind.stanzas.response, this);
     }
 
-    jslix.bind.name = 'jslix.bind';
+    jslix.bind._name = 'jslix.bind';
 
     jslix.bind.BIND_NS = 'urn:ietf:params:xml:ns:xmpp-bind';
 

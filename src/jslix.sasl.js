@@ -5,12 +5,12 @@
 
     jslix.sasl = function(dispatcher){
         this._dispatcher = dispatcher;
-        this._dispatcher.addTopHandler(jslix.sasl.stanzas.mechanisms, this);
-        this._dispatcher.addTopHandler(jslix.sasl.stanzas.success, this);
+        this._dispatcher.addHandler(jslix.sasl.stanzas.mechanisms, this);
+        this._dispatcher.addHandler(jslix.sasl.stanzas.success, this);
         this._mechanism = null;
     }
 
-    jslix.sasl.name = 'jslix.sasl';
+    jslix.sasl._name = 'jslix.sasl';
 
     jslix.sasl.generate_random_string = function(length){
         var result = '',

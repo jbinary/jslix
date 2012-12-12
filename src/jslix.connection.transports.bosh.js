@@ -19,12 +19,11 @@
         this.password = password;
         this.http_base = http_base;
         this._dispatcher = dispatcher;
-        this._dispatcher.addTopHandler(jslix.connection.transports.bosh.stanzas.features, this);
-        this.plugins = [];
-        this.plugins.push(new jslix.sasl(this._dispatcher));
+        this._dispatcher.addHandler(jslix.connection.transports.bosh.stanzas.features, this);
+        this._dispatcher.registerPlugin(jslix.sasl);
     }
 
-    jslix.connection.transports.bosh.name = 'jslix.connection.transports.bosh';
+    jslix.connection.transports.bosh._name = 'jslix.connection.transports.bosh';
 
     jslix.connection.transports.bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
 
@@ -90,9 +89,9 @@
         session: new jslix.fields.FlagNode('session', false, jslix.session.SESSION_NS),
         handler: function(top){
             if(top.bind)
-                this.plugins.push(new jslix.bind(this._dispatcher));
+                this._dispatcher.registerPlugin(jslix.bind);
             if(top.session)
-                this.plugins.push(new jslix.session(this._dispatcher));
+                this._dispatcher.registerPlugin(jslix.session);
         }
     }, [jslix.stanzas.features]);
 
