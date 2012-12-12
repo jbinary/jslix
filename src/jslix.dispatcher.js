@@ -20,6 +20,7 @@
         if(!this.plugins[plugin._name]){
             this.plugins[plugin._name] = new plugin(this);
         }
+        return this.plugins[plugin._name];
     }
 
     dispatcher.prototype.unregisterPlugin = function(plugin){
