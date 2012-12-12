@@ -11,17 +11,22 @@
         this.options = options;
     }
 
+    jslix.BaseClient._name = 'jslix.BaseClient';
+
     jslix.BaseClient.prototype.connect = function(){
         return this.connection.connect(this.dispatcher);
     }
 
-    jslix.BaseClient.prototype.register_stanza = function(stanza, context){
-        var context = context || this;
-        stanza.handler ? this.dispatcher.addTopHandler(stanza, context) : this.dispatcher.addHandler(stanza, context);
+    jslix.BaseClient.prototype.registerPlugin = function(plugin){
+        this.dispatcher.registerPlugin(plugin);
     }
 
-    jslix.BaseClient.prototype.register_plugin = function(plugin){
-        this.dispatcher.register_plugin(plugin);
+    jslix.BaseClient.prototype.unregisterPlugin = function(plugin){
+        this.dispatcher.unregisterPlugin(plugin);
+    }
+
+    jslix.BaseClient.prototype.addHandler = function(handler, host, plugin_name){
+        this.dispatcher.addHandler(handler, host, plugin_name);
     }
 
     jslix.BaseClient.prototype.send = function(stanza){
