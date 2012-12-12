@@ -11,22 +11,34 @@
         this.plugins = {};
     }
 
-    jslix.dispatcher.name = 'jslix.dispatcher';
+    jslix.dispatcher._name = 'jslix.dispatcher';
 
     var dispatcher = jslix.dispatcher;
 
-    dispatcher.prototype.register_plugin = function(plugin){
-        if(!this.plugins[plugin.name]){
-            this.plugins[plugin.name] = new plugin(this.dispatcher);
+    dispatcher.prototype.registerPlugin = function(plugin){
+        // XXX: We don't use any aditional plugin initialization yet.
+        if(!this.plugins[plugin._name]){
+            this.plugins[plugin._name] = new plugin(this);
         }
     }
 
-    dispatcher.prototype.addHandler = function(handler, host) {
-        this.handlers[this.handlers.length] = [handler, host];
+    dispatcher.prototype.unregisterPlugin = function(plugin){
+
+        var remove_handlers = function(value){
+            return !value[2] == plugin._name;
+        };
+
+        this.top_handlers = this.top_handlers.filter(remove_handlers);
+        this.handlers = this.handlers.filter(remove_handlers);
+        delete this.plugins[plugin._name];
     }
 
-    dispatcher.prototype.addTopHandler = function(top_handler, host){
-        this.top_handlers[this.top_handlers.length] = [top_handler, host];
+    dispatcher.prototype.addHandler = function(handler, host, plugin_name){
+        if(typeof handler.handler == 'function'){
+            this.top_handlers[this.top_handlers.length] = [handler, host, plugin_name];
+        }else{
+            this.handlers[this.handlers.length] = [handler, host, plugin_name];
+        }
     }
 
     dispatcher.prototype.dispatch = function(el) {
