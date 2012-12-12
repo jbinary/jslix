@@ -1,43 +1,50 @@
 var VersionTest = buster.testCase("VersionTest", {
     setUp: function(){
-        this.dispatcher = new jslix.dispatcher();
+        this.connection = {
+            lst_stnz: null,
+            send: function(doc){
+                this.lst_stnz = doc;
+            }
+        };
+        this.dispatcher = new jslix.dispatcher(this.connection);
     },
     testInitVersion: function(){
         var version,
             test = this;
 
         refute.exception(function(){
-                            version = new jslix.version(test.dispatcher);
-                            });
+            version = test.dispatcher.registerPlugin(jslix.version);
+        });
 
         refute.exception(function(){
-                            version.init('Deadushka Moroz', '1.0');
-                            });
+            version.init('Deadushka Moroz', '1.0');
+        });
 
         assert(version.getName() == 'Deadushka Moroz');
         assert(version.getVersion() ==  "1.0");
     },
     testGet: function(){
-        var version = new jslix.version(this.dispatcher);
+        var version = this.dispatcher.registerPlugin(jslix.version),
+            jid = new jslix.JID('posoh@urta'),
+            test = this,
+            stanza;
         version.init('Deadushka Moroz', '2.0');
 
-        var jid = new jslix.JID("posoh@urta");
-        var requestId;
+        refute.exception(function(){
+            version.get(jid);
+        });
 
-        var dummyFunction = { send: function(doc)
-                        {
-                            var parsedStanza = jslix.parse(doc, jslix.version.stanzas.response);
-                            requestId = parsedStanza.parent.id;
-                        }
-                    }
-
-        this.dispatcher.connection  = dummyFunction;
+        refute(this.connection.lst_stnz == null);
 
         refute.exception(function(){
-                                version.get(jid);
-                            });
+            stanza = jslix.parse(test.connection.lst_stnz, jslix.version.stanzas.response);
+        });
 
-        assert(requestId in this.dispatcher.deferreds);
+        refute(stanza.parent == undefined);
+
+        refute(stanza.parent.id == undefined);
+
+        assert(stanza.parent.id in this.dispatcher.deferreds);
 
     },
     testEqualityNames: function(){
