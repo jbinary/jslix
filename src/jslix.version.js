@@ -15,7 +15,7 @@
 
     };
 
-    jslix.version.name= 'jslix.version';
+    jslix.version._name= 'jslix.version';
 
     jslix.version.VERSION_NS = 'jabber:iq:version';
 

@@ -12,7 +12,7 @@
             this.jid.setResource('default');
     }
 
-    jslix.connection.name = 'jslix.connection';
+    jslix.connection._name = 'jslix.connection';
 
     jslix.connection.transports = {};
 

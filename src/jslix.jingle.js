@@ -6,7 +6,7 @@
 
     jslix.jingle = {
         stanzas: {},
-        name: 'jslix.jingle'
+        _name: 'jslix.jingle'
     }
     var jingle = jslix.jingle;
 

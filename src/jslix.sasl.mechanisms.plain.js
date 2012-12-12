@@ -10,7 +10,7 @@
         this._dispatcher = dispatcher;
     };
 
-    jslix.sasl.mechanisms['PLAIN'].name = 'jslix.sasl.mechanisms.PLAIN';
+    jslix.sasl.mechanisms['PLAIN']._name = 'jslix.sasl.mechanisms.PLAIN';
 
     jslix.sasl.mechanisms['PLAIN'].prototype.getPlainMessage = function(){
         return CryptoJS.enc.Base64.stringify(

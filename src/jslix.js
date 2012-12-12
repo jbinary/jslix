@@ -32,7 +32,7 @@
         }
     }
 
-    jslix.name = 'jslix';
+    jslix._name = 'jslix';
 
     jslix.STANZAS_NS = 'jabber:client';
 
