@@ -83,10 +83,10 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
         var features = jslix.connection.transports.bosh.stanzas.features.create({
                 bind: true,
                 session: true
-            }),
-            old_plugins_lenght = this.connection.plugins.length;
+            });
         this.dispatcher.dispatch(jslix.build(features));
-        refute.equals(old_plugins_lenght, this.connection.plugins.length);
+        assert(jslix.bind._name in this.dispatcher.plugins);
+        assert(jslix.session._name in this.dispatcher.plugins);
     },
     testCleanSlots: function(){
         var req = this.connection.create_request();

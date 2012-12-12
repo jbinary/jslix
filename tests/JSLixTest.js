@@ -481,7 +481,7 @@ var JSLixTest = buster.testCase("JSLixTest", {
             }
         });
         assert(this.dispatcher.connection.count == 0);
-        this.dispatcher.addTopHandler(test_def, this);
+        this.dispatcher.addHandler(test_def, this);
         this.dispatcher.dispatch(jslix.build(test_def.create()));
         assert(this.dispatcher.connection.count == 0);
     }
