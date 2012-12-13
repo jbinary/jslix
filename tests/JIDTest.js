@@ -1,4 +1,3 @@
-
 var goodNodes = ["space cadet", 
            "call me \"ishmael\"",
            "at&t guy",
@@ -12,20 +11,20 @@ var goodNodes = ["space cadet",
            "c:\\cool stuff",
            "c:\\5commas"];
 
-var escapedGoodJIDs = ["space\\20cadet@example.com",
-              "call\\20me\\20\\22ishmael\\22@example.com",
-              "at\\26t\\20guy@example.com",
-              "d\\27artagnan@example.com",
-              "\\2f.fanboy@example.com",
-              "\\3a\\3afoo\\3a\\3a@example.com",
-              "\\3cfoo\\3e@example.com",
-              "user\\40host@example.com",
-              "c\\3a\\net@example.com",
-              "c\\3a\\\\net@example.com",
-              "c\\3a\\cool\\20stuff@example.com",
-              "c\\3a\\5c5commas@example.com"];
+var escapedGoodJIDs = ["space\\20cadet@example.com/res",
+              "call\\20me\\20\\22ishmael\\22@example.com/res",
+              "at\\26t\\20guy@example.com/res",
+              "d\\27artagnan@example.com/res",
+              "\\2f.fanboy@example.com/res",
+              "\\3a\\3afoo\\3a\\3a@example.com/res",
+              "\\3cfoo\\3e@example.com/res",
+              "user\\40host@example.com/res",
+              "c\\3a\\net@example.com/res",
+              "c\\3a\\\\net@example.com/res",
+              "c\\3a\\cool\\20stuff@example.com/res",
+              "c\\3a\\5c5commas@example.com/res"];
 
-var badStrings = ["\\20rt", "rt@\\2"];
+var badStrings = ["\\20rt", "rt@\\2", '\'node'];
 
 var JIDTest = buster.testCase("JIDTest", {
     testJIDBasic: function(){
@@ -48,37 +47,38 @@ var JIDTest = buster.testCase("JIDTest", {
     },
     testThrowedException: function(){
         assert.exception(function(){
-                        var jid = new jslix.JID({node:'abc',
-                                    domain:'type"forbidden@symbols/',
-                                    resource:'qwe'});
-                      }, jslix.JIDInvalidException);
+            var jid = new jslix.JID({
+                node:'abc',
+                domain:'type"forbidden@symbols/',
+                resource:'qwe'
+            });
+        }, 'JIDInvalidException');
 
         assert.exception(function(){
-                        var jid = new jslix.JID({node:'',
-                                    domain:'',
-                                    resource:'qwe'});
-                      }, jslix.JIDInvalidException);
+            var jid = new jslix.JID({node:'',
+                domain:'',
+                resource:'qwe'});
+        }, 'JIDInvalidException');
     },
     testEscapeCorrect: function(){
+        var jid = new jslix.JID('test');
         for (var i = 0; i < goodNodes.length; ++i){
             refute.exception(function(){
-                               var jidForEscape = new jslix.JID("test", "test");
-                               var escapedJID = jidForEscape.escape(goodNodes[i], "example.com");
-                               assert(escapedJID.toString() == escapedGoodJIDs[i]);
-
-                               var unescapedJID = escapedJID.unescape();
-                               assert(unescapedJID == goodNodes[i] + "@example.com");
-                            });
+               var escapedJID = jid.escape(goodNodes[i], "example.com", 'res');
+               assert(escapedJID.toString() == escapedGoodJIDs[i]);
+               var unescapedJID = escapedJID.unescape();
+               assert(unescapedJID == goodNodes[i] + "@example.com/res");
+            });
         }
 
     },
     testUnescapeExceptions: function(){
-        for (var i = 0; i < badStrings.length; ++i){
+        var jid = new jslix.JID('test/res');
+        for (var i = 0; i < badStrings.length; i++){
             assert.exception(function(){
-                            var escapedJID = new jslix.JID("test", "test");
-                            escapedJID.setNode(badStrings[i]);
-                            var unescapedJID = escapedJID.unescape();
-                           }, jslix.JIDInvalidException);
+                jid._node = badStrings[i];
+                jid.unescape();
+            }, 'JIDInvalidException');
         }
     }
 });
