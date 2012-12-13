@@ -47,14 +47,34 @@ var VersionTest = buster.testCase("VersionTest", {
         assert(stanza.parent.id in this.dispatcher.deferreds);
 
     },
-    testEqualityNames: function(){
-        var version1 = new jslix.version(this.dispatcher);
-        var version2 = new jslix.version(this.dispatcher);
-
-        version1.setName('v1');
-        version2.setName('v2');
-
-        assert(version1.getName() == 'v1');
-        assert(version2.getName() == 'v2');
+    testEqualityName: function(){
+        var version = this.dispatcher.registerPlugin(jslix.version);
+        version.setName('some_name');
+        assert(version.getName() == 'some_name');
+    },
+    testResponse: function(){
+        var version = this.dispatcher.registerPlugin(jslix.version),
+            request = jslix.stanzas.iq.create({
+                type: 'get',
+                to: 'user@server.com',
+                link: jslix.version.stanzas.request.create()
+            }),
+            test = this,
+            stanza;
+        this.dispatcher.dispatch(jslix.build(request));
+        assert.exception(function(){
+            jslix.parse(test.connection.lst_stnz, jslix.version.stanzas.response);
+        });
+        refute.exception(function(){
+            stanza = jslix.parse(test.connection.lst_stnz, jslix.stanzas.error);
+        });
+        assert(stanza.type == 'cancel' && stanza.condition == 'feature-not-implemented');
+        version.init('some_name', 'some_version');
+        request.id = 'some_id_1';
+        this.dispatcher.dispatch(jslix.build(request));
+        refute.exception(function(){
+            stanza = jslix.parse(test.connection.lst_stnz, jslix.version.stanzas.response);
+        });
+        assert(stanza.name == 'some_name' && stanza.version == 'some_version');
     }
 });
