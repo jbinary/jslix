@@ -14,12 +14,16 @@ var SASLMechanismsDigestMD5Test = buster.testCase('SASLMechanismsDigestMD5Test',
             }
         };
         this.dispatcher = new jslix.dispatcher(this.connection);
-        this.digest_md5 = new jslix.sasl.mechanisms['DIGEST-MD5'](this.dispatcher);
+        this.digest_md5 = this.dispatcher.registerPlugin(jslix.sasl.mechanisms['DIGEST-MD5']);
+    },
+    testAuth: function(){
+        var auth = this.digest_md5.auth();
+        assert(auth && auth.mechanism == 'DIGEST-MD5');
     },
     testResponse: function(){
         this.dispatcher.dispatch(jslix.build(
             jslix.sasl.stanzas.challenge.create({
-                content: CryptoJS.enc.Base64.stringify(CryptoJS.enc.Base64.parse(''))
+                content: CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(''))
             })
         ));
         var response = this.connection.lst_stnz;
@@ -33,9 +37,13 @@ var SASLMechanismsDigestMD5Test = buster.testCase('SASLMechanismsDigestMD5Test',
         assert(response.content == 'dXNlcm5hbWU9InVzZXIiLHJlYWxtPSJzZXJ2ZXIuY29tIixub25jZT0idW5kZWZpbmVkIixjbm9uY2U9InNvbWVfY25vbmNlIixuYz0iMDAwMDAwMDEiLHFvcD1hdXRoLGRpZ2VzdC11cmk9InhtcHAvc2VydmVyLmNvbSIscmVzcG9uc2U9IjkyZWJhMzFkN2NjNzJhNTViMzlkMTZmYjBiYzMwNDRmIixjaGFyc2V0PSJ1dGYtOCI=');
     },
     testGetSecondResponse: function(){
-        this.digest_md5._challenge['cnonce'] = 'some_cnonce';
-        this.digest_md5._challenge['rspauth'] = 'dcd07b6b671d60735cac1c3b8787ea16';
-        var response = jslix.build(this.digest_md5.getSecondResponse());
+        this.dispatcher.dispatch(jslix.build(
+            jslix.sasl.stanzas.challenge.create({
+                content: CryptoJS.enc.Base64.stringify(
+                    CryptoJS.enc.Latin1.parse('cnonce=some_cnonce,rspauth=dcd07b6b671d60735cac1c3b8787ea16'))
+            })
+        ));
+        var response = this.connection.lst_stnz;
         refute.exception(function(){
             jslix.parse(response, jslix.sasl.stanzas.response);
         });
