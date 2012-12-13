@@ -55,22 +55,21 @@ var JIDTest = buster.testCase("JIDTest", {
         }, 'JIDInvalidException');
 
         assert.exception(function(){
-            var jid = new jslix.JID({node:'',
+            var jid = new jslix.JID({
+                node:'',
                 domain:'',
-                resource:'qwe'});
+                resource:'qwe'
+            });
         }, 'JIDInvalidException');
     },
     testEscapeCorrect: function(){
         var jid = new jslix.JID('test');
-        for (var i = 0; i < goodNodes.length; ++i){
-            refute.exception(function(){
-               var escapedJID = jid.escape(goodNodes[i], "example.com", 'res');
-               assert(escapedJID.toString() == escapedGoodJIDs[i]);
-               var unescapedJID = escapedJID.unescape();
-               assert(unescapedJID == goodNodes[i] + "@example.com/res");
-            });
+        for (var i = 0; i < goodNodes.length; i++){
+                var escapedJID = jid.escape(goodNodes[i], "example.com", 'res');
+                assert(escapedJID.toString() == escapedGoodJIDs[i]);
+                var unescapedJID = escapedJID.unescape();
+                assert(unescapedJID == goodNodes[i] + "@example.com/res");
         }
-
     },
     testUnescapeExceptions: function(){
         var jid = new jslix.JID('test/res');
