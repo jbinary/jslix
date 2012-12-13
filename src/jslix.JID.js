@@ -133,7 +133,7 @@
             }else
                 escapeNode += node[i];
         }
-        return jid = new JID({
+        return new JID({
             node: escapeNode,
             domain: domain,
             resource: resource
