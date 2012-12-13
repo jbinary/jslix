@@ -53,7 +53,8 @@
         }
     };
 
-    var JID = jslix.JID;
+    var JID = jslix.JID,
+        JIDInvalidException = JID.exceptions.JIDInvalidException;
 
     jslix.JID.prototype.getNode = function(){
         return this._node;
