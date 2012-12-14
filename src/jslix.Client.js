@@ -15,6 +15,8 @@
 
     jslix.Client.prototype = new jslix.BaseClient();
 
+    jslix.Client.prototype.constructor = jslix.Client;
+
     jslix.Client.prototype.connect = function(){
         this.addHandler(jslix.Element({
             anyHandler: function(top){
