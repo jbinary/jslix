@@ -2,7 +2,8 @@
 (function(){
 
     var jslix = window.jslix,
-        fields = jslix.fields;
+        fields = jslix.fields,
+        ElementParseError = jslix.exceptions.ElementParseError;
 
     jslix.randomUUID = function(){
         var s = [], itoh = '0123456789ABCDEF';
