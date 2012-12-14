@@ -3,11 +3,13 @@ var config = module.exports;
 config['jslix'] = {
     env: 'browser',
     rootPath: './',
-    sources: [
+    libs: [
         'libs/jquery.js',
         'libs/cryptojs/rollups/md5.js',
         'libs/cryptojs/components/core.js',
         'libs/cryptojs/components/enc-base64.js',
+    ],
+    sources: [
         'src/jslix.js',
         'src/jslix.stanzas.js',
         'src/jslix.bind.js',
