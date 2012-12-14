@@ -118,7 +118,7 @@
 
     jslix.JID.prototype.escape = function(node, domain, resource){
         var escapeNode = '';
-        for (var i = 0; i < node.length; ++i)
+        for (var i = 0; i < node.length; i++)
             if (JID_FORBIDDEN.indexOf(node[i]) != -1)
                 escapeNode += '\\' + codesForEscape[node[i]];
         else{
@@ -141,10 +141,9 @@
     };
 
     jslix.JID.prototype.unescape = function(){
-        var resultJID = '';
-        var i = 0;
-        var node = this.getNode();
-        while (i < node.length){
+        var resultJID = '',
+            node = this.getNode();
+        for(var i=0; i < node.length; i++){
             if (JID_FORBIDDEN.indexOf(node[i]) != -1 && node[i] != '\\')
                 throw new JIDInvalidException("forbidden char in escape nodename: " + JID_FORBIDDEN[i]);
             if (node[i] == '\\'){
@@ -159,7 +158,6 @@
                     resultJID += node[i];
             }else
                 resultJID += node[i];
-            i++;
         }
         resultJID += '@' + this.getDomain();
         if (this.getResource() && this.getResource() != '')
