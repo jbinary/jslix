@@ -199,19 +199,20 @@ var JSLixTest = buster.testCase("JSLixTest", {
                                  }));
     },
     testElementParseError: function(){
-        var myDefinition = jslix.Element({node: new jslix.fields.StringNode('my_node', true, true), 
-                                          xmlns:'my_xmlns'}, 
-                                          [jslix.stanzas.query]);
+        var myDefinition = jslix.Element({
+            node: new jslix.fields.StringNode('my_node', true, true), 
+            xmlns:'my_xmlns'
+        }, [jslix.stanzas.query]);
         
-        var myStanza = myDefinition.create({});
+        var iqParent = jslix.stanzas.iq.create({
+            link: myDefinition.create()
+        });
         
-        var iqParent = jslix.stanzas.iq.create({});
-        
-        iqParent.link(myStanza);
-        
-        var myDocument = jslix.build(myStanza.getTop());
-        
-        assert.exception(function(){jslix.parse(myDocument, myDefinition);}, jslix.ElementParseError); 
+        var myDocument = jslix.build(iqParent);
+
+        assert.exception(function(){
+            jslix.parse(myDocument, myDefinition);
+        }, 'ElementParseError'); 
     },
     testInteger: function(){
         var myDefinition = jslix.Element({node: new jslix.fields.IntegerNode('int_node', false),
@@ -350,7 +351,9 @@ var JSLixTest = buster.testCase("JSLixTest", {
 
         var badPresenceDoc = jslix.build(badPresenceStanza);
 
-        assert.exception(function(){jslix.parse(badPresenceDoc, jslix.stanzas.presence)}, jslix.ElementParseError);
+        assert.exception(function(){
+            jslix.parse(badPresenceDoc, jslix.stanzas.presence)
+        }, 'ElementParseError');
     },
     testJSLixDispatcherSend: function(){
         this.dispatcher.deferreds = {};
@@ -444,9 +447,8 @@ var JSLixTest = buster.testCase("JSLixTest", {
         var test = this;
 
         refute.exception(function(){
-                        test.dispatcher.dispatch(iqDoc);
-                        }
-                 );
+            test.dispatcher.dispatch(iqDoc);
+        });
     },
     testMakeResult: function(){
         var definitionIq = new jslix.Element({xmlns:'iq_xmlns',
@@ -484,5 +486,15 @@ var JSLixTest = buster.testCase("JSLixTest", {
         this.dispatcher.addHandler(test_def, this);
         this.dispatcher.dispatch(jslix.build(test_def.create()));
         assert(this.dispatcher.connection.count == 0);
+    },
+    testErrorStanza: function(){
+        var error_stanza = jslix.stanzas.error.create({type: 'some_wrong_type'});
+        assert(error_stanza.type == 'some_wrong_type');
+        error_stanza = jslix.build(jslix.stanzas.message.create({
+            link: error_stanza
+        }));
+        assert.exception(function(){
+            jslix.parse(error_stanza, jslix.stanzas.error);
+        }, 'ElementParseError');
     }
 });
