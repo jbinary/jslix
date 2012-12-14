@@ -40,36 +40,21 @@
 
     // Exceptions
     jslix.exceptions = {};
-    jslix.exceptions.Error =
-        Class(Error,
-              function(msg) {
-
-                Error.call(this, msg);
-
-//              this.name = 'JslixError';
+    jslix.exceptions.Error = Class(Error, function(msg) {
+        this.name = 'JslixError';
+        this.message = msg;
     });
 
-    jslix.exceptions.ElementParseError =
-        Class(jslix.exceptions.Error,
-              function(msg) {
-
-                jslix.exceptions.Error.call(this, msg);
-
-//                this.name = 'ElementParseError';
-              }
-    );
+    jslix.exceptions.ElementParseError = Class(jslix.exceptions.Error, function(msg) {
+        this.name = 'ElementParseError';
+        this.message = msg;
+    });
 
     var ElementParseError = jslix.exceptions.ElementParseError;
-    jslix.exceptions.WrongElement =
-        Class(jslix.exceptions.Error,
-              function(msg) {
-
-                jslix.exceptions.Error.call(this, msg);
-
-                //this.name = 'WrongElement';
-                
-              }
-    );
+    jslix.exceptions.WrongElement = Class(jslix.exceptions.Error, function(msg) {
+        this.name = 'WrongElement';
+        this.message = msg;
+    });
     var WrongElement = jslix.exceptions.WrongElement;
 
     var JIDInvalidException = jslix.exceptions.JIDInvalidException;
@@ -420,7 +405,7 @@
                     break;
                 } catch (e) {
                     if (e instanceof WrongElement) continue;
-                    throw (e)
+                    throw (e);
                 }
             }
             el = eel;
