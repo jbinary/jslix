@@ -9,6 +9,9 @@ var ConnectionTest = buster.testCase('ConnectionTest', {
         assert(this.connection.jid.getResource() == 'default');
         this.server = sinon.fakeServer.create();
     },
+    tearDown: function(){
+        this.server.restore();
+    },
     testConnect: function(){
         this.connection.connect(this.dispatcher);
         assert.equals(this.server.requests.length, 1);
