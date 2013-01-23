@@ -1,5 +1,4 @@
 *.swp
 *.jar
 libs/*
-examples/*
 coverage/*
