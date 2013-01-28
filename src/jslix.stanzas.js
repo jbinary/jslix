@@ -168,7 +168,7 @@
         xmlns: jslix.STANZAS_NS,
         element_name: 'error',
         type: new fields.StringAttr('type', true),
-        condition: new fields.ConditionNode(),
+        condition: new fields.ConditionNode('urn:ietf:params:xml:ns:xmpp-stanzas'),
         text: new fields.StringNode('text', false, false,
                                 'urn:ietf:params:xml:ns:xmpp-stanzas'),
         // Validators

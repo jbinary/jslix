@@ -339,8 +339,7 @@
 
     fields.ConditionNode = Class(
         fields.Node,
-        function() {
-            var uri = 'urn:ietf:params:xml:ns:xmpp-stanzas';
+        function(uri) {
             fields.Node.call(this, undefined, uri, false);
             this.type = types.StringType;
         },
