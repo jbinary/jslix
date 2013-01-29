@@ -19,7 +19,7 @@
     jslix.connection.prototype.connect = function(dispatcher){
         this._connection = new jslix.connection.transports.bosh(dispatcher,
             this.jid, this.password, this.http_base);
-        this._connection.connect();
+        return this._connection.connect();
     }
 
     jslix.connection.prototype.restart = function(){

@@ -6,6 +6,7 @@
     jslix.session = function(dispatcher){
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(jslix.session.stanzas.bind_result, this);
+        this.deferred = $.Deferred();
     }
 
     jslix.session._name = 'jslix.session';
@@ -16,9 +17,15 @@
 
     jslix.session.stanzas.bind_result = jslix.Element({
         handler: function(top){
-            return jslix.stanzas.iq.create({
+            var iq = jslix.stanzas.iq.create({
                 type: 'set',
                 link: jslix.session.stanzas.request.create({})
+            });
+            var that = this;
+            this._dispatcher.send(iq).done(function() {
+                that.deferred.resolve();
+            }).fail(function(reason) {
+                that.deferred.reject(reason);
             });
         }
     }, [jslix.bind.stanzas.response]);

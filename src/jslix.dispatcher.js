@@ -61,10 +61,11 @@
                 if(result){
                     if(!(result instanceof jslix.stanzas.break_stanza))
                         this.send(result);
-                    return;
+                    break;
                 }
             }
         }
+        if(top) return;
 
         var tops = [jslix.stanzas.iq, jslix.stanzas.presence,
                     jslix.stanzas.message];
@@ -175,11 +176,11 @@
                 deferred.fail(loop_fail);
             }
         }
-        if(!this.handlers.length){
+        if(!this.handlers.length && can_error){
             this.send(top.makeError('feature-not-implemented'));
             return;
-        }
-        loop();
+        } else if (this.handlers.length)
+            loop();
     }
 
     dispatcher.prototype.send = function(els) {

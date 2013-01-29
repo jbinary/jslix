@@ -20,7 +20,15 @@
         this.http_base = http_base;
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(jslix.connection.transports.bosh.stanzas.features, this);
-        this._dispatcher.registerPlugin(jslix.sasl);
+        this.sasl = this._dispatcher.registerPlugin(jslix.sasl);
+        var that = this;
+        this.sasl.deferred.done(function() {
+            dispatcher.send(that.restart());
+        }).fail(function(reason) {
+            that.disconnect();
+            that._connection_deferred.reject(reason); // TODO: abstract exception
+        });
+        this._connection_deferred = null;
     }
 
     jslix.connection.transports.bosh._name = 'jslix.connection.transports.bosh';
@@ -34,7 +42,8 @@
     jslix.connection.transports.bosh.stanzas.body = jslix.Element({
         xmlns: jslix.connection.transports.bosh.BOSH_NS,
         element_name: 'body',
-        type: new jslix.fields.StringAttr('type', false)
+        type: new jslix.fields.StringAttr('type', false),
+        condition: new jslix.fields.StringAttr('condition', false)
     });
 
     jslix.connection.transports.bosh.stanzas.empty = jslix.Element({
@@ -90,12 +99,22 @@
         handler: function(top){
             if(top.bind)
                 this._dispatcher.registerPlugin(jslix.bind);
-            if(top.session)
-                this._dispatcher.registerPlugin(jslix.session);
+            if(top.session) {
+                var session = this._dispatcher.registerPlugin(jslix.session);
+                var that = this;
+                session.deferred.done(function() {
+                    that._connection_deferred.resolve();
+                }).fail(function(reason) {
+                    that.disconnect();
+                    that._connection_deferred.reject(reason); // TODO: abstract exception
+                });
+            }
         }
     }, [jslix.stanzas.features]);
 
     jslix.connection.transports.bosh.prototype.connect = function(){
+        if (this._connection_deferred) return this._connection_deferred;
+        this._connection_deferred = $.Deferred();
         this.send(jslix.build(
             jslix.connection.transports.bosh.stanzas.request.create({
                 rid: this._rid,
@@ -110,6 +129,7 @@
         ));
 
         this.process_queue();
+        return this._connection_deferred;
     }
 
     jslix.connection.transports.bosh.prototype.send = function(doc){
@@ -143,6 +163,8 @@
     }
 
     jslix.connection.transports.bosh.prototype.process_queue = function(timestamp){
+        if(this._interval) clearInterval(this._interval);
+        delete this._interval;
         this.clean_slots();
         if(this.established && !(this._slots.length || this._queue.length) && new Date().getTime() > timestamp + this.polling * 1000){
             this.send(jslix.build(
@@ -164,31 +186,42 @@
         }
         var connection = this;
         if(this._queue.length || this._slots.length || this.established){
-            setTimeout(function(){ connection.process_queue(timestamp); },
-                this.queue_check_interval);
+            this._interval = setInterval(function(){
+                connection.process_queue(timestamp);
+            }, this.queue_check_interval);
         }
     }
 
     jslix.connection.transports.bosh.prototype.process_response = function(response){
         var result = false;
         if(response.readyState == 4){
-            if(response.status == 200 && response.responseXML){
+            if(response.status == 200 && response.responseXML){ // TODO: handle other statuses as well (404 at least)
                 var doc = response.responseXML,
                     stanzas = jslix.connection.transports.bosh.stanzas;
-                try{
-                    var top = jslix.parse(doc, (this.established ? stanzas.body : stanzas.response));
-                } catch(e){
-                    return result;
+                var definitions = [stanzas.body, stanzas.response];
+                var top = undefined;
+                for (var i=0; i<definitions.length; i++) {
+                    try{
+                        var top = jslix.parse(doc, definitions[i]);
+                    } catch(e){
+                        if (!e instanceof jslix.exceptions.WrongElement)
+                            return result;
+                    }
                 }
-                if(!this.established){
+                if(!top) return result;
+                if(!this.established && top.type != 'terminate'){
                     this.requests = top.requests;
                     this.wait = top.wait;
                     this.polling = top.polling;
                     this._sid = top.sid;
                     this.established = true;
                 }else{
-                    if(top.type == 'terminate')
-                        this.established = false;
+                    if(top.type == 'terminate') {
+                        if (this.established)
+                            this.established = false;
+                        else
+                            this._connection_deferred.reject(top.condition); // TODO: abstract exception here
+                    }
                 }
                 for(var j=0; j<doc.firstChild.childNodes.length; j++){
                     this._dispatcher.dispatch(doc.firstChild.childNodes[j]);

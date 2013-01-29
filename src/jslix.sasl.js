@@ -7,7 +7,9 @@
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(jslix.sasl.stanzas.mechanisms, this);
         this._dispatcher.addHandler(jslix.sasl.stanzas.success, this);
+        this._dispatcher.addHandler(jslix.sasl.stanzas.failure, this);
         this._mechanism = null;
+        this.deferred = $.Deferred();
     }
 
     jslix.sasl._name = 'jslix.sasl';
@@ -56,14 +58,17 @@
         xmlns: jslix.sasl.SASL_NS,
         element_name: 'failure',
         condition: new jslix.fields.ConditionNode(),
-        text: new jslix.fields.StringNode('text', false)
+        text: new jslix.fields.StringNode('text', false),
+        handler: function(top) {
+            this.deferred.reject(this);
+        }
     });
 
     jslix.sasl.stanzas.success = jslix.Element({
         xmlns: jslix.sasl.SASL_NS,
         element_name: 'success',
         handler: function(top){
-            return this._dispatcher.connection.restart();
+            this.deferred.resolve();
         }
     });
 

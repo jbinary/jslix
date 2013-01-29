@@ -18,11 +18,6 @@
     jslix.Client.prototype.constructor = jslix.Client;
 
     jslix.Client.prototype.connect = function(){
-        this.addHandler(jslix.Element({
-            anyHandler: function(top){
-                return jslix.stanzas.presence.create();
-            }
-        }, [jslix.session.stanzas.request]), this, jslix.Client._name);
         return this.connection.connect(this.dispatcher);
     }
 
