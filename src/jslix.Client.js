@@ -4,6 +4,7 @@
     var jslix = window.jslix;
 
     jslix.Client = function(options){
+        if (!options) return;
         jslix.BaseClient.call(this, options);
         this.options['http_base'] = this.options['http_base'] || '/http-base/';
         this.connection = new jslix.connection(this.options['jid'],
