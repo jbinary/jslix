@@ -139,7 +139,7 @@
         priority: new fields.IntegerNode('priority', false),
         
         clean_show: function(value) {
-            if (['chat', 'away', 'xa', 'dnd'].indexOf(value) == -1)
+            if ([undefined, 'chat', 'away', 'xa', 'dnd'].indexOf(value) == -1)
                 throw new ElementParseError('Presence show element has the wrong value');
             return value
         }
