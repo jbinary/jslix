@@ -23,7 +23,8 @@
 
     // Signals
     roster.signals = {
-        got: new Signal()
+        got: new Signal(),
+        updated: new Signal()
     }
 
     // Stanzas
@@ -51,15 +52,33 @@
         xmlns: roster.ROSTER_NS
     }, [jslix.stanzas.query]);
 
+    stanzas.update_request = jslix.Element({
+        clean_from: function(value, top) {
+            var myjid = this._dispatcher.myjid;
+            if ([myjid.getBareJID, myjid.toString(), myjid.getDomain()].indexOf(top.from) == -1) {
+                throw "not-authorized";
+            }
+            return value;
+        },
+        setHandler: function(query, top) {
+            roster.signals.updated.dispatch(query.items);
+            return top.makeReply();
+        }
+    }, [stanzas.response]);
+
     // Methods
     roster.prototype.init = function() {
         var d = $.Deferred();
+
+        this._dispatcher.addHandler(stanzas.update_request, this,
+                                    'jslix.roster')
+
         var request = stanzas.request.create({
             parent: jslix.stanzas.iq.create({type: 'get'})
         });
         var that = this;
         this._dispatcher.send(request).done(function(result) {
-            roster.signals.got.dispatch(result);
+            roster.signals.got.dispatch(result.items);
             d.resolve(result);
         }).fail(function(failure) {
             d.reject(failure);
