@@ -6,7 +6,7 @@
     jslix.connection.transports.bosh = function(dispatcher, jid, password, http_base){
         this.queue_check_interval = 250;
         this.established = false;
-        this.requests = 1;
+        this.requests = 1; // TODO: it should be possible to tune these; 2 is more suitable to be default here?
         this.inactivity = 0;
         this.polling = 0;
         this.wait = 60;
