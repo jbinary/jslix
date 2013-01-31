@@ -124,19 +124,23 @@
         }
 
         var loop_fail = function(failure) {
-            if (typeof failure == 'object' && 
-                'definition' in failure) self.send(failure)
-            else if (failure instanceof Error) {
-                self.send(top.makeError('internal-server-error',
-                                        failure.toString()));
-                            // XXX: remove failure information when not debug
-            } else if (typeof failure == 'object' &&
-                       'condition' in failure) {
-                self.send(top.makeError(failure));
-            } else if (typeof failure == 'string') {
-                self.send(top.makeError(failure));
-            } else {
-                self.send(top.makeError('internal-server-error'));
+            // TODO: proper logging here
+            console.log(failure);
+            if (can_error) {
+                if (typeof failure == 'object' && 
+                    'definition' in failure) self.send(failure)
+                else if (failure instanceof Error) {
+                    self.send(top.makeError('internal-server-error',
+                                            failure.toString()));
+                                // XXX: remove failure information when not debug
+                } else if (typeof failure == 'object' &&
+                           'condition' in failure) {
+                    self.send(top.makeError(failure));
+                } else if (typeof failure == 'string') {
+                    self.send(top.makeError(failure));
+                } else {
+                    self.send(top.makeError('internal-server-error'));
+                }
             }
             continue_loop();
         }
@@ -154,7 +158,7 @@
             } catch (e) {
                 if (e instanceof jslix.exceptions.WrongElement) return continue_loop();
                 if (e instanceof jslix.exceptions.ElementParseError) {
-                    bad_request = True;
+                    bad_request = true;
                     return continue_loop(); // TODO: pass an exception message?
                 }
                 throw (e); // TODO: internal-server-error?
@@ -169,11 +173,13 @@
             } catch (e) {
                 loop_fail(e);
             }
-            if ('__definition__' in deferred) {
+            if (deferred && '__definition__' in deferred) {
                 loop_done(deferred);
-            } else {
+            } else if (deferred) {
                 deferred.done(loop_done);
                 deferred.fail(loop_fail);
+            } else {
+                continue_loop();
             }
         }
         if(!this.handlers.length && can_error){
