@@ -133,13 +133,14 @@
     }
 
     jslix.connection.transports.bosh.prototype.send = function(doc){
-        if(doc.firstChild.nodeName != 'body'){
+        if(!doc || doc.firstChild.nodeName != 'body'){
             var body = jslix.build(
                 jslix.connection.transports.bosh.stanzas.empty.create({
                     sid: this._sid,
                     rid: this._rid
                 }));
-            body.firstChild.appendChild(doc.firstChild);
+            if (doc)
+                body.firstChild.appendChild(doc.firstChild);
             doc = body;
         }
         this._queue.push(doc);
@@ -163,8 +164,6 @@
     }
 
     jslix.connection.transports.bosh.prototype.process_queue = function(timestamp){
-        if(this._interval) clearInterval(this._interval);
-        delete this._interval;
         this.clean_slots();
         if(this.established && !(this._slots.length || this._queue.length) && new Date().getTime() > timestamp + this.polling * 1000){
             this.send(jslix.build(
@@ -178,15 +177,17 @@
             this.clean_slots();
             var doc = this._queue.shift(),
                 req = this.create_request();
-            if(!req)
+            if(!req) {
+                this._queue = [doc].concat(this._queue);
                 break;
+            }
             req.send(doc);
             timestamp = new Date().getTime();
             this._slots.push(req);
         }
         var connection = this;
         if(this._queue.length || this._slots.length || this.established){
-            this._interval = setInterval(function(){
+            this._interval = setTimeout(function(){
                 connection.process_queue(timestamp);
             }, this.queue_check_interval);
         }
@@ -223,12 +224,13 @@
                             this._connection_deferred.reject(top.condition); // TODO: abstract exception here
                     }
                 }
-                for(var j=0; j<doc.firstChild.childNodes.length; j++){
-                    this._dispatcher.dispatch(doc.firstChild.childNodes[j]);
+                while(doc.firstChild.childNodes.length) {
+                    this._dispatcher.dispatch(doc.firstChild.childNodes[0]);
                 }
                 result = true;
             }
             response.closed = true;
+            this.send();
         }
         return result;
     }
