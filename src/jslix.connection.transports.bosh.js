@@ -165,14 +165,10 @@
 
     jslix.connection.transports.bosh.prototype.process_queue = function(timestamp){
         this.clean_slots();
-        if(this.established && !(this._slots.length || this._queue.length) && new Date().getTime() > timestamp + this.polling * 1000){
-            this.send(jslix.build(
-                jslix.connection.transports.bosh.stanzas.empty.create({
-                    rid: this._rid,
-                    sid: this._sid
-                })
-            ));
-        }
+        if(this.established && 
+            !(this._slots.length || this._queue.length) && 
+            (this.requests > 1 || new Date().getTime() > timestamp + this.polling * 1000))
+            this.send();
         while(this._queue.length){
             this.clean_slots();
             var doc = this._queue.shift(),
@@ -230,7 +226,6 @@
                 result = true;
             }
             response.closed = true;
-            this.send();
         }
         return result;
     }
