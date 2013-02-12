@@ -72,7 +72,7 @@
     }
     types.StringType = {
         to_js: function(value) {
-            if (typeof(value) == 'string')
+            if (typeof(value) == 'string' || value === null)
                 return value;
         },
         from_js: function(value) {
@@ -120,7 +120,7 @@
     Attr.prototype.get_from_el = function(el) {
         var attr = el.attributes.getNamedItem(this.name);
         if (attr == null) {
-            return null;
+            return undefined;
         } else {
             return attr.value;
         }
@@ -162,7 +162,7 @@
             if ((this.name === undefined || node.localName == this.name) && 
                  xmlns == node.namespaceURI) value[value.length] = node;
         }
-        if (!this.listed) return value[0] || null;
+        if (!this.listed) return value[0] || undefined;
         return value;
     };
     
@@ -266,8 +266,10 @@
             },
             get_from_el: function(el) {
                 var extract = function(value) {
+                    if (value.childNodes.length == 0)
+                        return null;
                     if (value.childNodes.length != 1)
-                        throw new ElementParseError('TextNode contains no one or more than one child')
+                        throw new ElementParseError('TextNode contains more than one child')
                     value = value.childNodes[0];
                     if (value.nodeName == '#text')
                         value = value.nodeValue;
