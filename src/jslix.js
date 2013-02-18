@@ -78,7 +78,7 @@
         from_js: function(value) {
             return new String(value);
         }
-    },
+    }
     types.IntegerType = {
         to_js: function(value) {
             if (typeof(value) == 'string')
@@ -87,7 +87,7 @@
         from_js: function(value) {
             return new String(value);
         }
-    },
+    }
     types.JIDType = {
         to_js: function(value) {
             if (!value) return value;
