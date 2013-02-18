@@ -107,6 +107,47 @@
                 return value.toString();
         }
     }
+    // TODO: DateType, TimeType
+    types.DateTimeType = {
+        to_js: function(ts) {
+            if (typeof(ts) != 'string') {
+                throw new ElementParseError("Can't parse datetime");
+            }
+            // Copied from JSJaC
+            var date = new Date(Date.UTC(ts.substr(0,4),
+                                         ts.substr(5,2)-1,
+                                         ts.substr(8,2),
+                                         ts.substr(11,2),
+                                         ts.substr(14,2),
+                                         ts.substr(17,2)));
+            if (ts.substr(ts.length-6,1) != 'Z') { // there's an offset
+                var offset = new Date();
+                offset.setTime(0);
+                offset.setUTCHours(ts.substr(ts.length-5,2));
+                offset.setUTCMinutes(ts.substr(ts.length-2,2));
+                if (ts.substr(ts.length-6,1) == '+')
+                    date.setTime(date.getTime() - offset.getTime());
+                else if (ts.substr(ts.length-6,1) == '-')
+                    date.setTime(date.getTime() + offset.getTime());
+            }
+            return date;
+        },
+        from_js: function(ts) {
+            var padZero = function(i) {
+                if (i < 10) return "0" + i;
+                    return i;
+            };
+
+            var jDate = ts.getUTCFullYear() + "-";
+            jDate += padZero(ts.getUTCMonth()+1) + "-";
+            jDate += padZero(ts.getUTCDate()) + "T";
+            jDate += padZero(ts.getUTCHours()) + ":";
+            jDate += padZero(ts.getUTCMinutes()) + ":";
+            jDate += padZero(ts.getUTCSeconds()) + "Z";
+
+            return jDate;
+        }
+    }
 
     // Fields
     var Attr = function(name, required) 
@@ -204,6 +245,14 @@
         function(name, required) {
             fields.StringAttr.call(this, name, required);
             this.type = types.IntegerType;
+        }
+    );
+
+    fields.DateTimeAttr = Class(
+        fields.StringAttr,
+        function() {
+            fields.StringAttr.apply(this, arguments);
+            this.type = types.DateTimeType;
         }
     );
 
@@ -336,6 +385,14 @@
         function(name, required, listed) {
             fields.StringNode.call(this, name, undefined, required, listed);
             this.type = types.JIDType;
+        }
+    );
+
+    fields.DateTimeNode = Class(
+        fields.StringNode,
+        function() {
+            fields.StringNode.apply(this, arguments);
+            this.type = types.DateTimeType;
         }
     );
 
