@@ -1,6 +1,5 @@
 /*
  * JSLix Roster Implementation.
- * Requires the js-signals library
  *
  */
 
@@ -25,7 +24,7 @@
     roster.signals = {
         got: new Signal(),
         updated: new Signal()
-    }
+    };
 
     // Stanzas
     roster.stanzas = {};

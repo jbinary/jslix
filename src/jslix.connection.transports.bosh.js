@@ -31,6 +31,10 @@
         this._connection_deferred = null;
     }
 
+    jslix.connection.transports.bosh.signals = {
+        fail: new signals.Signal()
+    };
+
     jslix.connection.transports.bosh._name = 'jslix.connection.transports.bosh';
 
     jslix.connection.transports.bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
@@ -224,6 +228,9 @@
                     this._dispatcher.dispatch(doc.firstChild.childNodes[0]);
                 }
                 result = true;
+            }else{
+                this.established = false;
+                jslix.connection.transports.bosh.signals.fail.dispatch(response.status);
             }
             response.closed = true;
         }
