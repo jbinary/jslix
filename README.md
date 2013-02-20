@@ -3,7 +3,8 @@ jslix
 
 Requirements:
 - jQuery;
-- CryptoJS.
+- CryptoJS;
+- js-signals.
 
 To run the tests, you will need:
 - node.js;
