@@ -19,7 +19,7 @@ var SASLTest = buster.testCase('SASLTest', {
         this.dispatcher.dispatch(jslix.build(
             jslix.sasl.stanzas.success.create()
         ));
-        assert(this.connection.status == 'restart');
+        assert(this.sasl.deferred.state() == 'resolved');
     },
     testMechanisms: function(){
         var connection = this.connection;
