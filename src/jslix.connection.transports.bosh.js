@@ -119,7 +119,6 @@
     jslix.connection.transports.bosh.prototype.connect = function(){
         if (this._connection_deferred) return this._connection_deferred;
         this._connection_deferred = $.Deferred();
-        if(this.resume()) return this._connection_deferred;
         this.send(jslix.build(
             jslix.connection.transports.bosh.stanzas.request.create({
                 rid: this._rid,
@@ -257,38 +256,26 @@
             return false;
         }
         this.established = false;
-        var expires = new Date().getTime(),
-            jslix_settings = JSON.stringify({
-                jid: this.jid.toString(),
-                requests: this.requests,
-                wait: this.wait,
-                polling: this.polling,
-                sid: this._sid,
-                rid: this._rid
-            });
-        expires = new Date(expires+this.wait*1000).toUTCString();
-        document.cookie = "jslix_settings=" + jslix_settings + "; path=/; expires=" + expires;
-        return true;
+        return {
+            jid: this.jid.toString(),
+            requests: this.requests,
+            wait: this.wait,
+            polling: this.polling,
+            sid: this._sid,
+            rid: this._rid
+        };
     }
 
-    jslix.connection.transports.bosh.prototype.resume = function(){
+    jslix.connection.transports.bosh.prototype.resume = function(settings){
         if(this.established){
             return false;
         }
-        var cookie = {},
-            raw_cookie = document.cookie.split(';'),
-            jslix_settings;
-        for(var i=0; i<raw_cookie.length; i++){
-            var raw_data = raw_cookie[i].trim().split('=');
-            cookie[raw_data[0]] = raw_data[1];
-        }
-        jslix_settings = JSON.parse(cookie['jslix_settings'] || '{}');
-        if(jslix_settings['jid'] == this.jid.toString()){
-            this.requests = jslix_settings['requests'] || this.requests;
-            this.wait = jslix_settings['wait'] || this.wait;
-            this.polling = jslix_settings['polling'] || this.polling;
-            this._sid = jslix_settings['sid'] || this._sid;
-            this._rid = jslix_settings['rid'] || this._rid;
+        if(settings['jid'] == this.jid.toString()){
+            this.requests = settings['requests'] || this.requests;
+            this.wait = settings['wait'] || this.wait;
+            this.polling = settings['polling'] || this.polling;
+            this._sid = settings['sid'] || this._sid;
+            this._rid = settings['rid'] || this._rid;
             this.established = true;
             this.process_queue();
             return true;
