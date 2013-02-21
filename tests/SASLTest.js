@@ -1,11 +1,7 @@
 var SASLTest = buster.testCase('SASLTest', {
     setUp: function(){
         this.connection = {
-            status: null,
-            restart: function(){
-                this.status = 'restart';
-                return jslix.stanzas.break_stanza.create();
-            }
+            status: null
         };
         this.dispatcher = new jslix.dispatcher(this.connection);
         this.sasl = new jslix.sasl(this.dispatcher);
