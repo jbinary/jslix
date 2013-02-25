@@ -5,6 +5,7 @@ config['jslix'] = {
     rootPath: './',
     libs: [
         'libs/jquery.js',
+        'libs/signals.js',
         'libs/cryptojs/rollups/md5.js',
         'libs/cryptojs/components/core.js',
         'libs/cryptojs/components/enc-base64.js',

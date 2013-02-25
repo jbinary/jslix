@@ -31,6 +31,10 @@
         this._connection_deferred = null;
     }
 
+    jslix.connection.transports.bosh.signals = {
+        fail: new signals.Signal()
+    };
+
     jslix.connection.transports.bosh._name = 'jslix.connection.transports.bosh';
 
     jslix.connection.transports.bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
@@ -206,7 +210,7 @@
                     }
                 }
                 if(!top) return result;
-                if(!this.established && top.type != 'terminate'){
+                if(!this.established && top.type != 'terminate' && top.sid){
                     this.requests = top.requests;
                     this.wait = top.wait;
                     this.polling = top.polling;
@@ -224,6 +228,9 @@
                     this._dispatcher.dispatch(doc.firstChild.childNodes[0]);
                 }
                 result = true;
+            }else{
+                this.established = false;
+                jslix.connection.transports.bosh.signals.fail.dispatch(response.status);
             }
             response.closed = true;
         }
@@ -242,6 +249,38 @@
             return connection.process_response(this);
         }
         return req;
+    }
+
+    jslix.connection.transports.bosh.prototype.suspend = function(){
+        if(!this.established){
+            return false;
+        }
+        this.established = false;
+        return {
+            jid: this.jid.toString(),
+            requests: this.requests,
+            wait: this.wait,
+            polling: this.polling,
+            sid: this._sid,
+            rid: this._rid
+        };
+    }
+
+    jslix.connection.transports.bosh.prototype.resume = function(settings){
+        if(this.established){
+            return false;
+        }
+        if(settings['jid'] == this.jid.toString()){
+            this.requests = settings['requests'] || this.requests;
+            this.wait = settings['wait'] || this.wait;
+            this.polling = settings['polling'] || this.polling;
+            this._sid = settings['sid'] || this._sid;
+            this._rid = settings['rid'] || this._rid;
+            this.established = true;
+            this.process_queue();
+            return true;
+        }
+        return false;
     }
 
     jslix.connection.transports.bosh.prototype.disconnect = function(){
