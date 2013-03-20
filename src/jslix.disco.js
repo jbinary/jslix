@@ -25,7 +25,7 @@
         result_class: jslix.disco.stanzas.response,
         getHandler: function(query, top){
             var result = query.makeResult({});
-            for(var i=0; i<this.identities.length; i++)}{
+            for(var i=0; i<this.identities.length; i++){
                 result.link(this.identities[i]);
             }
             for(var i=0; i<this.features.length; i++){
