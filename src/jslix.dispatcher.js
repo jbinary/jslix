@@ -15,10 +15,10 @@
 
     var dispatcher = jslix.dispatcher;
 
-    dispatcher.prototype.registerPlugin = function(plugin){
+    dispatcher.prototype.registerPlugin = function(plugin, options){
         // XXX: We don't use any aditional plugin initialization yet.
         if(!this.plugins[plugin._name]){
-            this.plugins[plugin._name] = new plugin(this);
+            this.plugins[plugin._name] = new plugin(this, options);
         }
         return this.plugins[plugin._name];
     }
