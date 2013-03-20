@@ -3,11 +3,19 @@
 
     var jslix = window.jslix;
 
-    jslix.disco = function(dispatcher, options){
-        this.features = options['features'] || [];
-        this.identities = options['identities'] || [];
+    jslix.disco = function(dispatcher){
+        this.identities = [];
+        this.features = [];
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(jslix.disco.stanzas.request, this);
+    }
+
+    jslix.disco.prototype.registerFeature = function(feature){
+        this.features.push(feature);
+    }
+
+    jslix.disco.prototype.registerIdentity = function(identity){
+        this.identities.push(identity);
     }
 
     jslix.disco._name = 'jslix.disco';
@@ -24,6 +32,9 @@
         xmlns: jslix.disco.DISCO_NS,
         result_class: jslix.disco.stanzas.response,
         getHandler: function(query, top){
+            if(query.node != undefined){
+                return query.makeError('item-not-found');
+            }
             var result = query.makeResult({});
             for(var i=0; i<this.identities.length; i++){
                 result.link(this.identities[i]);
