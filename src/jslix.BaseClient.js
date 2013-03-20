@@ -17,8 +17,8 @@
         return this.connection.connect(this.dispatcher);
     }
 
-    jslix.BaseClient.prototype.registerPlugin = function(plugin){
-        this.dispatcher.registerPlugin(plugin);
+    jslix.BaseClient.prototype.registerPlugin = function(plugin, options){
+        return this.dispatcher.registerPlugin(plugin, options);
     }
 
     jslix.BaseClient.prototype.unregisterPlugin = function(plugin){

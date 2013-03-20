@@ -4,7 +4,8 @@
     var jslix = window.jslix,
         fields = jslix.fields;
 
-    jslix.version = function(dispatcher) {
+    jslix.version = function(dispatcher, options) {
+        this.options = options || {};
         this._name = '';
         this._version = '';
         this._os = jslix.version._defineOs();
@@ -58,6 +59,9 @@
         this.setVersion(version);
         if (this._dispatcher){
             this._dispatcher.addHandler(jslix.version.stanzas.request, this);
+        }
+        if(this.options['disco_plugin'] != undefined){
+            this.options.disco_plugin.registerFeature(jslix.version.VERSION_NS);
         }
     };
 
