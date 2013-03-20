@@ -14,8 +14,16 @@
         this.features.push(feature);
     }
 
+    jslix.disco.prototype.getFeatures = function(){
+        return this.features;
+    }
+
     jslix.disco.prototype.registerIdentity = function(identity){
         this.identities.push(identity);
+    }
+
+    jslix.disco.prototype.getIdentities = function(){
+        return this.identities;
     }
 
     jslix.disco._name = 'jslix.disco';
@@ -60,6 +68,7 @@
         parent_element: jslix.disco.stanzas.response,
         xmlns: jslix.disco.DISCO_NS,
         element_name: 'identity',
+        xml_lang: new jslix.fields.StringAttr('xml:lang', false),
         category: new jslix.fields.StringAttr('category', true),
         type: new jslix.fields.StringAttr('type', true),
         name: new jslix.fields.StringAttr('name', false)
