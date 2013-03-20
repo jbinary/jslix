@@ -18,7 +18,7 @@
     }
 
     jslix.BaseClient.prototype.registerPlugin = function(plugin, options){
-        this.dispatcher.registerPlugin(plugin, options);
+        return this.dispatcher.registerPlugin(plugin, options);
     }
 
     jslix.BaseClient.prototype.unregisterPlugin = function(plugin){
