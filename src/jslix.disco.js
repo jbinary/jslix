@@ -8,6 +8,7 @@
         this.features = [];
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(jslix.disco.stanzas.request, this);
+        this.registerFeature(jslix.disco.DISCO_NS);
     }
 
     jslix.disco.prototype.registerFeature = function(feature){
