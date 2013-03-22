@@ -5,9 +5,10 @@
     jslix.caps = function(dispatcher, options){
         this.options = options || {};
         this._dispatcher = dispatcher;
-        if(this.options['disco_plugin'] != undefined){
-            this.options.disco_plugin.registerFeature(jslix.caps.CAPS_NS);
+        if(this.options['disco_plugin'] === undefined){
+            throw new Error('jslix.disco plugin required!');
         }
+        this.options.disco_plugin.registerFeature(jslix.caps.CAPS_NS);
     }
 
     jslix.caps.prototype.getVerificationString = function(){
