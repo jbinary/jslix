@@ -7,6 +7,7 @@ config['jslix'] = {
         'libs/jquery.js',
         'libs/signals.js',
         'libs/cryptojs/rollups/md5.js',
+        'libs/cryptojs/rollups/sha1.js',
         'libs/cryptojs/components/core.js',
         'libs/cryptojs/components/enc-base64.js',
     ],
@@ -21,7 +22,9 @@ config['jslix'] = {
         'src/jslix.sasl.mechanisms.*.js',
         'src/jslix.connection.js',
         'src/jslix.connection.transports.*.js',
-        'src/jslix.version.js'
+        'src/jslix.version.js',
+        'src/jslix.caps.js',
+        'src/jslix.disco.js'
     ],
     tests: ['tests/*.js'],
     extensions: [require('buster-coverage')],
