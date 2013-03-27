@@ -6,9 +6,9 @@
 
     jslix.version = function(dispatcher, options) {
         this.options = options || {};
-        this._name = '';
-        this._version = '';
-        this._os = jslix.version._defineOs();
+        this._name = options.name || '';
+        this._version = options.version || '';
+        this._os = options.os || jslix.version._defineOs();
         this._dispatcher = dispatcher;
 
     };
@@ -54,9 +54,7 @@
         return this._dispatcher.send(iq);
     };
 
-    jslix.version.prototype.init = function(name, version){
-        this.setName(name);
-        this.setVersion(version);
+    jslix.version.prototype.init = function(){
         if (this._dispatcher){
             this._dispatcher.addHandler(jslix.version.stanzas.request, this);
         }
