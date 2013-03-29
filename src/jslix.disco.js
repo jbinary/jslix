@@ -7,7 +7,11 @@
         this.identities = [];
         this.features = [];
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(jslix.disco.stanzas.request, this);
+    }
+
+    jslix.disco.prototype.init = function() {
+        this._dispatcher.addHandler(jslix.disco.stanzas.request, this,
+                                    jslix.disco._name);
         this.registerFeature(jslix.disco.DISCO_NS);
     }
 
