@@ -2,6 +2,7 @@ var CapsTest = buster.testCase('CapsTest', {
     setUp: function(){
         this.dispatcher = new jslix.dispatcher();
         this.disco_plugin = this.dispatcher.registerPlugin(jslix.disco);
+        this.disco_plugin.init();
     },
     testException: function(){
         var dispatcher = this.dispatcher;
@@ -38,6 +39,7 @@ var CapsTest = buster.testCase('CapsTest', {
                 'http://jabber.org/protocol/disco#items');
             this.disco_plugin.registerFeature(
                 'http://jabber.org/protocol/muc');
+
         assert(
             caps_plugin.getVerificationString() == valid_verification_string
         );
