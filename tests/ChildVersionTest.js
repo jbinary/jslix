@@ -1,25 +1,29 @@
 var ChildVersionTest = buster.testCase('ChildVersionTest', {
     setUp: function(){
         this.dispatcher = new jslix.dispatcher();
+        this.options = {
+            name: 'hell',
+            version: '2.0'
+        };
     },
     testInheritance: function(){
-       var testClassExample = jslix.Class(
+       var test = this,
+           testClassExample = jslix.Class(
                 jslix.version,
-                function(dispatcher){
-                    jslix.version.call(this, dispatcher);
+                function(dispatcher, options){
+                    jslix.version.call(this, dispatcher, options);
                     this.setVersion(Math.floor((Math.random()*10)+1));
                 }
-            );
+            ),
+           sample;
 
-        var sample,
-            test = this;
         refute.exception(function(){
-                            sample = new testClassExample(test.dispatcher)
-                          });
+            sample = new testClassExample(test.dispatcher, test.options);
+        });
 
         assert(sample.getVersion() != null);
 
-        sample.init("hell", "2.0");
+        sample.init();
         sample._os = "JSLiX";
 
         assert(sample.getName() == "hell");

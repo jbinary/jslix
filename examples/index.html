@@ -8,6 +8,7 @@
         <script src="../libs/signals.js"></script>
 
         <script src="../libs/cryptojs/rollups/md5.js"></script>
+        <script src="../libs/cryptojs/rollups/sha1.js"></script>
         <script src="../libs/cryptojs/components/core.js"></script>
         <script src="../libs/cryptojs/components/enc-base64.js"></script>
 
@@ -25,6 +26,8 @@
         <script src="../src/jslix.sasl.js"></script>
         <script src="../src/jslix.sasl.mechanisms.plain.js"></script>
         <script src="../src/jslix.sasl.mechanisms.digest_md5.js"></script>
+        <script src="../src/jslix.disco.js"></script>
+        <script src="../src/jslix.caps.js"></script>
         <script src="../src/jslix.BaseClient.js"></script>
         <script src="../src/jslix.Client.js"></script>
 
@@ -39,7 +42,27 @@
                     },
                     client = new jslix.Client(options);
                     window.client = client;
-                    window.client.connect();
+                    var deferred = window.client.connect();
+                    deferred.done(function(){
+                        var disco_plugin = client.registerPlugin(jslix.disco),
+                            plugins_options = {
+                                'disco_plugin': disco_plugin
+                            };
+                        disco_plugin.registerIdentity(
+                            jslix.disco.stanzas.identity.create({
+                                category: 'client',
+                                type: 'web',
+                                name: 'jslix'
+                            })
+                        );
+                        client.registerPlugin(jslix.version, plugins_options).init('jslix', 'beta');
+                        client.registerPlugin(jslix.caps, plugins_options);
+                        client.connection.send(
+                            jslix.build(
+                                jslix.stanzas.presence.create()
+                            )
+                        );
+                    });
                 return false;
             }
         </script>

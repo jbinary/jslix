@@ -7,28 +7,32 @@ var VersionTest = buster.testCase("VersionTest", {
             }
         };
         this.dispatcher = new jslix.dispatcher(this.connection);
+        this.options = {
+            name: 'Deadushka Moroz',
+            version: '1.0'
+        };
     },
     testInitVersion: function(){
         var version,
             test = this;
 
         refute.exception(function(){
-            version = test.dispatcher.registerPlugin(jslix.version);
+            version = test.dispatcher.registerPlugin(jslix.version, test.options);
         });
 
         refute.exception(function(){
-            version.init('Deadushka Moroz', '1.0');
+            version.init()
         });
 
         assert(version.getName() == 'Deadushka Moroz');
         assert(version.getVersion() ==  "1.0");
     },
     testGet: function(){
-        var version = this.dispatcher.registerPlugin(jslix.version),
+        var version = this.dispatcher.registerPlugin(jslix.version, this.options),
             jid = new jslix.JID('posoh@urta'),
             test = this,
             stanza;
-        version.init('Deadushka Moroz', '2.0');
+        version.init();
 
         refute.exception(function(){
             version.get(jid);
@@ -48,12 +52,12 @@ var VersionTest = buster.testCase("VersionTest", {
 
     },
     testEqualityName: function(){
-        var version = this.dispatcher.registerPlugin(jslix.version);
+        var version = this.dispatcher.registerPlugin(jslix.version, this.options);
         version.setName('some_name');
         assert(version.getName() == 'some_name');
     },
     testResponse: function(){
-        var version = this.dispatcher.registerPlugin(jslix.version),
+        var version = this.dispatcher.registerPlugin(jslix.version, this.options),
             request = jslix.stanzas.iq.create({
                 type: 'get',
                 to: 'user@server.com',
@@ -69,12 +73,12 @@ var VersionTest = buster.testCase("VersionTest", {
             stanza = jslix.parse(test.connection.lst_stnz, jslix.stanzas.error);
         });
         assert(stanza.type == 'cancel' && stanza.condition == 'feature-not-implemented');
-        version.init('some_name', 'some_version');
+        version.init();
         request.id = 'some_id_1';
         this.dispatcher.dispatch(jslix.build(request));
         refute.exception(function(){
             stanza = jslix.parse(test.connection.lst_stnz, jslix.version.stanzas.response);
         });
-        assert(stanza.name == 'some_name' && stanza.version == 'some_version');
+        assert(stanza.name == 'Deadushka Moroz' && stanza.version == '1.0');
     }
 });
