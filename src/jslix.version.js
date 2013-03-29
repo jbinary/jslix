@@ -6,9 +6,9 @@
 
     jslix.version = function(dispatcher, options) {
         this.options = options || {};
-        this._name = options.name || '';
-        this._version = options.version || '';
-        this._os = options.os || jslix.version._defineOs();
+        this._name = this.options.name || '';
+        this._version = this.options.version || '';
+        this._os = this.options.os || jslix.version._defineOs();
         this._dispatcher = dispatcher;
 
     };
