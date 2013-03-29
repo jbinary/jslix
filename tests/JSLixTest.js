@@ -180,9 +180,9 @@ var JSLixTest = buster.testCase("JSLixTest", {
                                           xmlns:'my_xmlns'}, 
                                           [jslix.stanzas.query]);
         
-        var myStanza = myDefinition.create({node: 123, to:'abc', from:'qwe'});
+        var myStanza = myDefinition.create({node: 123});
         
-        var iqParent = jslix.stanzas.iq.create({id:'123', type:'get'});
+        var iqParent = jslix.stanzas.iq.create({id:'123', type:'get', to: 'abc', from: 'qwe'});
         
         iqParent.link(myStanza);
         
@@ -192,13 +192,11 @@ var JSLixTest = buster.testCase("JSLixTest", {
 
         var parsedObject = jslix.parse(myDocument, myDefinition);
 
-        /*
         assert(compareDictionaries(parsedObject, { node: 123,
                                 parent: {
                                         to:'abc', from:'qwe', id:'123', type:'get'
                                     }
                                  }));
-        */
     },
     testElementParseError: function(){
         var myDefinition = jslix.Element({
@@ -222,9 +220,10 @@ var JSLixTest = buster.testCase("JSLixTest", {
                                           xmlns:'int_xmlns'},
                                           [jslix.stanzas.query]);
         
-        var myStanza = myDefinition.create({node: 123, int_attr: 100500, to:'abc', from:'qwe'});
+        var myStanza = myDefinition.create({node: 123, int_attr: 100500});
         
-        var iqParentIntegerNode = jslix.stanzas.iq.create({id:'123', type:'get'});
+        var iqParentIntegerNode = jslix.stanzas.iq.create({
+            id:'123', type:'get', to: 'abc', from: 'qwe'});
         
         iqParentIntegerNode.link(myStanza);
 
@@ -234,22 +233,21 @@ var JSLixTest = buster.testCase("JSLixTest", {
 
         var parsedObject = jslix.parse(myDocument, myDefinition);
 
-        /*
         assert(compareDictionaries(parsedObject, { node: 123, int_attr: 100500,
                                 parent: {
                                         id:'123', type:'get', to:'abc', from:'qwe'
                                     }
                                  }));
-        */
     },
     testJIDType: function(){
         var myDefinition = jslix.Element({node: new jslix.fields.JIDNode('jid_node', false), 
                                           xmlns:'jid_xmlns'},
                                           [jslix.stanzas.query]);
         
-        var myStanza = myDefinition.create({node: 123, to:'abcd', from:'qwe'});
+        var myStanza = myDefinition.create({node: 123});
         
-        var iqParentIntegerNode = jslix.stanzas.iq.create({id:'123', type:'get'});
+        var iqParentIntegerNode = jslix.stanzas.iq.create({
+            id:'123', type:'get', to: 'abcd', from: 'qwe'});
         
         iqParentIntegerNode.link(myStanza);
         
@@ -258,13 +256,11 @@ var JSLixTest = buster.testCase("JSLixTest", {
         refute.exception(function(){jslix.parse(myDocument, myDefinition);});
 
         var parsedObject = jslix.parse(myDocument, myDefinition);
-        /*
         assert(compareDictionaries(parsedObject, {node:123, 
                                 parent: {
                                         to:'abcd', from:'qwe', id:'123', type:'get'
                                     }
                                  }));
-        */
     },
     testElementNode: function(){
         var definitionElementNode = new jslix.Element({node: new jslix.fields.StringNode('string_node', false), 
@@ -430,9 +426,6 @@ var JSLixTest = buster.testCase("JSLixTest", {
 
 
         assert(this.dispatcher.deferreds.hasOwnProperty('123'));
-
-        // XXX: WTF?
-        //refute(this.dispatcher.handlers[definitionIq] == null);
 
         var test = this;
         refute.exception(function(){
