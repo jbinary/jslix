@@ -7,6 +7,7 @@
         this.connection = connection;
         this.handlers = [];
         this.top_handlers = [];
+        this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
     }
@@ -25,21 +26,36 @@
 
     dispatcher.prototype.unregisterPlugin = function(plugin){
 
-        var remove_handlers = function(value){
-            return !value[2] == plugin._name;
-        };
+        var remove_handlers = function(list) {
+            return list.filter(function(value){
+                return !value[2] == plugin._name;
+            });
+        }
 
-        this.top_handlers = this.top_handlers.filter(remove_handlers);
-        this.handlers = this.handlers.filter(remove_handlers);
+        this.top_handlers = remove_handlers(this.top_handlers);
+        this.handlers = remove_handlers(this.handlers);
+        for (var k in this.hooks) {
+            this.hooks[k] = remove_handlers(this.hooks[k]);
+        }
         delete this.plugins[plugin._name];
     }
 
-    dispatcher.prototype.addHandler = function(handler, host, plugin_name){
-        if(typeof handler.handler == 'function'){
-            this.top_handlers[this.top_handlers.length] = [handler, host, plugin_name];
-        }else{
-            this.handlers[this.handlers.length] = [handler, host, plugin_name];
+    dispatcher.prototype._addHandler = function(list, handler, host, plugin_name){
+        list[list.length] = [handler, host, plugin_name];
+    }
+
+    dispatcher.prototype.addHandler = function(handler, host, plugin_name) {
+        var list = this.handlers;
+        if (typeof handler.handler == 'function') {
+            list = this.top_handlers;
         }
+        return this._addHandler(list, handler, host, plugin_name);
+    }
+
+    dispatcher.prototype.addHook = function(name, hook, host, plugin_name) {
+        var list = this.hooks[name] || [];
+        this.hooks[name] = list;
+        return this._addHandler(list, hook, host, plugin_name);
     }
 
     dispatcher.prototype.dispatch = function(el) {
@@ -194,8 +210,11 @@
         var d = null;
         for (var i=0; i<els.length; i++) {
             var el = els[i];
-            if(el instanceof jslix.stanzas.empty_stanza)
+            // TODO: BreakStanza
+            var doc = this.check_hooks(el);
+            if(el instanceof jslix.stanzas.empty_stanza) {
                 continue;
+            }
             var top = el.getTop();
             if (top.__definition__.element_name == 'iq' && 
                 ['get', 'set'].indexOf(top.type) != -1) {
@@ -203,9 +222,39 @@
                 this.deferreds[top.id] = [d, el];
                 // TODO: implement timeouts
             }
-            this.connection.send(jslix.build(top));
+            this.connection.send(doc);
         }
         return d;
     }
 
+    dispatcher.prototype.check_hooks = function(el) {
+        // TODO: optimisation here can be done, we don't need to build
+        // document and then parse it again, some light validation can
+        // be applied
+        if (!el.__definition__) return el;
+        var hooks = this.hooks['send'],
+            obj = el,
+            top = el.getTop();
+        for (var i=0; i<hooks.length; i++) {
+            var doc = jslix.build(obj);
+            var hook = hooks[i];
+            try {
+                var _obj = jslix.parse(doc, hook[0]);
+                var host = hook[1];
+            } catch (e) {
+                _obj = null;
+                // TODO: logging
+            }
+            if (_obj) {
+                var func = _obj[top.type + 'Handler'] || _obj['anyHandler'];
+                if (!func) continue;
+                // TODO: BreakStanza
+                // TODO: do we need EmptyStanza here?
+                try {
+                    obj = func.call(host, _obj, _obj.getTop());
+                } catch (e) {} // TODO: logging
+            }
+        }
+        return jslix.build(obj.getTop());
+    }
 })();
