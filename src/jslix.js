@@ -480,6 +480,7 @@
     jslix._parse = function(el, definition) {
         if (el.nodeName == '#document') el = el.childNodes[0];
         if ((definition.element_name &&
+             definition.element_name[0] !== ':' &&
              el.localName != definition.element_name) || 
             definition.xmlns != el.namespaceURI) {
             throw new WrongElement();
@@ -491,6 +492,9 @@
             return value;
         }
         var result = jslix.createStanza(definition);
+        if (definition.element_name[0] == ':') {
+            result[definition.element_name.slice(1)] = el.localName;
+        }
         for (var key in definition) {
             var f = definition[key];
             if (typeof(f) == 'object' && 'field' in f) {
@@ -521,13 +525,17 @@
     };
 
     jslix.build = function(obj, element_needed) {
+        var element_name = obj.__definition__.element_name;
+        if (element_name[0] == ':') {
+            element_name = obj[element_name.slice(1)];
+        }
         if (element_needed) {
             var doc = document.createElementNS(obj.__definition__.xmlns,
-                                               obj.__definition__.element_name)
+                                               element_name);
             var stanza = doc;
         } else {
             var doc = document.implementation.createDocument(
-                obj.__definition__.xmlns, obj.__definition__.element_name, null);
+                obj.__definition__.xmlns, element_name, null);
             var stanza = doc.childNodes[0];
         }
         function put(value) {
