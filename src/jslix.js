@@ -492,7 +492,7 @@
             return value;
         }
         var result = jslix.createStanza(definition);
-        if (definition.element_name[0] == ':') {
+        if (definition.element_name && definition.element_name[0] == ':') {
             result[definition.element_name.slice(1)] = el.localName;
         }
         for (var key in definition) {
@@ -526,7 +526,7 @@
 
     jslix.build = function(obj, element_needed) {
         var element_name = obj.__definition__.element_name;
-        if (element_name[0] == ':') {
+        if (element_name && element_name[0] == ':') {
             element_name = obj[element_name.slice(1)];
         }
         if (element_needed) {

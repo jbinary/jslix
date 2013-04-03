@@ -55,6 +55,14 @@
 
     jslix.stanzas = {};
 
+    jslix.stanzas.special_stanza = function(){
+        this.__definition__ = jslix.stanzas.special_stanza;
+    }
+
+    jslix.stanzas.special_stanza.create = function(){
+        return new jslix.stanzas.special_stanza();
+    }
+
     jslix.stanzas.empty_stanza = function(){
         this.__definition__ = jslix.stanzas.empty_stanza;
     }
@@ -63,6 +71,10 @@
         return new jslix.stanzas.empty_stanza();
     }
 
+    jslix.stanzas.empty_stanza.prototype = new jslix.stanzas.special_stanza();
+
+    jslix.stanzas.empty_stanza.prototype.constructor = jslix.stanzas.empty_stanza;
+
     jslix.stanzas.break_stanza = function(){
         this.__definition__ = jslix.stanzas.break_stanza;
     }
@@ -70,6 +82,10 @@
     jslix.stanzas.break_stanza.create = function(){
         return new jslix.stanzas.break_stanza();
     }
+
+    jslix.stanzas.break_stanza.prototype = new jslix.stanzas.special_stanza();
+
+    jslix.stanzas.break_stanza.prototype.constructor = jslix.stanzas.break_stanza;
 
     jslix.stanzas.base_stanza = {
         create : function(params) {
