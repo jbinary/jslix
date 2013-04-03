@@ -211,10 +211,10 @@
         for (var i=0; i<els.length; i++) {
             var el = els[i];
             // TODO: BreakStanza
-            var doc = this.check_hooks(el);
             if(el instanceof jslix.stanzas.empty_stanza) {
                 continue;
             }
+            var doc = this.check_hooks(el);
             var top = el.getTop();
             if (top.__definition__.element_name == 'iq' && 
                 ['get', 'set'].indexOf(top.type) != -1) {
@@ -233,26 +233,28 @@
         // be applied
         if (!el.__definition__) return el;
         var hooks = this.hooks['send'],
-            obj = el,
-            top = el.getTop();
-        for (var i=0; i<hooks.length; i++) {
-            var doc = jslix.build(obj);
-            var hook = hooks[i];
-            try {
-                var _obj = jslix.parse(doc, hook[0]);
-                var host = hook[1];
-            } catch (e) {
-                _obj = null;
-                // TODO: logging
-            }
-            if (_obj) {
-                var func = _obj[top.type + 'Handler'] || _obj['anyHandler'];
-                if (!func) continue;
-                // TODO: BreakStanza
-                // TODO: do we need EmptyStanza here?
+            obj = el;
+        if(hooks instanceof Array){
+            var top = el.getTop();
+            for (var i=0; i<hooks.length; i++) {
+                var doc = jslix.build(obj);
+                var hook = hooks[i];
                 try {
-                    obj = func.call(host, _obj, _obj.getTop());
-                } catch (e) {} // TODO: logging
+                    var _obj = jslix.parse(doc, hook[0]);
+                    var host = hook[1];
+                } catch (e) {
+                    _obj = null;
+                    // TODO: logging
+                }
+                if (_obj) {
+                    var func = _obj[top.type + 'Handler'] || _obj['anyHandler'];
+                    if (!func) continue;
+                    // TODO: BreakStanza
+                    // TODO: do we need EmptyStanza here?
+                    try {
+                        obj = func.call(host, _obj, _obj.getTop());
+                    } catch (e) {} // TODO: logging
+                }
             }
         }
         return jslix.build(obj.getTop());
