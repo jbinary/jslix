@@ -211,10 +211,10 @@
         for (var i=0; i<els.length; i++) {
             var el = els[i];
             // TODO: BreakStanza
+            var doc = this.check_hooks(el);
             if(el instanceof jslix.stanzas.empty_stanza) {
                 continue;
             }
-            var doc = this.check_hooks(el);
             var top = el.getTop();
             if (top.__definition__.element_name == 'iq' && 
                 ['get', 'set'].indexOf(top.type) != -1) {
@@ -231,7 +231,7 @@
         // TODO: optimisation here can be done, we don't need to build
         // document and then parse it again, some light validation can
         // be applied
-        if (!el.__definition__) return el;
+        if (el instanceof jslix.stanzas.empty_stanza) return el;
         var hooks = this.hooks['send'],
             obj = el;
         if(hooks instanceof Array){
