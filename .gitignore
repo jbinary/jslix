@@ -3,3 +3,4 @@
 libs/*
 coverage/*
 node_modules
+.*
