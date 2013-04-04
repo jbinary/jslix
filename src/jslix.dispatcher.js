@@ -114,6 +114,7 @@
             } else if (!result_class && top.type == 'result') {
                 d.resolve(r_el);
             } else if (top.type == 'error') {
+                var exception;
                 try {
                     exception = jslix.parse(el, r_el.error_class);
                 } catch(e) {
