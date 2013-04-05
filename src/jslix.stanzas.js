@@ -115,7 +115,7 @@
             var error = eclass.create(params);
             return error;
         },
-    makeResult : function(params) {
+        makeResult : function(params) {
             params.parent = this.getTop().makeReply();
             return this.__definition__.result_class.create(params);
         }
