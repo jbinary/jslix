@@ -1,0 +1,9 @@
+{
+    "name": "The JSLix API",
+    "description": "The JSLix API: XMPP ORM",
+    "version": "0.0.1",
+    "options": {
+        "outdir": "docs",
+        "paths" : ["src"]
+    }
+}

@@ -1,6 +1,7 @@
 *.swp
 *.jar
 libs/*
+docs/*
 coverage/*
 node_modules
 .*

@@ -1,21 +1,101 @@
 var DispatcherTest = buster.testCase('DispatcherTest', {
     setUp: function(){
         this.dispatcher = new jslix.dispatcher();
-    },
-    testUnregisterPlugin: function(){
-        var plugin = jslix.sasl;
-        this.dispatcher.registerPlugin(plugin);
-        assert(plugin._name in this.dispatcher.plugins);
-        this.dispatcher.unregisterPlugin(plugin);
-        refute(plugin._name in this.dispatcher.plugins);
-        refute(this.dispatcher.handlers.lenght && this.dispatcher.top_handlers.lenght);
+        this.dispatcher.connection = {
+            last_stanza: null,
+            send: function(stanza){
+                this.last_stanza = stanza;
+            }
+        }
+        this.get_iq_settings = function(type){
+            return {
+                id: jslix.randomUUID(),
+                to: 'to_jid',
+                from: 'from_jid',
+                type: type || 'get'
+            };
+        };
     },
     testAddHook: function(){
         assert(this.dispatcher.hooks['stub'] == undefined);
         this.dispatcher.addHook('stub', function(){
             return stub;
         }, {stub: 'stub'}, 'stub');
-        assert(this.dispatcher.hooks['stub'] instanceof Array);
+        assert.isArray(this.dispatcher.hooks['stub']);
         assert(this.dispatcher.hooks['stub'].length == 1);
+    },
+    testUnregisterPlugin: function(){
+        var plugin = jslix.sasl;
+        this.dispatcher.registerPlugin(plugin);
+        assert(plugin._name in this.dispatcher.plugins);
+        this.dispatcher.addHook('stub', function(){
+            return stub;
+        }, {stub: 'stub'}, plugin._name);
+        this.dispatcher.unregisterPlugin(plugin);
+        refute(plugin._name in this.dispatcher.plugins);
+        refute(this.dispatcher.handlers.lenght && this.dispatcher.top_handlers.lenght);
+    },
+    testCheckHooks: function(){
+        var definition = jslix.Element({
+                getHandler: function(el){
+                    el.id = this.id;
+                    return el;
+                }
+            }, [jslix.stanzas.iq]),
+            iq_settings = this.get_iq_settings(),
+            context = {
+                id: jslix.randomUUID()
+            },
+            result;
+        this.dispatcher.addHook('send', definition, context, 'fake_plugin');
+        result = this.dispatcher.check_hooks(
+            definition.create(iq_settings)
+        );
+        refute.exception(function(){
+            result = jslix.parse(result, definition);
+        });
+        assert(result.id == context.id);
+        this.dispatcher.unregisterPlugin({_name: 'fake_plugin'});
+        assert.isArray(this.dispatcher.hooks['send']);
+        assert(this.dispatcher.hooks['send'].length == 0);
+        this.dispatcher.addHook('send', {}, {}, 'fake_plugin');
+        result = this.dispatcher.check_hooks(definition.create(iq_settings));
+        refute.exception(function(){
+            result = jslix.parse(result, definition);
+        });
+        assert(function(){
+            for(var key in iq_settings){
+                if(iq_settings[key] != result[key]){
+                    return false;
+                }
+            }
+            return true;
+        }());
+    },
+    testCanErrorCases: function(){
+        var deferred = $.Deferred(),
+            iq_settings = this.get_iq_settings('result');
+        this.dispatcher.deferreds[iq_settings.id] = [deferred, {
+            __definition__: {
+                result_class: jslix.stanzas.message
+            }
+        }];
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        assert(deferred.state() == 'rejected');
+        assert.equals(this.dispatcher.deferreds, {})
+        deferred = $.Deferred();
+        this.dispatcher.deferreds[iq_settings.id] = [deferred, {
+            __definition__: {}
+        }];
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        assert(deferred.state() == 'resolved');
+        assert.equals(this.dispatcher.deferreds, {});
+        deferred = $.Deferred();
+        iq_settings = this.get_iq_settings('error');
+        this.dispatcher.deferreds[iq_settings.id] = [deferred, {
+            __definition__: {}
+        }];
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        assert(deferred.state() == 'rejected');
     }
 });
