@@ -212,7 +212,7 @@
         for (var i=0; i<els.length; i++) {
             var el = els[i];
             // TODO: BreakStanza
-            var doc = this.check_hooks(el);
+            var el = this.check_hooks(el);
             if(el instanceof jslix.stanzas.empty_stanza) {
                 continue;
             }
@@ -223,7 +223,7 @@
                 this.deferreds[top.id] = [d, el];
                 // TODO: implement timeouts
             }
-            this.connection.send(doc);
+            this.connection.send(jslix.build(top));
         }
         return d;
     }
@@ -258,6 +258,6 @@
                 }
             }
         }
-        return jslix.build(obj.getTop());
+        return obj;
     }
 })();
