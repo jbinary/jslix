@@ -14,7 +14,7 @@
         this.support_map = {};
         this.support_map_bare = {};
         if (this.options.composing_paused_timeout === undefined) {
-            this.options.composing_paused_timeout = 30;
+            this.options.composing_paused_timeout = 15;
         }
         if (this.options.inactive_timeout === undefined) {
             this.options.inactive_timeout = 120;
@@ -24,7 +24,7 @@
         }
         // How much to wait for some message we can to link a chatstate to?
         if (this.options.send_timeout === undefined) {
-            this.options.send_timeout = 0.5;
+            this.options.send_timeout = 0.25;
         }
     }
     var Chatstates = jslix.Chatstates;
@@ -55,19 +55,19 @@
         var old_activity = activity['state'];
         activity['state'] = state;
         var that = this, timer;
-        if (status == 'composing') {
+        if (state == 'composing') {
             // What if a user paused an input?
             timer = setTimeout(function() {
                 that.update_my_activity('paused', jid);
             }, this.options['composing_paused_timeout'] * 1000);
-        } else if (status == 'active' || status == 'paused') {
+        } else if (state == 'active' || state == 'paused') {
             // If user is not paying attention to the conversaion
             // for some time then the state should be changed
             // to "inactive".
             timer = setTimeout(function() {
                 that.update_my_activity('inactive', jid);
             }, this.options['inactive_timeout'] * 1000);
-        } else if (status == 'inactive') {
+        } else if (state == 'inactive') {
             // If user is inactive for a long time then he's gone
             timer = setTimeout(function() {
                 that.update_my_activity('gone', jid); 
@@ -88,12 +88,13 @@
             activity.send_timeout = setTimeout(function() {
                 var message = jslix.stanzas.message.create({
                     to: jid,
-                    type: 'chat'
+                    type: 'chat',
+                    id: 'chatstates_fake'
                 });
-                this._dispatcher.send(message);
+                that._dispatcher.send(message);
             }, this.options['send_timeout'] * 1000);
         }
-        this.my_activity[jid.getBareJID] = activity;
+        this.my_activity[jid.getBareJID()] = activity;
     }
 
     proto.get_support_flag = function(jid) {
@@ -132,7 +133,7 @@
         },
         anyHandler: function(el, top) {
             this.set_support_flag(top.from, true);
-            Chatstates.signals.updated.dispatch(top.from, this.state);
+            Chatstates.signals.updated.dispatch(top.from, el.state);
             return new jslix.stanzas.empty_stanza();
         }
     }, [Chatstates.stanzas.State]);
@@ -152,6 +153,10 @@
             return value;
         },
         anyHandler: function(el, top) {
+            var is_fake = el.id == 'chatstates_fake';
+            if (is_fake) {
+                delete el.id;
+            }
             var flag = this.get_support_flag(el.to);
             if (flag === undefined || flag) {
                 var activity = my_activity[el.to.getBareJID()];
@@ -159,13 +164,17 @@
                     clearTimeout(activity.send_timeout);
                     delete activity.send_timeout;
                 }
-                this.set_support_flag(el.to, false);
+                if (flag === undefined) {
+                    this.set_support_flag(el.to, false);
+                }
                 var state = Chatstates.stanzas.State.create({
                     state: activity.state
                 });
                 el.link(state);
-                return el;
+            } else if (is_fake) {
+                el = new jslix.stanzas.empty_stanza();
             }
+            return el;
         }
     }, [jslix.stanzas.message]);
 
