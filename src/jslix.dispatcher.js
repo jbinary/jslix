@@ -109,6 +109,8 @@
                     var result = jslix.parse(el, result_class);
                     d.resolve(result);
                 } catch (e) {
+                    // TODO: proper logging here
+                    console.log(e, e.stack);
                     d.reject(e);
                 }
             } else if (!result_class && top.type == 'result') {
@@ -142,7 +144,7 @@
 
         var loop_fail = function(failure) {
             // TODO: proper logging here
-            console.log(failure);
+            console.log(failure, failure.stack);
             if (can_error) {
                 if (typeof failure == 'object' && 
                     'definition' in failure) self.send(failure)
