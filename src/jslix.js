@@ -17,7 +17,7 @@
         },
         Class: function(parent, constructor, fields) {
             if (parent.constructor == Function) {
-                constructor.prototype = new parent;
+                constructor.prototype = new parent();
             } else {
                 constructor.prototype = parent;
             }
@@ -43,17 +43,18 @@
     jslix.exceptions.Error = Class(Error, function(msg) {
         this.name = 'JslixError';
         this.message = msg;
+        this.stack = new Error().stack;
     });
 
     jslix.exceptions.ElementParseError = Class(jslix.exceptions.Error, function(msg) {
+        jslix.exceptions.Error.call(this, msg);
         this.name = 'ElementParseError';
-        this.message = msg;
     });
 
     var ElementParseError = jslix.exceptions.ElementParseError;
     jslix.exceptions.WrongElement = Class(jslix.exceptions.Error, function(msg) {
+        jslix.exceptions.Error.call(this, msg);
         this.name = 'WrongElement';
-        this.message = msg;
     });
     var WrongElement = jslix.exceptions.WrongElement;
 
