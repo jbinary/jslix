@@ -110,6 +110,7 @@
                     d.resolve(result);
                 } catch (e) {
                     // TODO: proper logging here
+                    console.log('Got exception while parsing', result_class, el);
                     console.log(e, e.stack);
                     d.reject(e);
                 }

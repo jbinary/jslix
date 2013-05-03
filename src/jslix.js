@@ -192,6 +192,10 @@
         this.listed = listed;
     };
 
+    Node.prototype.toString = function() {
+        return '<Node> ' + this.name + ':' + this.xmlns;
+    }
+
     Node.prototype.get_from_el = function(el) {
         if (this.xmlns === undefined) {
             var xmlns = el.namespaceURI;
@@ -315,16 +319,20 @@
                     stanza.appendChild(node);
             },
             get_from_el: function(el) {
+                var self = this;
                 var extract = function(value) {
                     if (value.childNodes.length == 0)
                         return null;
                     if (value.childNodes.length != 1)
-                        throw new ElementParseError('TextNode contains more than one child')
+                        throw new ElementParseError('TextNode ' +
+                         self.toString() + ' contains more than one child')
                     value = value.childNodes[0];
                     if (value.nodeName == '#text')
                         value = value.nodeValue;
                     else
-                        throw new ElementParseError("Wrong node type when TextNode parsing");
+                        throw new ElementParseError(
+                           "Wrong node type when TextNode " + self.toString() + 
+                           " parsing");
                     return value;
                 }
                 if (!this.self) {
