@@ -494,5 +494,20 @@ var JSLixTest = buster.testCase("JSLixTest", {
         assert.exception(function(){
             jslix.parse(error_stanza, jslix.stanzas.error);
         }, 'ElementParseError');
+    },
+    testMultiChildStringNode: function(){
+        var definition = new jslix.Element({
+                xmlns: 'test_ns',
+                element_name: 'test',
+                text: new jslix.fields.StringNode('text')
+            }),
+            test_document = document.implementation.createDocument('test_ns', 'test'),
+            fragment = document.createElementNS('test_ns', 'text'),
+            result;
+        fragment.appendChild(document.createTextNode('some'));
+        fragment.appendChild(document.createTextNode('text'));
+        test_document.childNodes[0].appendChild(fragment);
+        result = jslix.parse(test_document, definition);
+        assert(result.text = 'sometext');
     }
 });
