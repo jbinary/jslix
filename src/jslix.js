@@ -323,17 +323,18 @@
                 var extract = function(value) {
                     if (value.childNodes.length == 0)
                         return null;
-                    if (value.childNodes.length != 1)
-                        throw new ElementParseError('TextNode ' +
-                         self.toString() + ' contains more than one child')
-                    value = value.childNodes[0];
-                    if (value.nodeName == '#text')
-                        value = value.nodeValue;
-                    else
-                        throw new ElementParseError(
-                           "Wrong node type when TextNode " + self.toString() + 
-                           " parsing");
-                    return value;
+                    var s = '';
+                    for (var i=0; i<value.childNodes.length; i++) {
+                        var node = value.childNodes[i];
+                        if (node.nodeName == '#text') {
+                            s += node.nodeValue;
+                        } else {
+                            throw new ElementParseError(
+                               "Wrong node type when TextNode " + self.toString() +
+                               " parsing");
+                        }
+                    }
+                    return s;
                 }
                 if (!this.self) {
                     var values = fields.Node.prototype.get_from_el.call(this, el);
