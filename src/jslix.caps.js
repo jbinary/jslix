@@ -9,6 +9,8 @@
             throw new Error('jslix.disco plugin required!');
         }
         this.options.disco_plugin.registerFeature(jslix.caps.CAPS_NS);
+        this._dispatcher.addHook('send', jslix.caps.stanzas.Hook, this,
+            jslix.caps._name);
     }
 
     jslix.caps.prototype.getVerificationString = function(){
@@ -48,6 +50,8 @@
 
     jslix.caps.CAPS_NS = 'http://jabber.org/protocol/caps';
 
+    jslix.caps._name = 'jslix.caps';
+
     jslix.caps.stanzas = {};
 
     jslix.caps.stanzas.c = jslix.Element({
@@ -58,5 +62,17 @@
         node: new jslix.fields.StringAttr('node', true),
         ver: new jslix.fields.StringAttr('ver', true)
     });
+
+    jslix.caps.stanzas.Hook = jslix.Element({
+        anyHandler: function(el, top){
+            var c = jslix.caps.stanzas.c.create({
+                hash: 'sha-1',
+                node: this.options.node || 'https://github.com/jbinary/jslix',
+                ver: this.getVerificationString()
+            });
+            el.link(c);
+            return el;
+        }
+    }, [jslix.stanzas.presence]);
 
 })();
