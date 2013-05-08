@@ -57,10 +57,8 @@
                         );
                         client.registerPlugin(jslix.version, plugins_options).init('jslix', 'beta');
                         client.registerPlugin(jslix.caps, plugins_options);
-                        client.connection.send(
-                            jslix.build(
+                        client.send(
                                 jslix.stanzas.presence.create()
-                            )
                         );
                     });
                 return false;
