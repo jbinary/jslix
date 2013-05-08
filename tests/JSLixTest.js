@@ -501,7 +501,7 @@ var JSLixTest = buster.testCase("JSLixTest", {
                 element_name: 'test',
                 text: new jslix.fields.StringNode('text')
             }),
-            test_document = document.implementation.createDocument('test_ns', 'test'),
+            test_document = document.implementation.createDocument('test_ns', 'test', null),
             fragment = document.createElementNS('test_ns', 'text'),
             result;
         fragment.appendChild(document.createTextNode('some'));

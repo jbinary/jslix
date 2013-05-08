@@ -51,18 +51,14 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
         result = this.dispatcher.check_hooks(
             definition.create(iq_settings)
         );
-        refute.exception(function(){
-            result = jslix.parse(result, definition);
-        });
+        assert(result.__definition__ && result.__definition__ === definition);
         assert(result.id == context.id);
         this.dispatcher.unregisterPlugin({_name: 'fake_plugin'});
         assert.isArray(this.dispatcher.hooks['send']);
         assert(this.dispatcher.hooks['send'].length == 0);
         this.dispatcher.addHook('send', {}, {}, 'fake_plugin');
         result = this.dispatcher.check_hooks(definition.create(iq_settings));
-        refute.exception(function(){
-            result = jslix.parse(result, definition);
-        });
+        assert(result.__definition__ && result.__definition__ === definition);
         assert(function(){
             for(var key in iq_settings){
                 if(iq_settings[key] != result[key]){
