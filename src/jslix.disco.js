@@ -13,7 +13,7 @@
         this.caps_plugin = caps_plugin;
         this._dispatcher.addHandler(jslix.disco.stanzas.request, this,
                                     jslix.disco._name);
-        this.registerFeature(jslix.disco.DISCO_NS);
+        this.registerFeature(jslix.disco.DISCO_INFO_NS);
     }
 
     jslix.disco.prototype.registerFeature = function(feature_var){
@@ -94,18 +94,20 @@
 
     jslix.disco._name = 'jslix.disco';
 
-    jslix.disco.DISCO_NS = 'http://jabber.org/protocol/disco#info';
+    jslix.disco.DISCO_INFO_NS = 'http://jabber.org/protocol/disco#info';
+
+    jslix.disco.DISCO_ITEMS_NS = 'http://jabber.org/protocol/disco#items';
 
     jslix.disco.stanzas = {};
 
     jslix.disco.stanzas.feature = jslix.Element({
-        xmlns: jslix.disco.DISCO_NS,
+        xmlns: jslix.disco.DISCO_INFO_NS,
         element_name: 'feature',
         feature_var: new jslix.fields.StringAttr('var', true)
     });
 
     jslix.disco.stanzas.identity = jslix.Element({
-        xmlns: jslix.disco.DISCO_NS,
+        xmlns: jslix.disco.DISCO_INFO_NS,
         element_name: 'identity',
         xml_lang: new jslix.fields.StringAttr('xml:lang', false),
         category: new jslix.fields.StringAttr('category', true),
@@ -114,7 +116,7 @@
     });
 
     jslix.disco.stanzas.response = jslix.Element({
-        xmlns: jslix.disco.DISCO_NS,
+        xmlns: jslix.disco.DISCO_INFO_NS,
         identities: new jslix.fields.ElementNode(jslix.disco.stanzas.identity,
             true, true),
         features: new jslix.fields.ElementNode(jslix.disco.stanzas.feature,
@@ -122,7 +124,7 @@
     }, [jslix.stanzas.query]);
 
     jslix.disco.stanzas.request = jslix.Element({
-        xmlns: jslix.disco.DISCO_NS,
+        xmlns: jslix.disco.DISCO_INFO_NS,
         result_class: jslix.disco.stanzas.response,
         getHandler: function(query, top){
             if(query.node != undefined){

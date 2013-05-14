@@ -51,6 +51,6 @@ var DiscoTest = buster.testCase('DiscoTest', {
         assert(identitie.category == 'client' && identitie.name == 'jslix' && identitie.type == 'web');
         assert(result.features.length == 1);
         var feature = result.features[0];
-        assert(feature.feature_var == jslix.disco.DISCO_NS);
+        assert(feature.feature_var == jslix.disco.DISCO_INFO_NS);
     }
 });
