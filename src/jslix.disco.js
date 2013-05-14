@@ -14,6 +14,7 @@
         this._dispatcher.addHandler(jslix.disco.stanzas.request, this,
                                     jslix.disco._name);
         this.registerFeature(jslix.disco.DISCO_INFO_NS);
+        this.registerFeature(jslix.disco.DISCO_ITEMS_NS);
     }
 
     jslix.disco.prototype.registerFeature = function(feature_var){
