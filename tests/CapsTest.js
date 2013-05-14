@@ -28,13 +28,7 @@ var CapsTest = buster.testCase('CapsTest', {
                 'disco_plugin': this.disco_plugin 
             }),
             valid_verification_string = 'QgayPKawpkPSDYmwT/WM94uAlu0=';
-            this.disco_plugin.registerIdentity(
-                jslix.disco.stanzas.identity.create({
-                    category: 'client',
-                    name: 'Exodus 0.9.1',
-                    type: 'pc'
-                })
-            );
+            this.disco_plugin.registerIdentity('client', 'pc', 'Exodus 0.9.1');
             this.disco_plugin.registerFeature(
                 'http://jabber.org/protocol/disco#items');
             this.disco_plugin.registerFeature(

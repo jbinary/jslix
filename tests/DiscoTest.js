@@ -39,28 +39,18 @@ var DiscoTest = buster.testCase('DiscoTest', {
         request.link(
             jslix.disco.stanzas.request.create()
         );
-        this.disco_plugin.registerIdentity(
-            jslix.disco.stanzas.identity.create({
-                category: 'client',
-                name: 'jslix',
-                type: 'web'
-            })
-        );
+        this.disco_plugin.registerIdentity('client', 'web', 'jslix');
         this.dispatcher.dispatch(jslix.build(request));
         refute.exception(function(){
             result = jslix.parse(test.dispatcher.connection.last_stanza,
                 jslix.disco.stanzas.response);
         });
         assert(result.xmlns != jslix.disco.DISCO_NS);
-        refute.exception(function(){
-            result = jslix.parse(test.dispatcher.connection.last_stanza,
-                jslix.disco.stanzas.identity);
-        });
-        assert(result.category == 'client' && result.name == 'jslix' && result.type == 'web');
-        refute.exception(function(){
-            result = jslix.parse(test.dispatcher.connection.last_stanza,
-                jslix.disco.stanzas.feature);
-        });
-        assert(result.feature_var == jslix.disco.DISCO_NS);
+        assert(result.identities.length == 1);
+        var identitie = result.identities[0];
+        assert(identitie.category == 'client' && identitie.name == 'jslix' && identitie.type == 'web');
+        assert(result.features.length == 1);
+        var feature = result.features[0];
+        assert(feature.feature_var == jslix.disco.DISCO_NS);
     }
 });
