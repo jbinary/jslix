@@ -45,12 +45,15 @@ var DiscoTest = buster.testCase('DiscoTest', {
             result = jslix.parse(test.dispatcher.connection.last_stanza,
                 jslix.disco.stanzas.response);
         });
-        assert(result.xmlns != jslix.disco.DISCO_NS);
+        assert(result.xmlns != jslix.disco.DISCO_INFO_NS);
         assert(result.identities.length == 1);
         var identitie = result.identities[0];
         assert(identitie.category == 'client' && identitie.name == 'jslix' && identitie.type == 'web');
-        assert(result.features.length == 1);
-        var feature = result.features[0];
-        assert(feature.feature_var == jslix.disco.DISCO_INFO_NS);
+        assert(result.features.length == 2);
+        var valid_features = [jslix.disco.DISCO_INFO_NS, jslix.disco.DISCO_ITEMS_NS];
+        for(var i=0; i<result.features.length; i++){
+            var feature = result.features[i];
+            assert(valid_features.indexOf(feature.feature_var) !== -1);
+        }
     }
 });

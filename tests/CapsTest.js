@@ -30,8 +30,6 @@ var CapsTest = buster.testCase('CapsTest', {
             valid_verification_string = 'QgayPKawpkPSDYmwT/WM94uAlu0=';
             this.disco_plugin.registerIdentity('client', 'pc', 'Exodus 0.9.1');
             this.disco_plugin.registerFeature(
-                'http://jabber.org/protocol/disco#items');
-            this.disco_plugin.registerFeature(
                 'http://jabber.org/protocol/muc');
 
         assert(
