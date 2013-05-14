@@ -4,6 +4,8 @@
 
     jslix.caps = function(dispatcher, options){
         this.options = options || {};
+        this.options.node = this.options.node || 'https://github.com/jbinary/jslix';
+        this.storage = this.options.storage;
         this._dispatcher = dispatcher;
         if(this.options['disco_plugin'] === undefined){
             throw new Error('jslix.disco plugin required!');
@@ -11,40 +13,17 @@
         this.options.disco_plugin.registerFeature(jslix.caps.CAPS_NS);
         this._dispatcher.addHook('send', jslix.caps.stanzas.Hook, this,
             jslix.caps._name);
+        this._dispatcher.addHandler(jslix.caps.stanzas.Handler, this,
+            jslix.caps._name);
     }
 
-    jslix.caps.prototype.getVerificationString = function(){
+    jslix.caps.prototype.getVerificationString = function(identities, features){
         var string = '',
-            identities_values = [],
-            identities = this.options.disco_plugin.getIdentities(),
-            features = this.options.disco_plugin.getFeatures().sort();
-        for(var i=0; i<identities.length; i++){
-            var identity = identities[i];
-            identities_values.push([
-                identity.category,
-                identity.type,
-                identity.xml_lang,
-                identity.name
-            ])
+            data = this.options.disco_plugin.extractData(identities, features);
+        for(var i=0; i<data.identities.length; i++){
+            string += data.identities[i].join('/') + '<';
         }
-        identities_values.sort(function(a, b){
-            for(var i=0; i<4; i++){
-                if(a[i] === b[i]){
-                    continue;
-                }
-                if(a[i] < b[i]){
-                    return -1;
-                }
-                if(a[i] > b[i]){
-                    return 1
-                }
-            }
-            return 0;
-        });
-        for(var i=0; i<identities_values.length; i++){
-            string += identities_values[i].join('/') + '<';
-        }
-        string += features.join('<') + '<';
+        string += data.features.join('<') + '<';
         return CryptoJS.enc.Base64.stringify(CryptoJS.SHA1(string))
     }
 
@@ -67,12 +46,38 @@
         anyHandler: function(el, top){
             var c = jslix.caps.stanzas.c.create({
                 hash: 'sha-1',
-                node: this.options.node || 'https://github.com/jbinary/jslix',
+                node: this.options.node,
                 ver: this.getVerificationString()
             });
             el.link(c);
             return el;
         }
     }, [jslix.stanzas.presence]);
+
+    jslix.caps.stanzas.Handler = jslix.Element({
+        anyHandler: function(el, top){
+            var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
+                node = [el.node, el.ver].join('#');
+            if(not_same_jid && this.storage.getItem(node) === null){
+                var result = this.options.disco_plugin.getJIDFeatures(top.from,
+                    node),
+                    self = this;
+                result.done(function(response){
+                    var verification_string = self.getVerificationString(
+                        response.identities, response.features),
+                        data = 'broken';
+                    if(verification_string === el.ver){
+                        data = JSON.stringify(
+                            self.options.disco_plugin.extractData(
+                                response.identities, response.features
+                            )
+                        );
+                    }
+                    self.storage.setItem(node, data);
+                });
+            }
+            return new jslix.stanzas.empty_stanza();
+        }
+    }, [jslix.caps.stanzas.c]);
 
 })();
