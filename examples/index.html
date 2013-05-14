@@ -41,26 +41,18 @@
                         register: oForm.register.checked
                     },
                     client = new jslix.Client(options);
-                    window.client = client;
-                    var deferred = window.client.connect();
-                    deferred.done(function(){
-                        var disco_plugin = client.registerPlugin(jslix.disco),
-                            plugins_options = {
-                                'disco_plugin': disco_plugin
+                    client.connect().done(function(){
+                        var disco_plugin = client.registerPlugin(jslix.disco);
+                        var plugins_options = {
+                                'disco_plugin': disco_plugin,
+                                'storage': sessionStorage
                             };
-                        disco_plugin.registerIdentity(
-                            jslix.disco.stanzas.identity.create({
-                                category: 'client',
-                                type: 'web',
-                                name: 'jslix'
-                            })
-                        );
+                        disco_plugin.registerIdentity('client', 'web', 'jslix');
                         client.registerPlugin(jslix.version, plugins_options).init('jslix', 'beta');
-                        client.registerPlugin(jslix.caps, plugins_options);
-                        client.send(
-                                jslix.stanzas.presence.create()
-                        );
+                        disco_plugin.init(client.registerPlugin(jslix.caps, plugins_options));
+                        client.send(jslix.stanzas.presence.create());
                     });
+                    window.client = client;
                 return false;
             }
         </script>
