@@ -46,17 +46,7 @@
     }
 
     jslix.caps.prototype.infoHandler = function(query){
-        var result = query.makeResult({
-                node: query.node
-            }),
-            disco_plugin = this.options.disco_plugin;
-        for(var i=0; i<disco_plugin.identities.length; i++){
-            result.link(disco_plugin.identities[i]);
-        }
-        for(var i=0; i<disco_plugin.features.length; i++){
-            result.link(disco_plugin.features[i]);
-        }
-        return result;
+        return this.options.disco_plugin.create_response(query);
     }
 
     jslix.caps.prototype.itemsHandler = function(query){

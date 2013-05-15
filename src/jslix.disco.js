@@ -110,6 +110,19 @@
         return result;
     }
 
+    jslix.disco.prototype.create_response = function(query){
+        var result = query.makeResult({
+            node: query.node
+        });
+        for(var i=0; i<this.identities.length; i++){
+            result.link(this.identities[i]);
+        }
+        for(var i=0; i<this.features.length; i++){
+            result.link(this.features[i]);
+        }
+        return result;
+    }
+
     jslix.disco._name = 'jslix.disco';
 
     jslix.disco.signals = {
@@ -161,16 +174,7 @@
                 }
                 return query.makeError('item-not-found');
             }
-            var result = query.makeResult({
-                node: query.node
-            });
-            for(var i=0; i<this.identities.length; i++){
-                result.link(this.identities[i]);
-            }
-            for(var i=0; i<this.features.length; i++){
-                result.link(this.features[i]);
-            }
-            return result;
+            return this.create_response(query);
         },
     }, [jslix.stanzas.query]);
 
