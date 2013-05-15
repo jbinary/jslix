@@ -468,18 +468,29 @@ var JSLixTest = buster.testCase("JSLixTest", {
                           });
         });
     },
+    testSpecialStanza: function(){
+        var special_stanza = jslix.stanzas.special_stanza.create();
+        assert(special_stanza instanceof jslix.stanzas.special_stanza);
+        assert(special_stanza.toString() == '<Special stanza>');
+    },
     testEmptyStanza: function(){
         assert(this.dispatcher.connection.count == 0);
-        this.dispatcher.send(jslix.stanzas.empty_stanza.create());
+        var empty_stanza = jslix.stanzas.empty_stanza.create();
+        assert(empty_stanza instanceof jslix.stanzas.empty_stanza);
+        assert(empty_stanza.toString() == '<Empty stanza>');
+        this.dispatcher.send(empty_stanza);
         assert(this.dispatcher.connection.count == 0);
     },
     testBreakStanza: function(){
-        var test_def = jslix.Element({
-            element_name: 'test',
-            handler: function(top){
-                return jslix.stanzas.break_stanza.create();
-            }
-        });
+        var break_stanza = jslix.stanzas.break_stanza.create(),
+            test_def = jslix.Element({
+                element_name: 'test',
+                handler: function(top){
+                    return break_stanza;
+                }
+            });
+        assert(break_stanza instanceof jslix.stanzas.break_stanza);
+        assert(break_stanza.toString() == '<Break stanza>');
         assert(this.dispatcher.connection.count == 0);
         this.dispatcher.addHandler(test_def, this);
         this.dispatcher.dispatch(jslix.build(test_def.create()));
@@ -509,5 +520,8 @@ var JSLixTest = buster.testCase("JSLixTest", {
         test_document.childNodes[0].appendChild(fragment);
         result = jslix.parse(test_document, definition);
         assert(result.text = 'sometext');
+    },
+    testToStringMethod: function(){
+        assert(jslix.stanzas.presence.create() == '<presence xmlns="jabber:client"/>');
     }
 });
