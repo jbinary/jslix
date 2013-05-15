@@ -56,7 +56,12 @@
     jslix.stanzas = {};
 
     jslix.stanzas.special_stanza = function(){
+        this.type_name = 'Special stanza';
         this.__definition__ = jslix.stanzas.special_stanza;
+    }
+
+    jslix.stanzas.special_stanza.prototype.toString = function(){
+        return ['<', this.type_name, '>'].join('');
     }
 
     jslix.stanzas.special_stanza.create = function(){
@@ -64,6 +69,7 @@
     }
 
     jslix.stanzas.empty_stanza = function(){
+        this.type_name = 'Empty stanza';
         this.__definition__ = jslix.stanzas.empty_stanza;
     }
 
@@ -76,6 +82,7 @@
     jslix.stanzas.empty_stanza.prototype.constructor = jslix.stanzas.empty_stanza;
 
     jslix.stanzas.break_stanza = function(){
+        this.type_name = 'Break stanza';
         this.__definition__ = jslix.stanzas.break_stanza;
     }
 
@@ -118,6 +125,9 @@
         makeResult : function(params) {
             params.parent = this.getTop().makeReply();
             return this.__definition__.result_class.create(params);
+        },
+        toString: function(){
+            return new XMLSerializer().serializeToString(jslix.build(this));
         }
     }
 
