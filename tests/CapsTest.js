@@ -1,6 +1,12 @@
 var CapsTest = buster.testCase('CapsTest', {
     setUp: function(){
-        this.dispatcher = new jslix.dispatcher();
+        var fake_connection = {
+            last_stanza: null,
+            send: function(stanza){
+                this.last_stanza = stanza;
+            }
+        };
+        this.dispatcher = new jslix.dispatcher(fake_connection);
         this.disco_plugin = this.dispatcher.registerPlugin(jslix.disco);
         this.disco_plugin.init();
     },

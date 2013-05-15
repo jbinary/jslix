@@ -1,14 +1,14 @@
 var DiscoTest = buster.testCase('DiscoTest', {
     setUp: function(){
-        this.dispatcher = new jslix.dispatcher();
-        this.disco_plugin = this.dispatcher.registerPlugin(jslix.disco);
-        this.disco_plugin.init();
-        this.dispatcher.connection = {
+        var fake_connection = {
             last_stanza: null,
             send: function(stanza){
                 this.last_stanza = stanza;
             }
-        }
+        };
+        this.dispatcher = new jslix.dispatcher(fake_connection);
+        this.disco_plugin = this.dispatcher.registerPlugin(jslix.disco);
+        this.disco_plugin.init();
         this.request = jslix.stanzas.iq.create({
             from: 'some_jid1',
             to: 'some_jid2',
