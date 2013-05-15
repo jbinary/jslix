@@ -50,6 +50,7 @@
     }
 
     jslix.caps.prototype.itemsHandler = function(query){
+        return jslix.stanzas.empty_stanza.create();
     }
 
     jslix.caps.CAPS_NS = 'http://jabber.org/protocol/caps';
@@ -101,7 +102,7 @@
                     self.storage.setItem(node, data);
                 });
             }
-            return new jslix.stanzas.empty_stanza();
+            return jslix.stanzas.empty_stanza.create();
         }
     }, [jslix.caps.stanzas.c]);
 
