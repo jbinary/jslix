@@ -3,13 +3,14 @@
 
     var jslix = window.jslix;
 
-    jslix.dispatcher = function(connection) {
+    jslix.dispatcher = function(connection, debug) {
         this.connection = connection;
         this.handlers = [];
         this.top_handlers = [];
         this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
+        this.debug = debug || false;
     }
 
     jslix.dispatcher._name = 'jslix.dispatcher';
@@ -110,8 +111,10 @@
                     d.resolve(result);
                 } catch (e) {
                     // TODO: proper logging here
-                    console.log('Got exception while parsing', result_class, el);
-                    console.log(e, e.stack);
+                    if(self.debug){
+                        console.log('Got exception while parsing', result_class, el);
+                        console.log(e, e.stack);
+                    }
                     d.reject(e);
                 }
             } else if (!result_class && top.type == 'result') {
@@ -145,7 +148,9 @@
 
         var loop_fail = function(failure) {
             // TODO: proper logging here
-            console.log(failure, failure.stack);
+            if(self.debug){
+                console.log(failure, failure.stack);
+            }
             if (can_error) {
                 if (typeof failure == 'object' && 
                     'definition' in failure) self.send(failure)
