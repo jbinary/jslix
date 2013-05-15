@@ -15,6 +15,24 @@
             jslix.caps._name);
         this._dispatcher.addHandler(jslix.caps.stanzas.Handler, this,
             jslix.caps._name);
+        this.registerNodeHandlers();
+        this.options.disco_plugin.constructor.signals.disco_changed.add(function(){
+            this.options.disco_plugin.removeNodeHandlers(this.node);
+            this.registerNodeHandlers(true);
+        }, this)
+    }
+
+    jslix.caps.prototype.registerNodeHandlers = function(send_presence){
+        this.node = [this.options.node, this.getVerificationString()].join('#');
+        this.options.disco_plugin.addNodeHandlers(
+            this.node,
+            this.infoHandler,
+            this.itemsHandler,
+            this
+        );
+        if(send_presence){
+            this._dispatcher.send(jslix.stanzas.presence.create());
+        }
     }
 
     jslix.caps.prototype.getVerificationString = function(identities, features){
@@ -25,6 +43,23 @@
         }
         string += data.features.join('<') + '<';
         return CryptoJS.enc.Base64.stringify(CryptoJS.SHA1(string))
+    }
+
+    jslix.caps.prototype.infoHandler = function(query){
+        var result = query.makeResult({
+                node: query.node
+            }),
+            disco_plugin = this.options.disco_plugin;
+        for(var i=0; i<disco_plugin.identities.length; i++){
+            result.link(disco_plugin.identities[i]);
+        }
+        for(var i=0; i<disco_plugin.features.length; i++){
+            result.link(disco_plugin.features[i]);
+        }
+        return result;
+    }
+
+    jslix.caps.prototype.itemsHandler = function(query){
     }
 
     jslix.caps.CAPS_NS = 'http://jabber.org/protocol/caps';

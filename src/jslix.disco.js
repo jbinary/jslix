@@ -7,14 +7,29 @@
         this.identities = [];
         this.features = [];
         this._dispatcher = dispatcher;
+        this._nodeHandlers = [];
     }
 
-    jslix.disco.prototype.init = function(caps_plugin) {
-        this.caps_plugin = caps_plugin;
+    jslix.disco.prototype.init = function() {
         this._dispatcher.addHandler(jslix.disco.stanzas.request, this,
                                     jslix.disco._name);
         this.registerFeature(jslix.disco.DISCO_INFO_NS);
         this.registerFeature(jslix.disco.DISCO_ITEMS_NS);
+    }
+
+    jslix.disco.prototype.addNodeHandlers = function(pattern, infoHandler, itemsHandler, context){
+        this._nodeHandlers.push([
+            pattern,
+            infoHandler,
+            itemsHandler,
+            context
+        ]);
+    }
+
+    jslix.disco.prototype.removeNodeHandlers = function(pattern){
+        this._nodeHandlers = this._nodeHandlers.filter(function(el){
+            return el[0] !== pattern;
+        });
     }
 
     jslix.disco.prototype.registerFeature = function(feature_var){
@@ -23,6 +38,7 @@
                 feature_var: feature_var
             })
         );
+        jslix.disco.signals.disco_changed.dispatch();
     }
 
     jslix.disco.prototype.getFeatures = function(){
@@ -37,6 +53,7 @@
                 name: name
             })
         );
+        jslix.disco.signals.disco_changed.dispatch();
     }
 
     jslix.disco.prototype.getIdentities = function(){
@@ -95,6 +112,10 @@
 
     jslix.disco._name = 'jslix.disco';
 
+    jslix.disco.signals = {
+        disco_changed: new signals.Signal()
+    }
+
     jslix.disco.DISCO_INFO_NS = 'http://jabber.org/protocol/disco#info';
 
     jslix.disco.DISCO_ITEMS_NS = 'http://jabber.org/protocol/disco#items';
@@ -129,18 +150,16 @@
         result_class: jslix.disco.stanzas.response,
         getHandler: function(query, top){
             if(query.node != undefined){
-                var splited_node = query.node.split('#'),
-                    node = splited_node[0],
-                    hash = splited_node[1],
-                    valid_hash,
-                    valid_node;
-                if(this.caps_plugin){
-                    valid_node = this.caps_plugin.options.node;
-                    valid_hash = this.caps_plugin.getVerificationString();
+                for(var i=0; i<this._nodeHandlers.length; i++){
+                    var handler = this._nodeHandlers[i],
+                        pattern = handler[0],
+                        infoHandler = handler[1],
+                        context = handler[3] || this;
+                    if(query.node.match(pattern) && typeof infoHandler == 'function'){
+                        return infoHandler.call(context, query);
+                    }
                 }
-                if(valid_hash != hash || valid_node != node){
-                    return query.makeError('item-not-found');
-                }
+                return query.makeError('item-not-found');
             }
             var result = query.makeResult({
                 node: query.node
