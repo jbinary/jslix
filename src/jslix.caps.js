@@ -52,7 +52,7 @@
     }
 
     jslix.caps.prototype.getJIDFeatures = function(jid){
-        if(!jid instanceof jslix.JID){
+        if(!(jid instanceof jslix.JID)){
             var jid = new jslix.JID(jid);
         }
         if(jid.getBareJID() == jid.toString()){
