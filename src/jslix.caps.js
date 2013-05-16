@@ -19,7 +19,13 @@
         this.options.disco_plugin.constructor.signals.disco_changed.add(function(){
             this.options.disco_plugin.removeNodeHandlers(this.node);
             this.registerNodeHandlers(true);
-        }, this)
+        }, this);
+        this._dispatcher.connection.constructor.signals.disconnect.add(function(){
+            this._jid_cache = {};
+            this._broken_nodes = [];
+        }, this);
+        this._jid_cache = {};
+        this._broken_nodes = [];
     }
 
     jslix.caps.prototype.registerNodeHandlers = function(send_presence){
@@ -43,6 +49,16 @@
         }
         string += data.features.join('<') + '<';
         return CryptoJS.enc.Base64.stringify(CryptoJS.SHA1(string))
+    }
+
+    jslix.caps.prototype.getJIDFeatures = function(jid){
+        if(!jid instanceof jslix.JID){
+            var jid = new jslix.JID(jid);
+        }
+        if(jid.getBareJID() == jid.toString()){
+            throw new Error("jid shouldn't be bare.")
+        }
+        return this.storage.getItem(this._jid_cache[jid.toString()]);
     }
 
     jslix.caps.prototype.infoHandler = function(query){
@@ -84,23 +100,27 @@
         anyHandler: function(el, top){
             var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
                 node = [el.node, el.ver].join('#');
-            if(not_same_jid && this.storage.getItem(node) === null){
-                var result = this.options.disco_plugin.getJIDFeatures(top.from,
-                    node),
-                    self = this;
-                result.done(function(response){
-                    var verification_string = self.getVerificationString(
-                        response.identities, response.features),
-                        data = 'broken';
-                    if(verification_string === el.ver){
-                        data = JSON.stringify(
-                            self.options.disco_plugin.extractData(
+            if(not_same_jid && !(node in this._broken_nodes)){
+                if(this.storage.getItem(node) === null){
+                    var self = this;
+                    this.options.disco_plugin.queryJIDFeatures(top.from, node).done(function(response){
+                        var verification_string = self.getVerificationString(
                                 response.identities, response.features
-                            )
-                        );
-                    }
-                    self.storage.setItem(node, data);
-                });
+                            ),
+                            data = JSON.stringify(
+                                self.options.disco_plugin.extractData(
+                                    response.identities, response.features
+                                )
+                            );
+                        if(!verification_string === el.ver){
+                            self._broken_nodes.push(node);
+                        }
+                        self.storage.setItem(verification_string, data);
+                        self._jid_cache[top.from.toString()] = node;
+                    });
+                }else{
+                    this._jid_cache[top.from.toString()] = node;
+                }
             }
             return jslix.stanzas.empty_stanza.create();
         }

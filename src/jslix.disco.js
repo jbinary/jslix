@@ -60,7 +60,7 @@
         return this.identities;
     }
 
-    jslix.disco.prototype.getJIDFeatures = function(jid, node){
+    jslix.disco.prototype.queryJIDFeatures = function(jid, node){
         return this._dispatcher.send(
             jslix.disco.stanzas.request.create({
                 node: node,
