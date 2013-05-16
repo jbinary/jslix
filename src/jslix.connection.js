@@ -14,6 +14,10 @@
 
     jslix.connection._name = 'jslix.connection';
 
+    jslix.connection.signals = {
+        disconnect: new signals.Signal()
+    };
+
     jslix.connection.transports = {};
 
     jslix.connection.prototype.connect = function(dispatcher){
@@ -31,6 +35,7 @@
     }
 
     jslix.connection.prototype.disconnect = function(){
+        jslix.connection.signals.disconnect.dispatch();
         return this._connection ? this._connection.disconnect() : false;
     }
 
