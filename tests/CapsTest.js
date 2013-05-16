@@ -1,6 +1,13 @@
 var CapsTest = buster.testCase('CapsTest', {
     setUp: function(){
         var fake_connection = {
+            constructor: {
+                signals: {
+                    disconnect: {
+                        add: function(){}
+                    }
+                }
+            },
             last_stanza: null,
             send: function(stanza){
                 this.last_stanza = stanza;
