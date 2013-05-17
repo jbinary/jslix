@@ -10,17 +10,15 @@
         if(this.options['disco_plugin'] === undefined){
             throw new Error('jslix.disco plugin required!');
         }
-        this.options.disco_plugin.registerFeature(jslix.caps.CAPS_NS);
-        this._dispatcher.addHook('send', jslix.caps.stanzas.Hook, this,
-            jslix.caps._name);
-        this._dispatcher.addHandler(jslix.caps.stanzas.Handler, this,
-            jslix.caps._name);
+        this.options.disco_plugin.registerFeature(this.CAPS_NS);
+        this._dispatcher.addHook('send', this.stanzas.Hook, this, this._name);
+        this._dispatcher.addHandler(this.stanzas.Handler, this, this._name);
         this.registerNodeHandlers();
-        this.options.disco_plugin.constructor.signals.disco_changed.add(function(){
+        this.options.disco_plugin.signals.disco_changed.add(function(){
             this.options.disco_plugin.removeNodeHandlers(this.node);
             this.registerNodeHandlers(true);
         }, this);
-        this._dispatcher.connection.constructor.signals.disconnect.add(function(){
+        this._dispatcher.connection.signals.disconnect.add(function(){
             this._jid_cache = {};
             this._broken_nodes = [];
         }, this);
@@ -28,7 +26,9 @@
         this._broken_nodes = [];
     }
 
-    jslix.caps.prototype.registerNodeHandlers = function(send_presence){
+    var caps = jslix.caps.prototype;
+
+    caps.registerNodeHandlers = function(send_presence){
         this.node = [this.options.node, this.getVerificationString()].join('#');
         this.options.disco_plugin.addNodeHandlers(
             this.node,
@@ -41,7 +41,7 @@
         }
     }
 
-    jslix.caps.prototype.getVerificationString = function(identities, features){
+    caps.getVerificationString = function(identities, features){
         var string = '',
             data = this.options.disco_plugin.extractData(identities, features);
         for(var i=0; i<data.identities.length; i++){
@@ -51,7 +51,7 @@
         return CryptoJS.enc.Base64.stringify(CryptoJS.SHA1(string))
     }
 
-    jslix.caps.prototype.getJIDFeatures = function(jid){
+    caps.getJIDFeatures = function(jid){
         if(!(jid instanceof jslix.JID)){
             var jid = new jslix.JID(jid);
         }
@@ -61,32 +61,32 @@
         return this.storage.getItem(this._jid_cache[jid.toString()]);
     }
 
-    jslix.caps.prototype.infoHandler = function(query){
+    caps.infoHandler = function(query){
         return this.options.disco_plugin.create_response(query);
     }
 
-    jslix.caps.prototype.itemsHandler = function(query){
+    caps.itemsHandler = function(query){
         return jslix.stanzas.empty_stanza.create();
     }
 
-    jslix.caps.CAPS_NS = 'http://jabber.org/protocol/caps';
+    caps.CAPS_NS = 'http://jabber.org/protocol/caps';
 
-    jslix.caps._name = 'jslix.caps';
+    caps._name = 'jslix.caps';
 
-    jslix.caps.stanzas = {};
+    caps.stanzas = {};
 
-    jslix.caps.stanzas.c = jslix.Element({
+    caps.stanzas.c = jslix.Element({
         parent_element: jslix.stanzas.presence,
-        xmlns: jslix.caps.CAPS_NS,
+        xmlns: caps.CAPS_NS,
         element_name: 'c',
         hash: new jslix.fields.StringAttr('hash', true),
         node: new jslix.fields.StringAttr('node', true),
         ver: new jslix.fields.StringAttr('ver', true)
     });
 
-    jslix.caps.stanzas.Hook = jslix.Element({
+    caps.stanzas.Hook = jslix.Element({
         anyHandler: function(el, top){
-            var c = jslix.caps.stanzas.c.create({
+            var c = caps.stanzas.c.create({
                 hash: 'sha-1',
                 node: this.options.node,
                 ver: this.getVerificationString()
@@ -96,7 +96,7 @@
         }
     }, [jslix.stanzas.presence]);
 
-    jslix.caps.stanzas.Handler = jslix.Element({
+    caps.stanzas.Handler = jslix.Element({
         anyHandler: function(el, top){
             var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
                 node = [el.node, el.ver].join('#');
@@ -124,6 +124,6 @@
             }
             return jslix.stanzas.empty_stanza.create();
         }
-    }, [jslix.caps.stanzas.c]);
+    }, [caps.stanzas.c]);
 
 })();

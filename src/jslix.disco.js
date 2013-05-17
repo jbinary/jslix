@@ -10,14 +10,15 @@
         this._nodeHandlers = [];
     }
 
-    jslix.disco.prototype.init = function() {
-        this._dispatcher.addHandler(jslix.disco.stanzas.request, this,
-                                    jslix.disco._name);
-        this.registerFeature(jslix.disco.DISCO_INFO_NS);
-        this.registerFeature(jslix.disco.DISCO_ITEMS_NS);
+    var disco = jslix.disco.prototype;
+
+    disco.init = function() {
+        this._dispatcher.addHandler(this.stanzas.request, this, this._name);
+        this.registerFeature(this.DISCO_INFO_NS);
+        this.registerFeature(this.DISCO_ITEMS_NS);
     }
 
-    jslix.disco.prototype.addNodeHandlers = function(pattern, infoHandler, itemsHandler, context){
+    disco.addNodeHandlers = function(pattern, infoHandler, itemsHandler, context){
         this._nodeHandlers.push([
             pattern,
             infoHandler,
@@ -26,43 +27,43 @@
         ]);
     }
 
-    jslix.disco.prototype.removeNodeHandlers = function(pattern){
+    disco.removeNodeHandlers = function(pattern){
         this._nodeHandlers = this._nodeHandlers.filter(function(el){
             return el[0] !== pattern;
         });
     }
 
-    jslix.disco.prototype.registerFeature = function(feature_var){
+    disco.registerFeature = function(feature_var){
         this.features.push(
-            jslix.disco.stanzas.feature.create({
+            this.stanzas.feature.create({
                 feature_var: feature_var
             })
         );
-        jslix.disco.signals.disco_changed.dispatch();
+        disco.signals.disco_changed.dispatch();
     }
 
-    jslix.disco.prototype.getFeatures = function(){
+    disco.getFeatures = function(){
         return this.features;
     }
 
-    jslix.disco.prototype.registerIdentity = function(category, type, name){
+    disco.registerIdentity = function(category, type, name){
         this.identities.push(
-            jslix.disco.stanzas.identity.create({
+            disco.stanzas.identity.create({
                 category: category,
                 type: type,
                 name: name
             })
         );
-        jslix.disco.signals.disco_changed.dispatch();
+        disco.signals.disco_changed.dispatch();
     }
 
-    jslix.disco.prototype.getIdentities = function(){
+    disco.getIdentities = function(){
         return this.identities;
     }
 
-    jslix.disco.prototype.queryJIDFeatures = function(jid, node){
+    disco.queryJIDFeatures = function(jid, node){
         return this._dispatcher.send(
-            jslix.disco.stanzas.request.create({
+            disco.stanzas.request.create({
                 node: node,
                 parent: jslix.stanzas.iq.create({
                     to: jid,
@@ -72,7 +73,7 @@
         );
     }
 
-    jslix.disco.prototype.extractData = function(identities, features){
+    disco.extractData = function(identities, features){
         var result = {
                 identities: [],
                 features: []
@@ -110,7 +111,7 @@
         return result;
     }
 
-    jslix.disco.prototype.create_response = function(query){
+    disco.create_response = function(query){
         var result = query.makeResult({
             node: query.node
         });
@@ -123,26 +124,26 @@
         return result;
     }
 
-    jslix.disco._name = 'jslix.disco';
+    disco._name = 'jslix.disco';
 
-    jslix.disco.signals = {
+    disco.signals = {
         disco_changed: new signals.Signal()
     }
 
-    jslix.disco.DISCO_INFO_NS = 'http://jabber.org/protocol/disco#info';
+    disco.DISCO_INFO_NS = 'http://jabber.org/protocol/disco#info';
 
-    jslix.disco.DISCO_ITEMS_NS = 'http://jabber.org/protocol/disco#items';
+    disco.DISCO_ITEMS_NS = 'http://jabber.org/protocol/disco#items';
 
-    jslix.disco.stanzas = {};
+    disco.stanzas = {};
 
-    jslix.disco.stanzas.feature = jslix.Element({
-        xmlns: jslix.disco.DISCO_INFO_NS,
+    disco.stanzas.feature = jslix.Element({
+        xmlns: disco.DISCO_INFO_NS,
         element_name: 'feature',
         feature_var: new jslix.fields.StringAttr('var', true)
     });
 
-    jslix.disco.stanzas.identity = jslix.Element({
-        xmlns: jslix.disco.DISCO_INFO_NS,
+    disco.stanzas.identity = jslix.Element({
+        xmlns: disco.DISCO_INFO_NS,
         element_name: 'identity',
         xml_lang: new jslix.fields.StringAttr('xml:lang', false),
         category: new jslix.fields.StringAttr('category', true),
@@ -150,17 +151,17 @@
         name: new jslix.fields.StringAttr('name', false)
     });
 
-    jslix.disco.stanzas.response = jslix.Element({
-        xmlns: jslix.disco.DISCO_INFO_NS,
-        identities: new jslix.fields.ElementNode(jslix.disco.stanzas.identity,
+    disco.stanzas.response = jslix.Element({
+        xmlns: disco.DISCO_INFO_NS,
+        identities: new jslix.fields.ElementNode(disco.stanzas.identity,
             true, true),
-        features: new jslix.fields.ElementNode(jslix.disco.stanzas.feature,
+        features: new jslix.fields.ElementNode(disco.stanzas.feature,
             false, true)
     }, [jslix.stanzas.query]);
 
-    jslix.disco.stanzas.request = jslix.Element({
-        xmlns: jslix.disco.DISCO_INFO_NS,
-        result_class: jslix.disco.stanzas.response,
+    disco.stanzas.request = jslix.Element({
+        xmlns: disco.DISCO_INFO_NS,
+        result_class: disco.stanzas.response,
         getHandler: function(query, top){
             if(query.node != undefined){
                 for(var i=0; i<this._nodeHandlers.length; i++){

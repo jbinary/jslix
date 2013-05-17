@@ -13,39 +13,39 @@
         this.debug = debug || false;
     }
 
-    jslix.dispatcher._name = 'jslix.dispatcher';
+    var dispatcher = jslix.dispatcher.prototype;
 
-    var dispatcher = jslix.dispatcher;
-
-    dispatcher.prototype.registerPlugin = function(plugin, options){
+    dispatcher.registerPlugin = function(plugin, options){
         // XXX: We don't use any aditional plugin initialization yet.
-        if(!this.plugins[plugin._name]){
-            this.plugins[plugin._name] = new plugin(this, options);
+        var name = plugin.prototype._name;
+        if(!this.plugins[name]){
+            this.plugins[name] = new plugin(this, options);
         }
-        return this.plugins[plugin._name];
+        return this.plugins[name];
     }
 
-    dispatcher.prototype.unregisterPlugin = function(plugin){
+    dispatcher.unregisterPlugin = function(plugin){
 
-        var remove_handlers = function(list) {
-            return list.filter(function(value){
-                return !value[2] == plugin._name;
-            });
-        }
+        var name = plugin.prototype._name,
+            remove_handlers = function(list) {
+                return list.filter(function(value){
+                    return !value[2] == name;
+                });
+            };
 
         this.top_handlers = remove_handlers(this.top_handlers);
         this.handlers = remove_handlers(this.handlers);
         for (var k in this.hooks) {
             this.hooks[k] = remove_handlers(this.hooks[k]);
         }
-        delete this.plugins[plugin._name];
+        delete this.plugins[name];
     }
 
-    dispatcher.prototype._addHandler = function(list, handler, host, plugin_name){
+    dispatcher._addHandler = function(list, handler, host, plugin_name){
         list[list.length] = [handler, host, plugin_name];
     }
 
-    dispatcher.prototype.addHandler = function(handler, host, plugin_name) {
+    dispatcher.addHandler = function(handler, host, plugin_name) {
         var list = this.handlers;
         if (typeof handler.handler == 'function') {
             list = this.top_handlers;
@@ -53,13 +53,13 @@
         return this._addHandler(list, handler, host, plugin_name);
     }
 
-    dispatcher.prototype.addHook = function(name, hook, host, plugin_name) {
+    dispatcher.addHook = function(name, hook, host, plugin_name) {
         var list = this.hooks[name] || [];
         this.hooks[name] = list;
         return this._addHandler(list, hook, host, plugin_name);
     }
 
-    dispatcher.prototype.dispatch = function(el) {
+    dispatcher.dispatch = function(el) {
         if(el.nodeName != '#document'){
             var doc = document.implementation.createDocument(null, null, null);
             doc.appendChild(el);
@@ -214,7 +214,7 @@
             loop();
     }
 
-    dispatcher.prototype.send = function(els) {
+    dispatcher.send = function(els) {
         if(els.length === undefined) els = [els];
         var d = null;
         for (var i=0; i<els.length; i++) {
@@ -236,7 +236,7 @@
         return d;
     }
 
-    dispatcher.prototype.check_hooks = function(el) {
+    dispatcher.check_hooks = function(el) {
         // TODO: optimisation here can be done, we don't need to build
         // document and then parse it again, some light validation can
         // be applied

@@ -19,7 +19,7 @@
         this.password = password;
         this.http_base = http_base;
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(jslix.connection.transports.bosh.stanzas.features, this);
+        this._dispatcher.addHandler(this.stanzas.features, this);
         this.sasl = this._dispatcher.registerPlugin(jslix.sasl);
         var that = this;
         this.sasl.deferred.done(function() {
@@ -31,37 +31,36 @@
         this._connection_deferred = null;
     }
 
-    jslix.connection.transports.bosh.signals = {
+    var bosh = jslix.connection.transports.bosh.prototype;
+
+    bosh.signals = {
         fail: new signals.Signal()
     };
+    
+    bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
+    bosh.XBOSH_NS = 'urn:xmpp:xbosh';
 
-    jslix.connection.transports.bosh._name = 'jslix.connection.transports.bosh';
+    bosh.stanzas = {};
 
-    jslix.connection.transports.bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
-
-    jslix.connection.transports.bosh.XBOSH_NS = 'urn:xmpp:xbosh';
-
-    jslix.connection.transports.bosh.stanzas = {};
-
-    jslix.connection.transports.bosh.stanzas.body = jslix.Element({
-        xmlns: jslix.connection.transports.bosh.BOSH_NS,
+    bosh.stanzas.body = jslix.Element({
+        xmlns: bosh.BOSH_NS,
         element_name: 'body',
         type: new jslix.fields.StringAttr('type', false),
         condition: new jslix.fields.StringAttr('condition', false)
     });
 
-    jslix.connection.transports.bosh.stanzas.empty = jslix.Element({
+    bosh.stanzas.empty = jslix.Element({
         rid: new jslix.fields.IntegerAttr('rid', true),
         sid: new jslix.fields.StringAttr('sid', true)
-    }, [jslix.connection.transports.bosh.stanzas.body]);
+    }, [bosh.stanzas.body]);
 
-    jslix.connection.transports.bosh.stanzas.base = jslix.Element({
+    bosh.stanzas.base = jslix.Element({
         ver: new jslix.fields.StringAttr('ver', true),
         wait: new jslix.fields.IntegerAttr('wait', true),
         ack: new jslix.fields.IntegerAttr('ack', false)
-    }, [jslix.connection.transports.bosh.stanzas.body]);
+    }, [bosh.stanzas.body]);
 
-    jslix.connection.transports.bosh.stanzas.request = jslix.Element({
+    bosh.stanzas.request = jslix.Element({
         to: new jslix.fields.JIDAttr('to', true),
         rid: new jslix.fields.IntegerAttr('rid', true),
         hold: new jslix.fields.IntegerAttr('hold', true),
@@ -71,9 +70,9 @@
         route: new jslix.fields.StringAttr('route', false),
         xmpp_version: new jslix.fields.StringAttr('xmpp:version', true),
         xmlns_xmpp: new jslix.fields.StringAttr('xmlns:xmpp', true)
-    }, [jslix.connection.transports.bosh.stanzas.base]);
+    }, [bosh.stanzas.base]);
 
-    jslix.connection.transports.bosh.stanzas.response = jslix.Element({
+    bosh.stanzas.response = jslix.Element({
         from: new jslix.fields.JIDAttr('from', true),
         sid: new jslix.fields.StringAttr('sid', true),
         polling: new jslix.fields.IntegerAttr('polling', true),
@@ -88,18 +87,18 @@
                 throw new jslix.exceptions.WrongElement();
             return value;
         }
-    }, [jslix.connection.transports.bosh.stanzas.base]);
+    }, [bosh.stanzas.base]);
 
-    jslix.connection.transports.bosh.stanzas.restart = jslix.Element({
+    bosh.stanzas.restart = jslix.Element({
         to: new jslix.fields.JIDAttr('to', true),
         xml_lang: new jslix.fields.StringAttr('xml:lang', true),
         xmpp_restart: new jslix.fields.StringAttr('xmpp:restart', true),
         xmlns_xmpp: new jslix.fields.StringAttr('xmlns:xmpp', true)
-    }, [jslix.connection.transports.bosh.stanzas.empty]);
+    }, [bosh.stanzas.empty]);
 
-    jslix.connection.transports.bosh.stanzas.features = jslix.Element({
-        bind: new jslix.fields.FlagNode('bind', false, jslix.bind.BIND_NS),
-        session: new jslix.fields.FlagNode('session', false, jslix.session.SESSION_NS),
+    bosh.stanzas.features = jslix.Element({
+        bind: new jslix.fields.FlagNode('bind', false, jslix.bind.prototype.BIND_NS),
+        session: new jslix.fields.FlagNode('session', false, jslix.session.prototype.SESSION_NS),
         handler: function(top){
             if(top.bind)
                 this._dispatcher.registerPlugin(jslix.bind);
@@ -116,11 +115,11 @@
         }
     }, [jslix.stanzas.features]);
 
-    jslix.connection.transports.bosh.prototype.connect = function(){
+    bosh.connect = function(){
         if (this._connection_deferred) return this._connection_deferred;
         this._connection_deferred = $.Deferred();
         this.send(jslix.build(
-            jslix.connection.transports.bosh.stanzas.request.create({
+            bosh.stanzas.request.create({
                 rid: this._rid,
                 to: this.jid.getDomain(),
                 ver: '1.8',
@@ -128,7 +127,7 @@
                 hold: this.requests,
                 xml_lang: 'en',
                 xmpp_version: '1.0',
-                xmlns_xmpp: jslix.connection.transports.bosh.XBOSH_NS
+                xmlns_xmpp: bosh.XBOSH_NS
             })
         ));
 
@@ -136,10 +135,10 @@
         return this._connection_deferred;
     }
 
-    jslix.connection.transports.bosh.prototype.send = function(doc){
+    bosh.send = function(doc){
         if(!doc || doc.firstChild.nodeName != 'body'){
             var body = jslix.build(
-                jslix.connection.transports.bosh.stanzas.empty.create({
+                bosh.stanzas.empty.create({
                     sid: this._sid,
                     rid: this._rid
                 }));
@@ -151,23 +150,23 @@
         this._rid++;
     }
 
-    jslix.connection.transports.bosh.prototype.restart = function(){
-        return jslix.connection.transports.bosh.stanzas.restart.create({
+    bosh.restart = function(){
+        return bosh.stanzas.restart.create({
             sid: this._sid,
             rid: this._rid,
             xml_lang: 'en',
             xmpp_restart: 'true',
-            xmlns_xmpp: jslix.connection.transports.bosh.XBOSH_NS
+            xmlns_xmpp: bosh.XBOSH_NS
         });
     }
 
-    jslix.connection.transports.bosh.prototype.clean_slots = function(){
+    bosh.clean_slots = function(){
         this._slots = this._slots.filter(function(value){
             return !value.closed;
         });
     }
 
-    jslix.connection.transports.bosh.prototype.process_queue = function(timestamp){
+    bosh.process_queue = function(timestamp){
         this.clean_slots();
         if(this.established && 
             !(this._slots.length || this._queue.length) && 
@@ -193,13 +192,12 @@
         }
     }
 
-    jslix.connection.transports.bosh.prototype.process_response = function(response){
+    bosh.process_response = function(response){
         var result = false;
         if(response.readyState == 4){
             if(response.status == 200 && response.responseXML){ // TODO: handle other statuses as well (404 at least)
-                var doc = response.responseXML,
-                    stanzas = jslix.connection.transports.bosh.stanzas;
-                var definitions = [stanzas.body, stanzas.response];
+                var doc = response.responseXML;
+                var definitions = [bosh.stanzas.body, bosh.stanzas.response];
                 var top = undefined;
                 for (var i=0; i<definitions.length; i++) {
                     try{
@@ -230,14 +228,14 @@
                 result = true;
             }else{
                 this.established = false;
-                jslix.connection.transports.bosh.signals.fail.dispatch(response.status);
+                bosh.signals.fail.dispatch(response.status);
             }
             response.closed = true;
         }
         return result;
     }
 
-    jslix.connection.transports.bosh.prototype.create_request = function(){
+    bosh.create_request = function(){
         if(this._slots.length >= this.requests)
             return null;
         var req = new XMLHttpRequest(),
@@ -251,7 +249,7 @@
         return req;
     }
 
-    jslix.connection.transports.bosh.prototype.suspend = function(){
+    bosh.suspend = function(){
         if(!this.established){
             return false;
         }
@@ -266,7 +264,7 @@
         };
     }
 
-    jslix.connection.transports.bosh.prototype.resume = function(settings){
+    bosh.resume = function(settings){
         if(this.established){
             return false;
         }
@@ -283,9 +281,9 @@
         return false;
     }
 
-    jslix.connection.transports.bosh.prototype.disconnect = function(){
+    bosh.disconnect = function(){
         this.established = false;
-        return jslix.connection.transports.bosh.stanzas.empty.create({
+        return bosh.stanzas.empty.create({
             sid: this._sid,
             rid: this._rid,
             type: 'terminate'

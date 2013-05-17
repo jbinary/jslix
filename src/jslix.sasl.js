@@ -5,14 +5,18 @@
 
     jslix.sasl = function(dispatcher){
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(jslix.sasl.stanzas.mechanisms, this);
-        this._dispatcher.addHandler(jslix.sasl.stanzas.success, this);
-        this._dispatcher.addHandler(jslix.sasl.stanzas.failure, this);
+        this._dispatcher.addHandler(this.stanzas.mechanisms, this);
+        this._dispatcher.addHandler(this.stanzas.success, this);
+        this._dispatcher.addHandler(this.stanzas.failure, this);
         this._mechanism = null;
         this.deferred = $.Deferred();
     }
 
-    jslix.sasl._name = 'jslix.sasl';
+    jslix.sasl.mechanisms = {};
+
+    var sasl = jslix.sasl.prototype;
+
+    sasl._name = 'jslix.sasl';
 
     jslix.sasl.generate_random_string = function(length){
         var result = '',
@@ -24,38 +28,37 @@
         return result;
     }
 
-    jslix.sasl.SASL_NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
+    sasl.SASL_NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
 
-    jslix.sasl.stanzas = {};
+    sasl.stanzas = {};
 
-    jslix.sasl.mechanisms = {};
 
-    jslix.sasl.stanzas.auth = jslix.Element({
-        xmlns: jslix.sasl.SASL_NS,
+    sasl.stanzas.auth = jslix.Element({
+        xmlns: sasl.SASL_NS,
         element_name: 'auth',
         mechanism: new jslix.fields.StringAttr('mechanism', true),
         content: new jslix.fields.StringNode(null, false, false, undefined, true)
     });
 
-    jslix.sasl.stanzas.challenge = jslix.Element({
-        xmlns: jslix.sasl.SASL_NS,
+    sasl.stanzas.challenge = jslix.Element({
+        xmlns: sasl.SASL_NS,
         element_name: 'challenge',
         content: new jslix.fields.StringNode(null, true, false, undefined, true)
     });
 
-    jslix.sasl.stanzas.response = jslix.Element({
-        xmlns: jslix.sasl.SASL_NS,
+    sasl.stanzas.response = jslix.Element({
+        xmlns: sasl.SASL_NS,
         element_name: 'response',
         content: new jslix.fields.StringNode(null, true, false, undefined, true)
     });
 
-    jslix.sasl.stanzas.abort = jslix.Element({
-        xmlns: jslix.sasl.SASL_NS,
+    sasl.stanzas.abort = jslix.Element({
+        xmlns: sasl.SASL_NS,
         element_name: 'abort'
     });
 
-    jslix.sasl.stanzas.failure = jslix.Element({
-        xmlns: jslix.sasl.SASL_NS,
+    sasl.stanzas.failure = jslix.Element({
+        xmlns: sasl.SASL_NS,
         element_name: 'failure',
         condition: new jslix.fields.ConditionNode(),
         text: new jslix.fields.StringNode('text', false),
@@ -64,16 +67,16 @@
         }
     });
 
-    jslix.sasl.stanzas.success = jslix.Element({
-        xmlns: jslix.sasl.SASL_NS,
+    sasl.stanzas.success = jslix.Element({
+        xmlns: sasl.SASL_NS,
         element_name: 'success',
         handler: function(top){
             this.deferred.resolve();
         }
     });
 
-    jslix.sasl.stanzas.mechanisms = jslix.Element({
-        xmlns: jslix.sasl.SASL_NS,
+    sasl.stanzas.mechanisms = jslix.Element({
+        xmlns: sasl.SASL_NS,
         mechanisms: new jslix.fields.StringNode('mechanism', true, true),
         parent_element: jslix.stanzas.features,
         handler: function(top){
