@@ -21,7 +21,7 @@ var DiscoTest = buster.testCase('DiscoTest', {
             test = this,
             result;
         request.link(
-            jslix.disco.stanzas.request.create({
+            this.disco_plugin.stanzas.request.create({
                 node: 'test_node'
             })
         );
@@ -37,20 +37,21 @@ var DiscoTest = buster.testCase('DiscoTest', {
             test = this,
             result;
         request.link(
-            jslix.disco.stanzas.request.create()
+            this.disco_plugin.stanzas.request.create()
         );
         this.disco_plugin.registerIdentity('client', 'web', 'jslix');
         this.dispatcher.dispatch(jslix.build(request));
         refute.exception(function(){
             result = jslix.parse(test.dispatcher.connection.last_stanza,
-                jslix.disco.stanzas.response);
+                test.disco_plugin.stanzas.response);
         });
-        assert(result.xmlns != jslix.disco.DISCO_INFO_NS);
+        assert(result.xmlns != this.disco_plugin.DISCO_INFO_NS);
         assert(result.identities.length == 1);
         var identitie = result.identities[0];
         assert(identitie.category == 'client' && identitie.name == 'jslix' && identitie.type == 'web');
         assert(result.features.length == 2);
-        var valid_features = [jslix.disco.DISCO_INFO_NS, jslix.disco.DISCO_ITEMS_NS];
+        var valid_features = [this.disco_plugin.DISCO_INFO_NS,
+            this.disco_plugin.DISCO_ITEMS_NS];
         for(var i=0; i<result.features.length; i++){
             var feature = result.features[i];
             assert(valid_features.indexOf(feature.feature_var) !== -1);

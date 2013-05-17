@@ -12,19 +12,20 @@ var BindTest = buster.testCase('BindTest', {
     },
     testRestartResult: function(){
         var restart_result = jslix.stanzas.features.create({
-            link: jslix.bind.stanzas.base.create({})
+            link: this.bind.stanzas.base.create({})
         });
         this.dispatcher.dispatch(jslix.build(restart_result));
-        var stnz = this.dispatcher.connection.lst_stnz;
+        var stnz = this.dispatcher.connection.lst_stnz,
+            test = this;
         refute.exception(function(){
-            jslix.parse(stnz, jslix.bind.stanzas.request);
+            jslix.parse(stnz, test.bind.stanzas.request);
         });
     },
     testResponse: function(){
         var old_jid = this.dispatcher.connection.jid,
             server_response = jslix.stanzas.iq.create({
                 type: 'set',
-                link: jslix.bind.stanzas.response.create({
+                link: this.bind.stanzas.response.create({
                     jid: 'new_jid@server.com/res'
                 })
             });

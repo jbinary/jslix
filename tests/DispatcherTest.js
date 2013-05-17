@@ -25,14 +25,15 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
         assert(this.dispatcher.hooks['stub'].length == 1);
     },
     testUnregisterPlugin: function(){
-        var plugin = jslix.sasl;
+        var plugin = jslix.sasl,
+            name = jslix.sasl.prototype._name;
         this.dispatcher.registerPlugin(plugin);
-        assert(plugin._name in this.dispatcher.plugins);
+        assert(name in this.dispatcher.plugins);
         this.dispatcher.addHook('stub', function(){
             return stub;
-        }, {stub: 'stub'}, plugin._name);
+        }, {stub: 'stub'}, name);
         this.dispatcher.unregisterPlugin(plugin);
-        refute(plugin._name in this.dispatcher.plugins);
+        refute(name in this.dispatcher.plugins);
         refute(this.dispatcher.handlers.lenght && this.dispatcher.top_handlers.lenght);
     },
     testCheckHooks: function(){
@@ -53,7 +54,7 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
         );
         assert(result.__definition__ && result.__definition__ === definition);
         assert(result.id == context.id);
-        this.dispatcher.unregisterPlugin({_name: 'fake_plugin'});
+        this.dispatcher.unregisterPlugin({ prototype: {_name: 'fake_plugin'}});
         assert.isArray(this.dispatcher.hooks['send']);
         assert(this.dispatcher.hooks['send'].length == 0);
         this.dispatcher.addHook('send', {}, {}, 'fake_plugin');
