@@ -39,7 +39,7 @@
             this.hooks[k] = remove_handlers(this.hooks[k]);
         }
         var loaded_plugin = this.plugins[name];
-        if(loaded_plugin.destructor && typeof loaded_plugin.destructor === 'function'){
+        if(typeof loaded_plugin.destructor === 'function'){
             loaded_plugin.destructor();
         }
         delete this.plugins[name];
