@@ -45,10 +45,12 @@
                         var disco_plugin = client.registerPlugin(jslix.disco);
                         var plugins_options = {
                                 'disco_plugin': disco_plugin,
-                                'storage': sessionStorage
+                                'storage': sessionStorage,
+                                'name': 'jslix',
+                                'version': 'beta'
                             };
                         disco_plugin.registerIdentity('client', 'web', 'jslix');
-                        client.registerPlugin(jslix.version, plugins_options).init('jslix', 'beta');
+                        client.registerPlugin(jslix.version, plugins_options).init();
                         disco_plugin.init();
                         client.registerPlugin(jslix.caps, plugins_options);
                         client.send(jslix.stanzas.presence.create());
