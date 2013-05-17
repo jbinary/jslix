@@ -14,19 +14,40 @@
         this._dispatcher.addHook('send', this.stanzas.Hook, this, this._name);
         this._dispatcher.addHandler(this.stanzas.Handler, this, this._name);
         this.registerNodeHandlers();
-        this.options.disco_plugin.signals.disco_changed.add(function(){
-            this.options.disco_plugin.removeNodeHandlers(this.node);
-            this.registerNodeHandlers(true);
-        }, this);
-        this._dispatcher.connection.signals.disconnect.add(function(){
-            this._jid_cache = {};
-            this._broken_nodes = [];
-        }, this);
+        this.options.disco_plugin.signals.disco_changed.add(
+            this.discoChangedHandler,
+            this
+        );
+        this._dispatcher.connection.signals.disconnect.add(
+            this.disconnectHandler,
+            this
+        );
         this._jid_cache = {};
         this._broken_nodes = [];
     }
 
     var caps = jslix.caps.prototype;
+
+    caps.destructor = function(){
+        this.options.disco_plugin.signals.disco_changed.remove(
+            this.discoChangedHandler,
+            this
+        );
+        this._dispatcher.connection.signals.disconnect.remove(
+            this.disconnectHandler,
+            this
+        );
+    }
+
+    caps.discoChangedHandler = function(){
+        this.options.disco_plugin.removeNodeHandlers(this.node);
+        this.registerNodeHandlers(true);
+    }
+
+    caps.disconnectHandler = function(){
+        this._jid_cache = {};
+        this._broken_nodes = [];
+    }
 
     caps.registerNodeHandlers = function(send_presence){
         this.node = [this.options.node, this.getVerificationString()].join('#');
