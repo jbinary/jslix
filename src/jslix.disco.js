@@ -13,7 +13,7 @@
     var disco = jslix.disco.prototype;
 
     disco.init = function() {
-        this._dispatcher.addHandler(this.stanzas.request, this, this._name);
+        this._dispatcher.addHandler(this.RequestStanza, this, this._name);
         this.registerFeature(this.DISCO_INFO_NS);
         this.registerFeature(this.DISCO_ITEMS_NS);
     }
@@ -35,7 +35,7 @@
 
     disco.registerFeature = function(feature_var){
         this.features.push(
-            this.stanzas.feature.create({
+            this.FeatureStanza.create({
                 feature_var: feature_var
             })
         );
@@ -48,7 +48,7 @@
 
     disco.registerIdentity = function(category, type, name){
         this.identities.push(
-            disco.stanzas.identity.create({
+            disco.IdentityStanza.create({
                 category: category,
                 type: type,
                 name: name
@@ -63,7 +63,7 @@
 
     disco.queryJIDFeatures = function(jid, node){
         return this._dispatcher.send(
-            disco.stanzas.request.create({
+            disco.RequestStanza.create({
                 node: node,
                 parent: jslix.stanzas.iq.create({
                     to: jid,
@@ -134,15 +134,13 @@
 
     disco.DISCO_ITEMS_NS = 'http://jabber.org/protocol/disco#items';
 
-    disco.stanzas = {};
-
-    disco.stanzas.feature = jslix.Element({
+    disco.FeatureStanza = jslix.Element({
         xmlns: disco.DISCO_INFO_NS,
         element_name: 'feature',
         feature_var: new jslix.fields.StringAttr('var', true)
     });
 
-    disco.stanzas.identity = jslix.Element({
+    disco.IdentityStanza = jslix.Element({
         xmlns: disco.DISCO_INFO_NS,
         element_name: 'identity',
         xml_lang: new jslix.fields.StringAttr('xml:lang', false),
@@ -151,17 +149,17 @@
         name: new jslix.fields.StringAttr('name', false)
     });
 
-    disco.stanzas.response = jslix.Element({
+    disco.ResponseStanza = jslix.Element({
         xmlns: disco.DISCO_INFO_NS,
-        identities: new jslix.fields.ElementNode(disco.stanzas.identity,
+        identities: new jslix.fields.ElementNode(disco.IdentityStanza,
             true, true),
-        features: new jslix.fields.ElementNode(disco.stanzas.feature,
+        features: new jslix.fields.ElementNode(disco.FeatureStanza,
             false, true)
     }, [jslix.stanzas.query]);
 
-    disco.stanzas.request = jslix.Element({
+    disco.RequestStanza = jslix.Element({
         xmlns: disco.DISCO_INFO_NS,
-        result_class: disco.stanzas.response,
+        result_class: disco.ResponseStanza,
         getHandler: function(query, top){
             if(query.node != undefined){
                 for(var i=0; i<this._nodeHandlers.length; i++){

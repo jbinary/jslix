@@ -16,7 +16,7 @@
     }
 
     plain.auth = function(){
-        return jslix.sasl.prototype.stanzas.auth.create({
+        return jslix.sasl.prototype.AuthStanza.create({
             mechanism: 'PLAIN',
             content: this.getPlainMessage()
         });

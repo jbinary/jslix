@@ -11,8 +11,8 @@
             throw new Error('jslix.disco plugin required!');
         }
         this.options.disco_plugin.registerFeature(this.CAPS_NS);
-        this._dispatcher.addHook('send', this.stanzas.Hook, this, this._name);
-        this._dispatcher.addHandler(this.stanzas.Handler, this, this._name);
+        this._dispatcher.addHook('send', this.PresenceHook, this, this._name);
+        this._dispatcher.addHandler(this.CapsHandler, this, this._name);
         this.registerNodeHandlers();
         this.options.disco_plugin.signals.disco_changed.add(
             this.discoChangedHandler,
@@ -94,9 +94,7 @@
 
     caps._name = 'jslix.caps';
 
-    caps.stanzas = {};
-
-    caps.stanzas.c = jslix.Element({
+    caps.C = jslix.Element({
         parent_element: jslix.stanzas.presence,
         xmlns: caps.CAPS_NS,
         element_name: 'c',
@@ -105,9 +103,9 @@
         ver: new jslix.fields.StringAttr('ver', true)
     });
 
-    caps.stanzas.Hook = jslix.Element({
+    caps.PresenceHook = jslix.Element({
         anyHandler: function(el, top){
-            var c = caps.stanzas.c.create({
+            var c = caps.C.create({
                 hash: 'sha-1',
                 node: this.options.node,
                 ver: this.getVerificationString()
@@ -117,7 +115,7 @@
         }
     }, [jslix.stanzas.presence]);
 
-    caps.stanzas.Handler = jslix.Element({
+    caps.CapsHandler = jslix.Element({
         anyHandler: function(el, top){
             var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
                 node = [el.node, el.ver].join('#');
@@ -145,6 +143,6 @@
             }
             return jslix.stanzas.empty_stanza.create();
         }
-    }, [caps.stanzas.c]);
+    }, [caps.C]);
 
 })();

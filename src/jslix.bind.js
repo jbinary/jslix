@@ -5,8 +5,8 @@
 
     jslix.bind = function(dispatcher){
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(this.stanzas.restart_result, this);
-        this._dispatcher.addHandler(this.stanzas.response, this);
+        this._dispatcher.addHandler(this.RestartResultStanza, this);
+        this._dispatcher.addHandler(this.ResponseStanza, this);
     }
 
     var bind = jslix.bind.prototype;
@@ -15,36 +15,34 @@
 
     bind.BIND_NS = 'urn:ietf:params:xml:ns:xmpp-bind';
 
-    bind.stanzas = {};
-
-    bind.stanzas.base = jslix.Element({
+    bind.BaseStanza = jslix.Element({
         xmlns: bind.BIND_NS,
         element_name: 'bind'
     });
 
-    bind.stanzas.restart_result = jslix.Element({
+    bind.RestartResultStanza = jslix.Element({
         parent_element: jslix.stanzas.features,
         handler: function(top){
             return jslix.stanzas.iq.create({
                 type: 'set',
-                link: bind.stanzas.request.create({
+                link: bind.RequestStanza.create({
                     resource: this._dispatcher.connection.jid.getResource()
                 })
             });
         }
-    }, [bind.stanzas.base]);
+    }, [bind.BaseStanza]);
 
-    bind.stanzas.request = jslix.Element({
+    bind.RequestStanza = jslix.Element({
         parent_element: jslix.stanzas.iq,
         resource: new jslix.fields.StringNode('resource', true)
-    }, [bind.stanzas.base]);
+    }, [bind.BaseStanza]);
 
-    bind.stanzas.response = jslix.Element({
+    bind.ResponseStanza = jslix.Element({
         parent_element: jslix.stanzas.iq,
         jid: new jslix.fields.StringNode('jid', true),
         handler: function(top){
             this._dispatcher.connection.jid = new jslix.JID(top.jid);
         }
-    }, [bind.stanzas.base]);
+    }, [bind.BaseStanza]);
 
 })();

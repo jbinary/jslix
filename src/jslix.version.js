@@ -19,8 +19,6 @@
 
     version.VERSION_NS = 'jabber:iq:version';
 
-    version.stanzas = {};
-
     version.setName = function(name){
         this._name = name;
     }
@@ -51,21 +49,21 @@
         var iq = jslix.stanzas.iq.create({
             type: 'get',
             to: jid,
-            link: this.stanzas.request.create()
+            link: this.RequestStanza.create()
         });
         return this._dispatcher.send(iq);
     };
 
     version.init = function(){
         if (this._dispatcher){
-            this._dispatcher.addHandler(this.stanzas.request, this);
+            this._dispatcher.addHandler(this.RequestStanza, this);
         }
         if(this.options['disco_plugin'] != undefined){
             this.options.disco_plugin.registerFeature(this.VERSION_NS);
         }
     };
 
-    version.stanzas.response = jslix.Element({
+    version.ResponseStanza = jslix.Element({
         //Definition
         xmlns: version.VERSION_NS,
         //Fields
@@ -74,11 +72,11 @@
         os: new fields.StringNode('os')
     }, [jslix.stanzas.query]);
 
-    version.stanzas.request = jslix.Element({
+    version.RequestStanza = jslix.Element({
         //Definition
         xmlns: version.VERSION_NS,
         //Handlers
-        result_class: version.stanzas.response,
+        result_class: version.ResponseStanza,
         getHandler: function(query, top) {
             return query.makeResult({
                 version: this.getVersion(),

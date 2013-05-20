@@ -19,7 +19,7 @@
         this.password = password;
         this.http_base = http_base;
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(this.stanzas.features, this);
+        this._dispatcher.addHandler(this.FeaturesStanza, this);
         this.sasl = this._dispatcher.registerPlugin(jslix.sasl);
         var that = this;
         this.sasl.deferred.done(function() {
@@ -40,27 +40,25 @@
     bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
     bosh.XBOSH_NS = 'urn:xmpp:xbosh';
 
-    bosh.stanzas = {};
-
-    bosh.stanzas.body = jslix.Element({
+    bosh.BodyStanza = jslix.Element({
         xmlns: bosh.BOSH_NS,
         element_name: 'body',
         type: new jslix.fields.StringAttr('type', false),
         condition: new jslix.fields.StringAttr('condition', false)
     });
 
-    bosh.stanzas.empty = jslix.Element({
+    bosh.EmptyStanza = jslix.Element({
         rid: new jslix.fields.IntegerAttr('rid', true),
         sid: new jslix.fields.StringAttr('sid', true)
-    }, [bosh.stanzas.body]);
+    }, [bosh.BodyStanza]);
 
-    bosh.stanzas.base = jslix.Element({
+    bosh.BaseStanza = jslix.Element({
         ver: new jslix.fields.StringAttr('ver', true),
         wait: new jslix.fields.IntegerAttr('wait', true),
         ack: new jslix.fields.IntegerAttr('ack', false)
-    }, [bosh.stanzas.body]);
+    }, [bosh.BodyStanza]);
 
-    bosh.stanzas.request = jslix.Element({
+    bosh.RequestStanza = jslix.Element({
         to: new jslix.fields.JIDAttr('to', true),
         rid: new jslix.fields.IntegerAttr('rid', true),
         hold: new jslix.fields.IntegerAttr('hold', true),
@@ -70,9 +68,9 @@
         route: new jslix.fields.StringAttr('route', false),
         xmpp_version: new jslix.fields.StringAttr('xmpp:version', true),
         xmlns_xmpp: new jslix.fields.StringAttr('xmlns:xmpp', true)
-    }, [bosh.stanzas.base]);
+    }, [bosh.BaseStanza]);
 
-    bosh.stanzas.response = jslix.Element({
+    bosh.ResponseStanza = jslix.Element({
         from: new jslix.fields.JIDAttr('from', true),
         sid: new jslix.fields.StringAttr('sid', true),
         polling: new jslix.fields.IntegerAttr('polling', true),
@@ -87,16 +85,16 @@
                 throw new jslix.exceptions.WrongElement();
             return value;
         }
-    }, [bosh.stanzas.base]);
+    }, [bosh.BaseStanza]);
 
-    bosh.stanzas.restart = jslix.Element({
+    bosh.RestartStanza = jslix.Element({
         to: new jslix.fields.JIDAttr('to', true),
         xml_lang: new jslix.fields.StringAttr('xml:lang', true),
         xmpp_restart: new jslix.fields.StringAttr('xmpp:restart', true),
         xmlns_xmpp: new jslix.fields.StringAttr('xmlns:xmpp', true)
-    }, [bosh.stanzas.empty]);
+    }, [bosh.EmptyStanza]);
 
-    bosh.stanzas.features = jslix.Element({
+    bosh.FeaturesStanza = jslix.Element({
         bind: new jslix.fields.FlagNode('bind', false, jslix.bind.prototype.BIND_NS),
         session: new jslix.fields.FlagNode('session', false, jslix.session.prototype.SESSION_NS),
         handler: function(top){
@@ -119,7 +117,7 @@
         if (this._connection_deferred) return this._connection_deferred;
         this._connection_deferred = $.Deferred();
         this.send(jslix.build(
-            bosh.stanzas.request.create({
+            bosh.RequestStanza.create({
                 rid: this._rid,
                 to: this.jid.getDomain(),
                 ver: '1.8',
@@ -138,7 +136,7 @@
     bosh.send = function(doc){
         if(!doc || doc.firstChild.nodeName != 'body'){
             var body = jslix.build(
-                bosh.stanzas.empty.create({
+                bosh.EmptyStanza.create({
                     sid: this._sid,
                     rid: this._rid
                 }));
@@ -151,7 +149,7 @@
     }
 
     bosh.restart = function(){
-        return bosh.stanzas.restart.create({
+        return bosh.RestartStanza.create({
             sid: this._sid,
             rid: this._rid,
             xml_lang: 'en',
@@ -197,7 +195,7 @@
         if(response.readyState == 4){
             if(response.status == 200 && response.responseXML){ // TODO: handle other statuses as well (404 at least)
                 var doc = response.responseXML;
-                var definitions = [bosh.stanzas.body, bosh.stanzas.response];
+                var definitions = [bosh.BodyStanza, bosh.ResponseStanza];
                 var top = undefined;
                 for (var i=0; i<definitions.length; i++) {
                     try{
@@ -283,7 +281,7 @@
 
     bosh.disconnect = function(){
         this.established = false;
-        return bosh.stanzas.empty.create({
+        return bosh.EmptyStanza.create({
             sid: this._sid,
             rid: this._rid,
             type: 'terminate'

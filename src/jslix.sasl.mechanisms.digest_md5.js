@@ -9,14 +9,12 @@
             'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.getDomain(),
             'nc': '00000001'
         };
-        this._dispatcher.addHandler(this.stanzas.challenge, this);
+        this._dispatcher.addHandler(this.ChallengeStanza, this);
     }
 
     var digest_md5 = jslix.sasl.mechanisms['DIGEST-MD5'].prototype;
 
-    digest_md5.stanzas = {};
-
-    digest_md5.stanzas.challenge = jslix.Element({
+    digest_md5.ChallengeStanza = jslix.Element({
         handler: function(top){
             var hash = CryptoJS.enc.Latin1.stringify(CryptoJS.enc.Base64.parse(top.content)),
                 params = hash.split(',');
@@ -31,10 +29,10 @@
             else
                 return this.getSecondResponse();
         }
-    }, [jslix.sasl.prototype.stanzas.challenge]);
+    }, [jslix.sasl.prototype.ChallengeStanza]);
 
     digest_md5.auth = function(){
-        return jslix.sasl.prototype.stanzas.auth.create({
+        return jslix.sasl.prototype.AuthStanza.create({
             mechanism: 'DIGEST-MD5'
         });
     }
@@ -68,7 +66,7 @@
                 'response="' + response + '"',
                 'charset="utf-8"'].join(',')));
 
-        return jslix.sasl.prototype.stanzas.response.create({
+        return jslix.sasl.prototype.ResponseStanza.create({
             content: content
         });
     }
@@ -92,7 +90,7 @@
                     CryptoJS.MD5(a2).toString(CryptoJS.enc.Hex)].join(':')).toString(CryptoJS.enc.Hex),
             valid = rsptest == this._challenge['rspauth'];
             this._challenge['rspauth'] = undefined;
-        return valid ? jslix.sasl.prototype.stanzas.response.create({content: ''}) : this._dispatcher.connection.disconnect();
+        return valid ? jslix.sasl.prototype.ResponseStanza.create({content: ''}) : this._dispatcher.connection.disconnect();
 
     }
 

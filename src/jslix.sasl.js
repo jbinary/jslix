@@ -5,9 +5,9 @@
 
     jslix.sasl = function(dispatcher){
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(this.stanzas.mechanisms, this);
-        this._dispatcher.addHandler(this.stanzas.success, this);
-        this._dispatcher.addHandler(this.stanzas.failure, this);
+        this._dispatcher.addHandler(this.MechanismsStanza, this);
+        this._dispatcher.addHandler(this.SuccessStanza, this);
+        this._dispatcher.addHandler(this.FailureStanza, this);
         this._mechanism = null;
         this.deferred = $.Deferred();
     }
@@ -30,34 +30,31 @@
 
     sasl.SASL_NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
 
-    sasl.stanzas = {};
-
-
-    sasl.stanzas.auth = jslix.Element({
+    sasl.AuthStanza = jslix.Element({
         xmlns: sasl.SASL_NS,
         element_name: 'auth',
         mechanism: new jslix.fields.StringAttr('mechanism', true),
         content: new jslix.fields.StringNode(null, false, false, undefined, true)
     });
 
-    sasl.stanzas.challenge = jslix.Element({
+    sasl.ChallengeStanza = jslix.Element({
         xmlns: sasl.SASL_NS,
         element_name: 'challenge',
         content: new jslix.fields.StringNode(null, true, false, undefined, true)
     });
 
-    sasl.stanzas.response = jslix.Element({
+    sasl.ResponseStanza = jslix.Element({
         xmlns: sasl.SASL_NS,
         element_name: 'response',
         content: new jslix.fields.StringNode(null, true, false, undefined, true)
     });
 
-    sasl.stanzas.abort = jslix.Element({
+    sasl.AbortStanza = jslix.Element({
         xmlns: sasl.SASL_NS,
         element_name: 'abort'
     });
 
-    sasl.stanzas.failure = jslix.Element({
+    sasl.FailureStanza = jslix.Element({
         xmlns: sasl.SASL_NS,
         element_name: 'failure',
         condition: new jslix.fields.ConditionNode(),
@@ -67,7 +64,7 @@
         }
     });
 
-    sasl.stanzas.success = jslix.Element({
+    sasl.SuccessStanza = jslix.Element({
         xmlns: sasl.SASL_NS,
         element_name: 'success',
         handler: function(top){
@@ -75,7 +72,7 @@
         }
     });
 
-    sasl.stanzas.mechanisms = jslix.Element({
+    sasl.MechanismsStanza = jslix.Element({
         xmlns: sasl.SASL_NS,
         mechanisms: new jslix.fields.StringNode('mechanism', true, true),
         parent_element: jslix.stanzas.features,
