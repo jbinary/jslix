@@ -3,7 +3,8 @@ var CapsTest = buster.testCase('CapsTest', {
         var fake_connection = {
             signals: {
                 disconnect: {
-                    add: function(){}
+                    add: function(){},
+                    remove: function(){}
                 }
             },
             last_stanza: null,
@@ -23,12 +24,18 @@ var CapsTest = buster.testCase('CapsTest', {
     },
     testNoException: function(){
         var dispatcher = this.dispatcher,
-            disco_plugin = this.disco_plugin;
+            disco_plugin = this.disco_plugin,
+            caps_plugin;
         refute.exception(function(){
-            dispatcher.registerPlugin(jslix.caps, {
+            caps_plugin = dispatcher.registerPlugin(jslix.caps, {
                 'disco_plugin': disco_plugin
             });
         });
+        this.stub(dispatcher.connection.signals.disconnect, 'remove');
+        this.stub(disco_plugin.signals.disco_changed, 'remove')
+        dispatcher.unregisterPlugin(jslix.caps);
+        assert.called(dispatcher.connection.signals.disconnect.remove);
+        assert.called(disco_plugin.signals.disco_changed.remove);
     },
     testVerificationString: function(){
         /*
