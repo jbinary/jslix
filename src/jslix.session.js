@@ -17,7 +17,7 @@
 
     session.BindResultStanza = jslix.Element({
         handler: function(top){
-            var iq = jslix.stanzas.iq.create({
+            var iq = jslix.stanzas.IQStanza.create({
                 type: 'set',
                 link: session.request.create({})
             });
@@ -33,7 +33,7 @@
     session.request = jslix.Element({
         xmlns: session.SESSION_NS,
         element_name: 'session',
-        parent_element: jslix.stanzas.iq
+        parent_element: jslix.stanzas.IQStanza
     });
 
 })();

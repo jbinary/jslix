@@ -111,7 +111,7 @@
                 });
             }
         }
-    }, [jslix.stanzas.features]);
+    }, [jslix.stanzas.FeaturesStanza]);
 
     bosh.connect = function(){
         if (this._connection_deferred) return this._connection_deferred;

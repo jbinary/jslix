@@ -46,7 +46,7 @@
     };
 
     version.get = function(jid) {
-        var iq = jslix.stanzas.iq.create({
+        var iq = jslix.stanzas.IQStanza.create({
             type: 'get',
             to: jid,
             link: this.RequestStanza.create()
@@ -70,7 +70,7 @@
         name: new fields.StringNode('name', true),
         version: new fields.StringNode('version', true),
         os: new fields.StringNode('os')
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
     version.RequestStanza = jslix.Element({
         //Definition
@@ -84,6 +84,6 @@
                 os:  this.getOs()
             });
         }
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
 })();

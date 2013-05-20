@@ -65,7 +65,7 @@
         return this._dispatcher.send(
             disco.RequestStanza.create({
                 node: node,
-                parent: jslix.stanzas.iq.create({
+                parent: jslix.stanzas.IQStanza.create({
                     to: jid,
                     type: 'get'
                 })
@@ -155,7 +155,7 @@
             true, true),
         features: new jslix.fields.ElementNode(disco.FeatureStanza,
             false, true)
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
     disco.RequestStanza = jslix.Element({
         xmlns: disco.DISCO_INFO_NS,
@@ -175,6 +175,6 @@
             }
             return this.create_response(query);
         },
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
 })();

@@ -2,7 +2,7 @@
 (function(){
     var jslix = {
         Element: function(object, bases) {
-            bases = bases || [jslix.stanzas.base_stanza];
+            bases = bases || [jslix.stanzas.BaseStanza];
             var _inherit = function(accum, object) {
                 for (var key in object) {
                     accum[key] = object[key];

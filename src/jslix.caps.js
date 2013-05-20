@@ -58,7 +58,7 @@
             this
         );
         if(send_presence){
-            this._dispatcher.send(jslix.stanzas.presence.create());
+            this._dispatcher.send(jslix.stanzas.PresenceStanza.create());
         }
     }
 
@@ -87,7 +87,7 @@
     }
 
     caps.itemsHandler = function(query){
-        return jslix.stanzas.empty_stanza.create();
+        return jslix.stanzas.EmptyStanza.create();
     }
 
     caps.CAPS_NS = 'http://jabber.org/protocol/caps';
@@ -95,7 +95,7 @@
     caps._name = 'jslix.caps';
 
     caps.C = jslix.Element({
-        parent_element: jslix.stanzas.presence,
+        parent_element: jslix.stanzas.PresenceStanza,
         xmlns: caps.CAPS_NS,
         element_name: 'c',
         hash: new jslix.fields.StringAttr('hash', true),
@@ -113,7 +113,7 @@
             el.link(c);
             return el;
         }
-    }, [jslix.stanzas.presence]);
+    }, [jslix.stanzas.PresenceStanza]);
 
     caps.CapsHandler = jslix.Element({
         anyHandler: function(el, top){
@@ -141,7 +141,7 @@
                     this._jid_cache[top.from.toString()] = node;
                 }
             }
-            return jslix.stanzas.empty_stanza.create();
+            return jslix.stanzas.EmptyStanza.create();
         }
     }, [caps.C]);
 

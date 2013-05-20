@@ -75,7 +75,7 @@
     sasl.MechanismsStanza = jslix.Element({
         xmlns: sasl.SASL_NS,
         mechanisms: new jslix.fields.StringNode('mechanism', true, true),
-        parent_element: jslix.stanzas.features,
+        parent_element: jslix.stanzas.FeaturesStanza,
         handler: function(top){
             if(!this._mechanism){
                 for(var i=0; i<top.mechanisms.length; i++){

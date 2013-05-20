@@ -80,7 +80,7 @@
                 var func = top.handler;
                 var result = func.call(host, top);
                 if(result){
-                    if(!(result instanceof jslix.stanzas.break_stanza))
+                    if(!(result instanceof jslix.stanzas.BreakStanza))
                         this.send(result);
                     break;
                 }
@@ -88,8 +88,8 @@
         }
         if(top) return;
 
-        var tops = [jslix.stanzas.iq, jslix.stanzas.presence,
-                    jslix.stanzas.message];
+        var tops = [jslix.stanzas.IQStanza, jslix.stanzas.PresenceStanza,
+                    jslix.stanzas.MessageStanza];
         for (var i=0; i<tops.length; i++) {
             try {
                 var top = jslix.parse(el, tops[i]);
@@ -225,7 +225,7 @@
             var el = els[i];
             // TODO: BreakStanza
             var el = this.check_hooks(el);
-            if(el instanceof jslix.stanzas.empty_stanza) {
+            if(el instanceof jslix.stanzas.EmptyStanza) {
                 continue;
             }
             var top = el.getTop();
@@ -244,7 +244,7 @@
         // TODO: optimisation here can be done, we don't need to build
         // document and then parse it again, some light validation can
         // be applied
-        if (el instanceof jslix.stanzas.empty_stanza) return el;
+        if (el instanceof jslix.stanzas.EmptyStanza) return el;
         var hooks = this.hooks['send'],
             obj = el;
         if(hooks instanceof Array){
