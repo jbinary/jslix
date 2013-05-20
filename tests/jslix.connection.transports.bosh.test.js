@@ -1,4 +1,4 @@
-var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
+var ConnectionsTransportsBOSHTest = buster.testCase('ConnectionsTransportsBOSHTest', {
     setUp: function(){
         this.dispatcher = new jslix.dispatcher();
         this.connection = new jslix.connection.transports.bosh(this.dispatcher,

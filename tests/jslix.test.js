@@ -80,7 +80,7 @@ var compareDocumentsFromString = function(doc1, str)
     return compareDocuments(doc1, (new DOMParser()).parseFromString(str, "text/xml"));
 };
 
-var JSLixTest = buster.testCase("JSLixTest", {
+var JslixTest = buster.testCase('JslixTest', {
     setUp: function(){
         this.dispatcher = new jslix.dispatcher();
         this.dispatcher.connection = {
