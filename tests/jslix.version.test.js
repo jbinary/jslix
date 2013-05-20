@@ -1,4 +1,4 @@
-var JslixVersionTest = buster.testCase('JslixVersionTest', {
+var VersionTest = buster.testCase('VersionTest', {
     setUp: function(){
         this.connection = {
             lst_stnz: null,
