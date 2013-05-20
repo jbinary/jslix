@@ -1,51 +1,3 @@
-var compareDictionaries = function(d1, d2){
-    if (d1 instanceof Array)
-    {
-        var type = "Array";
-    }
-    else
-    {
-        var type = typeof d1;
-    }
-
-
-    switch(type)
-    {
-        case "Array":
-            for (var i = 0; i < d1.length; ++i)
-            {
-                if (!compareDictionaries(d1[i], d2[i])) return false;
-            }
-            return true;
-
-        case "object":
-            for (var key in d1)
-            {
-                if (typeof d1[key] == "function")
-                {
-                    continue;
-                }
-
-                if (key.indexOf("_") == 0 ) continue;
-
-                if (!d2.hasOwnProperty(key))
-                {
-                    return false;
-                }
-
-                if (!compareDictionaries(d1[key], d2[key])) return false;
-            }
-            return true;
-
-        default:
-            if (d1 != d2)
-            {
-                return false;
-            }
-            return true;
-    }
-};
-
 var JslixTest = buster.testCase('JslixTest', {
     setUp: function(){
         this.dispatcher = new jslix.dispatcher();
@@ -58,32 +10,6 @@ var JslixTest = buster.testCase('JslixTest', {
                 return doc;
             }
         }
-    },
-    testCompareDictionaries: function(){
-        var d1 = new Object();
-        var d2 = new Object();
-
-        var incapsObj_1 = new Object();
-        incapsObj_1.arrOfSpy = [1, 2, 3];
-
-        var incapsObj_2 = new Object();
-        incapsObj_2.arrOfSpy = [1, 2, 3];
-
-        d1.incapsObject = incapsObj_1;
-        d2.incapsObject = incapsObj_2;
-
-        assert(compareDictionaries(d1, d2));
-
-        var oneMoreObject_1 = new Object();
-        var oneMoreObject_2 = new Object();
-
-        oneMoreObject_1.soup = "1";
-        oneMoreObject_2.soup = "1";
-
-        d1.incapsObject_2 = oneMoreObject_1;
-        d2.incapsObject_2 = oneMoreObject_2;
-
-        assert(compareDictionaries(d1, d2));
     },
     testBuildIQStanza: function(){
         var iqStanza = jslix.stanzas.IQStanza.create({element_name:'iq', id:'123', type:'get'});
@@ -106,7 +32,8 @@ var JslixTest = buster.testCase('JslixTest', {
         
         var parsedStanza = jslix.parse(iqStanzaDocument, jslix.stanzas.IQStanza);
 
-        assert(compareDictionaries(parsedStanza, {id:'123', type:'get', from:'abc', to:'qwe'}));
+        assert(parsedStanza.id == '123' && parsedStanza.type == 'get');
+        assert(parsedStanza.from.toString() == 'abc' && parsedStanza.to.toString() == 'qwe');
     },
     testParseQueryStanza: function(){
         var myDefinition = jslix.Element({node: new jslix.fields.StringNode('my_node', false, true), 
@@ -123,14 +50,12 @@ var JslixTest = buster.testCase('JslixTest', {
         
         refute.exception(function(){jslix.parse(myDocument, myDefinition);});
 
-        var parsedObject = jslix.parse(myDocument, myDefinition);
-
-        assert(compareDictionaries(parsedObject, {
-                                node: ['1', '2', '3'], 
-                                parent: {
-                                          to:'abc', from:'qwe', id:'123', type:'get'
-                                    }
-                                 }));
+        var parsedObject = jslix.parse(myDocument, myDefinition),
+            parent = parsedObject.parent;
+        assert(parsedObject.node instanceof Array && parsedObject.node.length == 3);
+        assert(parent && parent.id == '123' && parent.type == 'get');
+        assert(parent.to instanceof jslix.JID && parent.to.toString() == 'abc');
+        assert(parent.from instanceof jslix.JID && parent.from.toString() == 'qwe');
     },
     testNoElementParseError: function(){
         var myDefinition = jslix.Element({node: new jslix.fields.StringNode('my_node', true), 
@@ -147,13 +72,14 @@ var JslixTest = buster.testCase('JslixTest', {
         
         refute.exception(function(){jslix.parse(myDocument, myDefinition);}); 
 
-        var parsedObject = jslix.parse(myDocument, myDefinition);
+        var parsedObject = jslix.parse(myDocument, myDefinition),
+            parent = parsedObject.parent;
 
-        assert(compareDictionaries(parsedObject, { node: 123,
-                                parent: {
-                                        to:'abc', from:'qwe', id:'123', type:'get'
-                                    }
-                                 }));
+        assert(parsedObject.node && parsedObject.node == 123);
+
+        assert(parent && parent.id == '123' && parent.type == 'get');
+        assert(parent.to instanceof jslix.JID && parent.to.toString() == 'abc');
+        assert(parent.from instanceof jslix.JID && parent.from.toString() == 'qwe');
     },
     testElementParseError: function(){
         var myDefinition = jslix.Element({
@@ -188,13 +114,14 @@ var JslixTest = buster.testCase('JslixTest', {
 
         refute.exception(function(){jslix.parse(myDocument, myDefinition);}); 
 
-        var parsedObject = jslix.parse(myDocument, myDefinition);
+        var parsedObject = jslix.parse(myDocument, myDefinition),
+            parent = parsedObject.parent;
+        assert(parsedObject.node && parsedObject.node == 123);
+        assert(parsedObject.int_attr && parsedObject.int_attr == 100500);
+        assert(parent && parent.id == '123' && parent.type == 'get');
+        assert(parent.to instanceof jslix.JID && parent.to.toString() == 'abc');
+        assert(parent.from instanceof jslix.JID && parent.from.toString() == 'qwe');
 
-        assert(compareDictionaries(parsedObject, { node: 123, int_attr: 100500,
-                                parent: {
-                                        id:'123', type:'get', to:'abc', from:'qwe'
-                                    }
-                                 }));
     },
     testJIDType: function(){
         var myDefinition = jslix.Element({node: new jslix.fields.JIDNode('jid_node', false), 
@@ -212,12 +139,12 @@ var JslixTest = buster.testCase('JslixTest', {
         
         refute.exception(function(){jslix.parse(myDocument, myDefinition);});
 
-        var parsedObject = jslix.parse(myDocument, myDefinition);
-        assert(compareDictionaries(parsedObject, {node:123, 
-                                parent: {
-                                        to:'abcd', from:'qwe', id:'123', type:'get'
-                                    }
-                                 }));
+        var parsedObject = jslix.parse(myDocument, myDefinition),
+            parent = parsedObject.parent;
+        assert(parsedObject.node && parsedObject.node instanceof jslix.JID);
+        assert(parent && parent.id == '123' && parent.type == 'get');
+        assert(parent.to instanceof jslix.JID && parent.to.toString() == 'abcd');
+        assert(parent.from instanceof jslix.JID && parent.from.toString() == 'qwe');
     },
     testElementNode: function(){
         var definitionElementNode = new jslix.Element({node: new jslix.fields.StringNode('string_node', false), 
@@ -244,11 +171,7 @@ var JslixTest = buster.testCase('JslixTest', {
 
         var parsedObject = jslix.parse(myDocument, myDefinition);
 
-
-        assert(compareDictionaries(parsedObject, {node: {
-                                    node: 'test'
-                                      }
-                                 }));
+        assert(parsedObject.node && parsedObject.node.node && parsedObject.node.node == 'test');
 
     },
     testCreateStanza: function(){
@@ -276,16 +199,17 @@ var JslixTest = buster.testCase('JslixTest', {
     testMakeError: function(){
         var iqStanza = jslix.stanzas.IQStanza.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
 
-        var errorStanza = iqStanza.makeError('bad-request', 'bad-request', 'error');
+        var errorStanza = iqStanza.makeError('bad-request', 'bad-request', 'error'),
+            parent = errorStanza.parent;
 
-        refute.exception(function(){
-            compareDictionaries(errorStanza, {text:'bad-request',
-                          type:'auth',
-                           parent:{
-                                to:'isaak', from:'abram', type:'error'
-                              }
-                            })
-        });
+        assert(errorStanza.text == 'bad-request');
+
+        assert(errorStanza.type == 'error');
+
+        assert(parent && parent.id == '123' && parent.type == 'error');
+        assert(parent.from == 'abram');
+        assert(parent.to == 'isaak');
+
     },
     testPresenceStanza: function(){
         var presenceStanza = jslix.stanzas.PresenceStanza.create({from:'abc', to:'qwe', id:1, type:'get',
@@ -295,13 +219,17 @@ var JslixTest = buster.testCase('JslixTest', {
 
         refute.exception(function(){jslix.parse(presenceDoc, jslix.stanzas.PresenceStanza)});
 
-        var parsedPresence = jslix.parse(presenceDoc, jslix.stanzas.PresenceStanza);
+        var parsedPresence = jslix.parse(presenceDoc, jslix.stanzas.PresenceStanza),
+            parent = parsedPresence.parent;
 
-        compareDictionaries(parsedPresence, {show:'chat', status:'OK', priority:1, 
-                            parent:{
-                                    from:'abc', to:'qwe', id:1, type:'get'
-                                   }
-                            });
+        assert(parsedPresence.show == 'chat');
+        assert(parsedPresence.status == 'OK');
+        assert(parsedPresence.priority == 1);
+
+        assert(parsedPresence.from instanceof jslix.JID && parsedPresence.from.toString() == 'abc');
+        assert(parsedPresence.to instanceof jslix.JID && parsedPresence.to.toString() == 'qwe');
+
+        assert(parsedPresence.id == 1 && parsedPresence.type == 'get');
 
         var badPresenceStanza = jslix.stanzas.PresenceStanza.create({from:'abc', to:'qwe', id:1, type:'get',
                                     show:'bad', status:'OK', priority:1});
@@ -388,9 +316,15 @@ var JslixTest = buster.testCase('JslixTest', {
                         }
                  );
 
-        compareDictionaries(resultDoc, {id:'123', type:'get', from:'abc', to:'qwe'});
+        refute.exception(function(){
+            resultDoc = jslix.parse(resultDoc, resultDefinition);
+        });
 
-        compareDictionaries(this.dispatcher.deferreds, { });
+        assert(resultDoc.id == '123' && resultDoc.type == 'result');
+        assert(resultDoc.from instanceof jslix.JID && resultDoc.from.toString() == 'qwe');
+        assert(resultDoc.to instanceof jslix.JID && resultDoc.to.toString() == 'abc')
+
+        assert.equals(this.dispatcher.deferreds, {});
     },
     testErrorStanzaDispatch: function(){
         var iqStanza = jslix.stanzas.IQStanza.create({from:'a', to:'b', type:'error', id:123});
@@ -413,15 +347,8 @@ var JslixTest = buster.testCase('JslixTest', {
 
         var resultStanza = iqStanza.makeResult({id:2, type:'result'});
 
-        refute.exception(function(){
-            compareDictionaries(resultStanza, { id:2, 
-                            parent:
-                            {
-                                from:'b', to:'a', id:1, type:'result'
-                            }
+        assert(resultStanza.id == 2 && resultStanza.type == 'result');
 
-                          });
-        });
     },
     testSpecialStanza: function(){
         var special_stanza = jslix.stanzas.SpecialStanza.create();
