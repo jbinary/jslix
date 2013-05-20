@@ -3,14 +3,14 @@
 
     var jslix = window.jslix;
 
-    jslix.dispatcher = function(connection, debug) {
+    jslix.dispatcher = function(connection) {
         this.connection = connection;
         this.handlers = [];
         this.top_handlers = [];
         this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
-        this.debug = debug || false;
+        this.debug = window.debug || false;
     }
 
     var dispatcher = jslix.dispatcher.prototype;
