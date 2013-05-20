@@ -1,31 +1,3 @@
-var compareDocuments = function(doc1, doc2){
-    assert(doc1.childNodes.length == doc2.childNodes.length);
-    
-    assert(doc1.namespaceURI == doc2.namespaceURI);
-    
-    assert(doc1.nodeName == doc2.nodeName);
-
-    
-    if (doc1.attributes == null)
-        assert.same(doc1.attributes, doc2.attributes);
-    else
-    {        
-    
-        for (var j = 0; j < doc1.attributes.length; ++j)
-        {
-            if (doc1.attributes[j].name == 'xmlns') continue;
-            assert(doc1.attributes[j].value == doc2.attributes.getNamedItem(doc1.attributes[j].name).value);
-        }
-    }
-    
-    var len = doc1.childNodes.length;
-    
-    for (var i = 0; i < len; ++i)
-    {
-        compareDocuments(doc1.childNodes[i], doc2.childNodes[i]);
-    }
-};
-
 var compareDictionaries = function(d1, d2){
     if (d1 instanceof Array)
     {
@@ -74,12 +46,6 @@ var compareDictionaries = function(d1, d2){
     }
 };
 
-
-var compareDocumentsFromString = function(doc1, str)
-{    
-    return compareDocuments(doc1, (new DOMParser()).parseFromString(str, "text/xml"));
-};
-
 var JslixTest = buster.testCase('JslixTest', {
     setUp: function(){
         this.dispatcher = new jslix.dispatcher();
@@ -121,19 +87,10 @@ var JslixTest = buster.testCase('JslixTest', {
     },
     testBuildIQStanza: function(){
         var iqStanza = jslix.stanzas.IQStanza.create({element_name:'iq', id:'123', type:'get'});
-        
-        var iqStanzaDocument = jslix.build(iqStanza);
 
-        compareDocumentsFromString(iqStanzaDocument, '<iq xmlns="jabber:client" id="123" type="get"/>');
-    },
-    testCompareDocuments: function(){
-        var iqStanza = jslix.stanzas.IQStanza.create({element_name:'iq', id:'123', type:'get'});
+        var doc = new XMLSerializer().serializeToString(jslix.build(iqStanza));
 
-        var iqStanzaDocument = jslix.build(iqStanza);
-
-        var doc2 = (new DOMParser()).parseFromString('<iq xmlns="jabber:client" id="123" type="get"/>', "text/xml");
-
-        compareDocuments(iqStanzaDocument, doc2);
+        assert(doc == '<iq xmlns="jabber:client" id="123" type="get"/>');
     },
     testParseIQStanza:  function(){
         var iqStanza = jslix.stanzas.IQStanza.create({id:'123', type:'get', from:'abc', to:'qwe'});
@@ -278,11 +235,10 @@ var JslixTest = buster.testCase('JslixTest', {
         
         var myDocument = jslix.build(myStanza);
 
-        compareDocumentsFromString(myDocument, 
-                "<qwer xmlns='element_xmlns'>" +
-                "<myName xmlns='string_xmlns'>" +
-                "<string_node>qwer</string_node>" +
-                "</myName></qwer>");
+        assert(myStanza.toString() == '<qwer xmlns="element_xmlns">' +
+                '<myName xmlns="string_xmlns">' +
+                '<string_node>test</string_node>' +
+                '</myName></qwer>');
 
         refute.exception(function(){jslix.parse(myDocument, myDefinition);});
 
@@ -370,8 +326,7 @@ var JslixTest = buster.testCase('JslixTest', {
             var stanzas = [firstIqStanza, secondIqStanza, thirdIqStanza];
             for(var i=0; i<stanzas.length; i++){
                 test.dispatcher.send(stanzas[i], function(doc){
-                    compareDocumentsFromString(doc, 
-                        '<iq xmlns="jabber:client" to="qwe" from="abc" id="' + this.count + '" type="get"/>');
+                    assert(doc.toString() == '<iq xmlns="jabber:client" to="qwe" from="abc" id="' + this.count + '" type="get"/>');
                 });
             }
         });
