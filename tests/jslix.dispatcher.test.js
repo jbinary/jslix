@@ -42,7 +42,7 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
                     el.id = this.id;
                     return el;
                 }
-            }, [jslix.stanzas.iq]),
+            }, [jslix.stanzas.IQStanza]),
             iq_settings = this.get_iq_settings(),
             context = {
                 id: jslix.randomUUID()
@@ -74,17 +74,17 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
             iq_settings = this.get_iq_settings('result');
         this.dispatcher.deferreds[iq_settings.id] = [deferred, {
             __definition__: {
-                result_class: jslix.stanzas.message
+                result_class: jslix.stanzas.MessageStanza
             }
         }];
-        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.IQStanza.create(iq_settings)));
         assert(deferred.state() == 'rejected');
         assert.equals(this.dispatcher.deferreds, {})
         deferred = $.Deferred();
         this.dispatcher.deferreds[iq_settings.id] = [deferred, {
             __definition__: {}
         }];
-        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.IQStanza.create(iq_settings)));
         assert(deferred.state() == 'resolved');
         assert.equals(this.dispatcher.deferreds, {});
         deferred = $.Deferred();
@@ -92,7 +92,7 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
         this.dispatcher.deferreds[iq_settings.id] = [deferred, {
             __definition__: {}
         }];
-        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.IQStanza.create(iq_settings)));
         assert(deferred.state() == 'rejected');
     }
 });

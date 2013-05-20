@@ -74,7 +74,7 @@ var VersionTest = buster.testCase('VersionTest', {
     },
     testResponse: function(){
         var version = this.dispatcher.registerPlugin(jslix.version, this.options),
-            request = jslix.stanzas.iq.create({
+            request = jslix.stanzas.IQStanza.create({
                 type: 'get',
                 to: 'user@server.com',
                 link: version.RequestStanza.create()
@@ -86,7 +86,7 @@ var VersionTest = buster.testCase('VersionTest', {
             jslix.parse(test.connection.lst_stnz, version.ResponseStanza);
         });
         refute.exception(function(){
-            stanza = jslix.parse(test.connection.lst_stnz, jslix.stanzas.error);
+            stanza = jslix.parse(test.connection.lst_stnz, jslix.stanzas.ErrorStanza);
         });
         assert(stanza.type == 'cancel' && stanza.condition == 'feature-not-implemented');
         version.init();

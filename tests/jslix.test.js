@@ -120,14 +120,14 @@ var JslixTest = buster.testCase('JslixTest', {
         assert(compareDictionaries(d1, d2));
     },
     testBuildIQStanza: function(){
-        var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', type:'get'});
+        var iqStanza = jslix.stanzas.IQStanza.create({element_name:'iq', id:'123', type:'get'});
         
         var iqStanzaDocument = jslix.build(iqStanza);
 
         compareDocumentsFromString(iqStanzaDocument, '<iq xmlns="jabber:client" id="123" type="get"/>');
     },
     testCompareDocuments: function(){
-        var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', type:'get'});
+        var iqStanza = jslix.stanzas.IQStanza.create({element_name:'iq', id:'123', type:'get'});
 
         var iqStanzaDocument = jslix.build(iqStanza);
 
@@ -136,29 +136,29 @@ var JslixTest = buster.testCase('JslixTest', {
         compareDocuments(iqStanzaDocument, doc2);
     },
     testParseIQStanza:  function(){
-        var iqStanza = jslix.stanzas.iq.create({id:'123', type:'get', from:'abc', to:'qwe'});
+        var iqStanza = jslix.stanzas.IQStanza.create({id:'123', type:'get', from:'abc', to:'qwe'});
         
         var iqStanzaDocument = jslix.build(iqStanza);
         
         
-        refute.exception(function(){jslix.parse(iqStanzaDocument, jslix.stanzas.iq);});
+        refute.exception(function(){jslix.parse(iqStanzaDocument, jslix.stanzas.IQStanza);});
         
         
-        assert.exception(function(){jslix.parse(iqStanzaDocument, jslix.stanzas.query);},
+        assert.exception(function(){jslix.parse(iqStanzaDocument, jslix.stanzas.QueryStanza);},
                 jslix.WrongElement);
         
-        var parsedStanza = jslix.parse(iqStanzaDocument, jslix.stanzas.iq);
+        var parsedStanza = jslix.parse(iqStanzaDocument, jslix.stanzas.IQStanza);
 
         assert(compareDictionaries(parsedStanza, {id:'123', type:'get', from:'abc', to:'qwe'}));
     },
     testParseQueryStanza: function(){
         var myDefinition = jslix.Element({node: new jslix.fields.StringNode('my_node', false, true), 
                                           xmlns:'my_xmlns'}, 
-                                          [jslix.stanzas.query]);
+                                          [jslix.stanzas.QueryStanza]);
         
         var myStanza = myDefinition.create({node: ['1', '2', '3']});
         
-        var iqParent = jslix.stanzas.iq.create({to:'abc', from:'qwe', id:'123', type:'get'});
+        var iqParent = jslix.stanzas.IQStanza.create({to:'abc', from:'qwe', id:'123', type:'get'});
         
         iqParent.link(myStanza);
         
@@ -178,11 +178,11 @@ var JslixTest = buster.testCase('JslixTest', {
     testNoElementParseError: function(){
         var myDefinition = jslix.Element({node: new jslix.fields.StringNode('my_node', true), 
                                           xmlns:'my_xmlns'}, 
-                                          [jslix.stanzas.query]);
+                                          [jslix.stanzas.QueryStanza]);
         
         var myStanza = myDefinition.create({node: 123});
         
-        var iqParent = jslix.stanzas.iq.create({id:'123', type:'get', to: 'abc', from: 'qwe'});
+        var iqParent = jslix.stanzas.IQStanza.create({id:'123', type:'get', to: 'abc', from: 'qwe'});
         
         iqParent.link(myStanza);
         
@@ -202,9 +202,9 @@ var JslixTest = buster.testCase('JslixTest', {
         var myDefinition = jslix.Element({
             node: new jslix.fields.StringNode('my_node', true, true), 
             xmlns:'my_xmlns'
-        }, [jslix.stanzas.query]);
+        }, [jslix.stanzas.QueryStanza]);
         
-        var iqParent = jslix.stanzas.iq.create({
+        var iqParent = jslix.stanzas.IQStanza.create({
             link: myDefinition.create()
         });
         
@@ -218,11 +218,11 @@ var JslixTest = buster.testCase('JslixTest', {
         var myDefinition = jslix.Element({node: new jslix.fields.IntegerNode('int_node', false),
                                           int_attr: new jslix.fields.IntegerAttr('int_attr', false),
                                           xmlns:'int_xmlns'},
-                                          [jslix.stanzas.query]);
+                                          [jslix.stanzas.QueryStanza]);
         
         var myStanza = myDefinition.create({node: 123, int_attr: 100500});
         
-        var iqParentIntegerNode = jslix.stanzas.iq.create({
+        var iqParentIntegerNode = jslix.stanzas.IQStanza.create({
             id:'123', type:'get', to: 'abc', from: 'qwe'});
         
         iqParentIntegerNode.link(myStanza);
@@ -242,11 +242,11 @@ var JslixTest = buster.testCase('JslixTest', {
     testJIDType: function(){
         var myDefinition = jslix.Element({node: new jslix.fields.JIDNode('jid_node', false), 
                                           xmlns:'jid_xmlns'},
-                                          [jslix.stanzas.query]);
+                                          [jslix.stanzas.QueryStanza]);
         
         var myStanza = myDefinition.create({node: 123});
         
-        var iqParentIntegerNode = jslix.stanzas.iq.create({
+        var iqParentIntegerNode = jslix.stanzas.IQStanza.create({
             id:'123', type:'get', to: 'abcd', from: 'qwe'});
         
         iqParentIntegerNode.link(myStanza);
@@ -296,7 +296,7 @@ var JslixTest = buster.testCase('JslixTest', {
 
     },
     testCreateStanza: function(){
-        var stanza = jslix.createStanza(jslix.stanzas.iq);
+        var stanza = jslix.createStanza(jslix.stanzas.IQStanza);
 
         assert(typeof stanza.makeError == 'function');
 
@@ -305,11 +305,11 @@ var JslixTest = buster.testCase('JslixTest', {
         assert(typeof stanza.makeReply == 'function');
     },
     testParseStanza: function(){
-        var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
+        var iqStanza = jslix.stanzas.IQStanza.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
         
         var iqStanzaDocument = jslix.build(iqStanza);
         
-        var parsedObject = jslix.parse(iqStanzaDocument, jslix.stanzas.iq);
+        var parsedObject = jslix.parse(iqStanzaDocument, jslix.stanzas.IQStanza);
 
         assert(typeof iqStanza.makeError == 'function');
 
@@ -318,7 +318,7 @@ var JslixTest = buster.testCase('JslixTest', {
         assert(typeof iqStanza.makeReply == 'function');
     },
     testMakeError: function(){
-        var iqStanza = jslix.stanzas.iq.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
+        var iqStanza = jslix.stanzas.IQStanza.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
 
         var errorStanza = iqStanza.makeError('bad-request', 'bad-request', 'error');
 
@@ -332,14 +332,14 @@ var JslixTest = buster.testCase('JslixTest', {
         });
     },
     testPresenceStanza: function(){
-        var presenceStanza = jslix.stanzas.presence.create({from:'abc', to:'qwe', id:1, type:'get',
+        var presenceStanza = jslix.stanzas.PresenceStanza.create({from:'abc', to:'qwe', id:1, type:'get',
                                     show:'chat', status:'OK', priority:1});
 
         var presenceDoc = jslix.build(presenceStanza);
 
-        refute.exception(function(){jslix.parse(presenceDoc, jslix.stanzas.presence)});
+        refute.exception(function(){jslix.parse(presenceDoc, jslix.stanzas.PresenceStanza)});
 
-        var parsedPresence = jslix.parse(presenceDoc, jslix.stanzas.presence);
+        var parsedPresence = jslix.parse(presenceDoc, jslix.stanzas.PresenceStanza);
 
         compareDictionaries(parsedPresence, {show:'chat', status:'OK', priority:1, 
                             parent:{
@@ -347,21 +347,21 @@ var JslixTest = buster.testCase('JslixTest', {
                                    }
                             });
 
-        var badPresenceStanza = jslix.stanzas.presence.create({from:'abc', to:'qwe', id:1, type:'get',
+        var badPresenceStanza = jslix.stanzas.PresenceStanza.create({from:'abc', to:'qwe', id:1, type:'get',
                                     show:'bad', status:'OK', priority:1});
 
         var badPresenceDoc = jslix.build(badPresenceStanza);
 
         assert.exception(function(){
-            jslix.parse(badPresenceDoc, jslix.stanzas.presence)
+            jslix.parse(badPresenceDoc, jslix.stanzas.PresenceStanza)
         }, 'ElementParseError');
     },
     testJSLixDispatcherSend: function(){
         this.dispatcher.deferreds = {};
 
-        var firstIqStanza = jslix.stanzas.iq.create({id:'1', type:'get', from:'abc', to:'qwe'});
-        var secondIqStanza = jslix.stanzas.iq.create({id:'2', type:'get', from:'abc', to:'qwe'});
-        var thirdIqStanza = jslix.stanzas.iq.create({id:'3', type:'get', from:'abc', to:'qwe'});
+        var firstIqStanza = jslix.stanzas.IQStanza.create({id:'1', type:'get', from:'abc', to:'qwe'});
+        var secondIqStanza = jslix.stanzas.IQStanza.create({id:'2', type:'get', from:'abc', to:'qwe'});
+        var thirdIqStanza = jslix.stanzas.IQStanza.create({id:'3', type:'get', from:'abc', to:'qwe'});
 
 
         var test = this;
@@ -389,7 +389,7 @@ var JslixTest = buster.testCase('JslixTest', {
     testNoPresenseDeferred: function(){
         this.dispatcher.deferreds = {};
 
-        var presenceStanza = jslix.stanzas.presence.create({from:'abc', to:'qwe', id:'1', type:'get',
+        var presenceStanza = jslix.stanzas.PresenceStanza.create({from:'abc', to:'qwe', id:'1', type:'get',
                                 show:'chat', status:'OK', priority:1});
         var test = this;
         refute.exception(function(){test.dispatcher.send([presenceStanza]);});
@@ -404,15 +404,15 @@ var JslixTest = buster.testCase('JslixTest', {
         assert(countStanzas == 0);
     },
     testDispatcher: function(){
-        var iqHandler = jslix.stanzas.iq;
+        var iqHandler = jslix.stanzas.IQStanza;
         var testHost = {};
 
-        var resultDefinition = jslix.stanzas.iq;
+        var resultDefinition = jslix.stanzas.IQStanza;
 
         var definitionIq = new jslix.Element({node: new jslix.fields.StringNode('string_node', false), 
                                                    xmlns:'string_xmlns', 
                                             result_class: resultDefinition},
-                            [jslix.stanzas.iq]);
+                            [jslix.stanzas.IQStanza]);
 
         this.dispatcher.addHandler(definitionIq, testHost);
 
@@ -420,7 +420,7 @@ var JslixTest = buster.testCase('JslixTest', {
 
         this.dispatcher.send(iqStanza);
 
-        var resultStanza = jslix.stanzas.iq.create({type:'result', from:'qwe', to:'abc', id:'123'});
+        var resultStanza = jslix.stanzas.IQStanza.create({type:'result', from:'qwe', to:'abc', id:'123'});
 
         var resultDoc = jslix.build(resultStanza);
 
@@ -438,7 +438,7 @@ var JslixTest = buster.testCase('JslixTest', {
         compareDictionaries(this.dispatcher.deferreds, { });
     },
     testErrorStanzaDispatch: function(){
-        var iqStanza = jslix.stanzas.iq.create({from:'a', to:'b', type:'error', id:123});
+        var iqStanza = jslix.stanzas.IQStanza.create({from:'a', to:'b', type:'error', id:123});
 
         var iqDoc = jslix.build(iqStanza);
 
@@ -451,8 +451,8 @@ var JslixTest = buster.testCase('JslixTest', {
     testMakeResult: function(){
         var definitionIq = new jslix.Element({xmlns:'iq_xmlns',
                               element_name:'iq', 
-                              result_class: jslix.stanzas.iq
-                             }, [jslix.stanzas.iq]);
+                              result_class: jslix.stanzas.IQStanza
+                             }, [jslix.stanzas.IQStanza]);
 
         var iqStanza = definitionIq.create({from:'a', to:'b', id:1, type:'set'});
 
@@ -469,27 +469,27 @@ var JslixTest = buster.testCase('JslixTest', {
         });
     },
     testSpecialStanza: function(){
-        var special_stanza = jslix.stanzas.special_stanza.create();
-        assert(special_stanza instanceof jslix.stanzas.special_stanza);
+        var special_stanza = jslix.stanzas.SpecialStanza.create();
+        assert(special_stanza instanceof jslix.stanzas.SpecialStanza);
         assert(special_stanza.toString() == '<Special stanza>');
     },
     testEmptyStanza: function(){
         assert(this.dispatcher.connection.count == 0);
-        var empty_stanza = jslix.stanzas.empty_stanza.create();
-        assert(empty_stanza instanceof jslix.stanzas.empty_stanza);
+        var empty_stanza = jslix.stanzas.EmptyStanza.create();
+        assert(empty_stanza instanceof jslix.stanzas.EmptyStanza);
         assert(empty_stanza.toString() == '<Empty stanza>');
         this.dispatcher.send(empty_stanza);
         assert(this.dispatcher.connection.count == 0);
     },
     testBreakStanza: function(){
-        var break_stanza = jslix.stanzas.break_stanza.create(),
+        var break_stanza = jslix.stanzas.BreakStanza.create(),
             test_def = jslix.Element({
                 element_name: 'test',
                 handler: function(top){
                     return break_stanza;
                 }
             });
-        assert(break_stanza instanceof jslix.stanzas.break_stanza);
+        assert(break_stanza instanceof jslix.stanzas.BreakStanza);
         assert(break_stanza.toString() == '<Break stanza>');
         assert(this.dispatcher.connection.count == 0);
         this.dispatcher.addHandler(test_def, this);
@@ -497,13 +497,13 @@ var JslixTest = buster.testCase('JslixTest', {
         assert(this.dispatcher.connection.count == 0);
     },
     testErrorStanza: function(){
-        var error_stanza = jslix.stanzas.error.create({type: 'some_wrong_type'});
+        var error_stanza = jslix.stanzas.ErrorStanza.create({type: 'some_wrong_type'});
         assert(error_stanza.type == 'some_wrong_type');
-        error_stanza = jslix.build(jslix.stanzas.message.create({
+        error_stanza = jslix.build(jslix.stanzas.MessageStanza.create({
             link: error_stanza
         }));
         assert.exception(function(){
-            jslix.parse(error_stanza, jslix.stanzas.error);
+            jslix.parse(error_stanza, jslix.stanzas.ErrorStanza);
         }, 'ElementParseError');
     },
     testMultiChildStringNode: function(){
@@ -522,6 +522,6 @@ var JslixTest = buster.testCase('JslixTest', {
         assert(result.text = 'sometext');
     },
     testToStringMethod: function(){
-        assert(jslix.stanzas.presence.create() == '<presence xmlns="jabber:client"/>');
+        assert(jslix.stanzas.PresenceStanza.create() == '<presence xmlns="jabber:client"/>');
     }
 });

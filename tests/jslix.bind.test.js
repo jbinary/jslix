@@ -11,7 +11,7 @@ var BindTest = buster.testCase('BindTest', {
         this.bind = new jslix.bind(this.dispatcher);
     },
     testRestartResult: function(){
-        var restart_result = jslix.stanzas.features.create({
+        var restart_result = jslix.stanzas.FeaturesStanza.create({
             link: this.bind.BaseStanza.create({})
         });
         this.dispatcher.dispatch(jslix.build(restart_result));
@@ -23,7 +23,7 @@ var BindTest = buster.testCase('BindTest', {
     },
     testResponse: function(){
         var old_jid = this.dispatcher.connection.jid,
-            server_response = jslix.stanzas.iq.create({
+            server_response = jslix.stanzas.IQStanza.create({
                 type: 'set',
                 link: this.bind.ResponseStanza.create({
                     jid: 'new_jid@server.com/res'

@@ -9,7 +9,7 @@ var DiscoTest = buster.testCase('DiscoTest', {
         this.dispatcher = new jslix.dispatcher(fake_connection);
         this.disco_plugin = this.dispatcher.registerPlugin(jslix.disco);
         this.disco_plugin.init();
-        this.request = jslix.stanzas.iq.create({
+        this.request = jslix.stanzas.IQStanza.create({
             from: 'some_jid1',
             to: 'some_jid2',
             type: 'get',
@@ -28,7 +28,7 @@ var DiscoTest = buster.testCase('DiscoTest', {
         this.dispatcher.dispatch(jslix.build(request));
         refute.exception(function(){
             result = jslix.parse(test.dispatcher.connection.last_stanza,
-                jslix.stanzas.error);
+                jslix.stanzas.ErrorStanza);
         });
         assert(result.condition == 'item-not-found');
     },

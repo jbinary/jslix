@@ -28,7 +28,7 @@ var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest
                 )
             ),
             'wrong features': new XMLSerializer().serializeToString(
-                jslix.build(jslix.stanzas.features.create())
+                jslix.build(jslix.stanzas.FeaturesStanza.create())
             ),
             'terminate': new XMLSerializer().serializeToString(
                 jslix.build(
@@ -40,7 +40,7 @@ var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest
             'features': new XMLSerializer().serializeToString(
                 jslix.build(
                     this.connection.BodyStanza.create({
-                        link: jslix.stanzas.features.create({})
+                        link: jslix.stanzas.FeaturesStanza.create({})
                     })
                 )
             )
