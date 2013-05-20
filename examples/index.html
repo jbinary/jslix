@@ -34,6 +34,7 @@
         <script>
             function doLogin(oForm) {
                 document.getElementById('err').innerHTML = '';
+                    window.debug = true;
                     var options = {
                         http_base: oForm.http_base.value,
                         jid: oForm.jid.value,
