@@ -54,7 +54,7 @@
                         client.registerPlugin(jslix.version, plugins_options).init();
                         disco_plugin.init();
                         client.registerPlugin(jslix.caps, plugins_options);
-                        client.send(jslix.stanzas.presence.create());
+                        client.send(jslix.stanzas.PresenceStanza.create());
                     });
                     window.client = client;
                 return false;
