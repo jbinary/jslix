@@ -21,7 +21,7 @@ var DiscoTest = buster.testCase('DiscoTest', {
             test = this,
             result;
         request.link(
-            this.disco_plugin.stanzas.request.create({
+            this.disco_plugin.RequestStanza.create({
                 node: 'test_node'
             })
         );
@@ -37,13 +37,13 @@ var DiscoTest = buster.testCase('DiscoTest', {
             test = this,
             result;
         request.link(
-            this.disco_plugin.stanzas.request.create()
+            this.disco_plugin.RequestStanza.create()
         );
         this.disco_plugin.registerIdentity('client', 'web', 'jslix');
         this.dispatcher.dispatch(jslix.build(request));
         refute.exception(function(){
             result = jslix.parse(test.dispatcher.connection.last_stanza,
-                test.disco_plugin.stanzas.response);
+                test.disco_plugin.ResponseStanza);
         });
         assert(result.xmlns != this.disco_plugin.DISCO_INFO_NS);
         assert(result.identities.length == 1);

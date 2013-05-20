@@ -16,7 +16,7 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
         this.responses = {
             'connect': new XMLSerializer().serializeToString(
                 jslix.build(
-                    this.connection.stanzas.response.create({
+                    this.connection.ResponseStanza.create({
                         ver: '1.8',
                         wait: 60,
                         from: 'server.com',
@@ -32,14 +32,14 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
             ),
             'terminate': new XMLSerializer().serializeToString(
                 jslix.build(
-                    this.connection.stanzas.body.create({
+                    this.connection.BodyStanza.create({
                         type: 'terminate'
                     })
                 )
             ),
             'features': new XMLSerializer().serializeToString(
                 jslix.build(
-                    this.connection.stanzas.body.create({
+                    this.connection.BodyStanza.create({
                         link: jslix.stanzas.features.create({})
                     })
                 )
@@ -74,7 +74,7 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
             url: '/http-base/'
         });
         refute.exception(function(){
-            jslix.parse(req.requestBody, test.connection.stanzas.request);
+            jslix.parse(req.requestBody, test.connection.RequestStanza);
         });
         this.server.respond();
         assert(this.connection.established);
@@ -100,7 +100,7 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
             url: '/http-base/'
         });
         refute.exception(function(){
-            stanza = jslix.parse(req.requestBody, test.connection.stanzas.empty);
+            stanza = jslix.parse(req.requestBody, test.connection.EmptyStanza);
         });
         assert(stanza != null && stanza.type == 'terminate');
     },
@@ -109,7 +109,7 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
         assert(stnz.xmpp_restart == 'true');
     },
     testResponse: function(){
-        var wrong_response = this.connection.stanzas.response.create({
+        var wrong_response = this.connection.ResponseStanza.create({
                 ver: '1.8',
                 wait: 60,
                 from: 'server.com',
@@ -119,11 +119,12 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
             }),
             test = this;
         assert.exception(function(){
-            jslix.parse(jslix.build(wrong_response), test.connection.stanzas.response);
+            jslix.parse(jslix.build(wrong_response),
+                test.connection.ResponseStanza);
         }, 'WrongElement');
     },
     testFeatures: function(){
-        var features = this.connection.stanzas.features.create({
+        var features = this.connection.FeaturesStanza.create({
                 bind: true,
                 session: true
             });

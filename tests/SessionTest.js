@@ -12,7 +12,7 @@ var SessionTest = buster.testCase('SessionTest', {
     testResponse: function(){
         var bind_result = jslix.stanzas.iq.create({
             type: 'set',
-            link: jslix.bind.prototype.stanzas.response.create({
+            link: jslix.bind.prototype.ResponseStanza.create({
                 jid: 'user@server.com/res'
             })
         });
@@ -20,7 +20,7 @@ var SessionTest = buster.testCase('SessionTest', {
         var stnz = this.dispatcher.connection.lst_stnz,
             test = this;
         refute.exception(function(){
-            jslix.parse(stnz, test.session.stanzas.request);
+            jslix.parse(stnz, test.session.request);
         });
     }
 });
