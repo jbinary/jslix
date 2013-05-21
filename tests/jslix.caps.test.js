@@ -62,5 +62,13 @@ var CapsTest = buster.testCase('CapsTest', {
         assert(caps_plugin._broken_nodes.length == 1);
         this.dispatcher.connection.signals.disconnect.dispatch();
         assert(caps_plugin._broken_nodes.length == 0);
+    },
+    testGetJIDFeatures: function(){
+        var caps_plugin = this.dispatcher.registerPlugin(jslix.caps, {
+                disco_plugin: this.disco_plugin,
+                storage: sessionStorage
+            });
+        var result = caps_plugin.getJIDFeatures('some@server/res');
+        assert(result == null);
     }
 });
