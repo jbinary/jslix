@@ -76,9 +76,6 @@
         if(!(jid instanceof jslix.JID)){
             var jid = new jslix.JID(jid);
         }
-        if(jid.getBareJID() == jid.toString()){
-            throw new Error("jid shouldn't be bare.");
-        }
         return this.storage.getItem(this._jid_cache[jid.toString()]);
     }
 
