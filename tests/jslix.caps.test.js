@@ -1,12 +1,9 @@
 var CapsTest = buster.testCase('CapsTest', {
     setUp: function(){
         var fake_connection = {
-            signals: {
-                disconnect: {
-                    add: function(){},
-                    remove: function(){}
-                }
-            },
+                signals: {
+                    disconnect: new signals.Signal()
+                },
             last_stanza: null,
             send: function(stanza){
                 this.last_stanza = stanza;
@@ -31,11 +28,6 @@ var CapsTest = buster.testCase('CapsTest', {
                 'disco_plugin': disco_plugin
             });
         });
-        this.stub(dispatcher.connection.signals.disconnect, 'remove');
-        this.stub(disco_plugin.signals.disco_changed, 'remove')
-        dispatcher.unregisterPlugin(jslix.caps);
-        assert.called(dispatcher.connection.signals.disconnect.remove);
-        assert.called(disco_plugin.signals.disco_changed.remove);
     },
     testVerificationString: function(){
         /*
@@ -53,5 +45,22 @@ var CapsTest = buster.testCase('CapsTest', {
         assert(
             caps_plugin.getVerificationString() == valid_verification_string
         );
+    },
+    testDestructor: function(){
+        var caps_plugin = this.dispatcher.registerPlugin(jslix.caps, {
+            disco_plugin: this.disco_plugin
+        });
+        this.spy(caps_plugin, 'destructor');
+        this.dispatcher.unregisterPlugin(jslix.caps);
+        assert.called(caps_plugin.destructor);
+    },
+    testDisconnectHandler: function(){
+        var caps_plugin = this.dispatcher.registerPlugin(jslix.caps, {
+            disco_plugin: this.disco_plugin
+        });
+        caps_plugin._broken_nodes.push('some');
+        assert(caps_plugin._broken_nodes.length == 1);
+        this.dispatcher.connection.signals.disconnect.dispatch();
+        assert(caps_plugin._broken_nodes.length == 0);
     }
 });
