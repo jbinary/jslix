@@ -47,10 +47,6 @@ var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest
         assert(req == null);
     },
     testConnect: function(){
-        this.server.respondWith('POST', '/http-base/', [200,
-            this.headers, this.responses['connect']
-        ]);
-
         this.connection.connect();
         assert.equals(this.server.requests.length, 1);
         var req = this.server.requests[this.server.requests.length-1],
@@ -62,18 +58,16 @@ var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest
         refute.exception(function(){
             jslix.parse(req.requestBody, test.connection.RequestStanza);
         });
-        this.server.respond();
+        req.respond(200, this.headers, this.responses['connect']);
         assert(this.connection.established);
         assert(this.connection._sid == 'some_sid');
         this.clock.tick(this.connection.polling*1000+this.connection.queue_check_interval);
         assert.equals(this.server.requests.length, 2);
     },
     testDisconnect: function(){
-        this.server.respondWith('POST', '/http-base/', [200,
-            this.headers, this.responses['connect']
-        ]);
         this.connection.connect();
-        this.server.respond();
+        var req = this.server.requests[this.server.requests.length-1];
+        req.respond(200, this.headers, this.responses['connect']);
         assert.equals(this.server.requests.length, 1);
         this.dispatcher.send(this.connection.disconnect());
         this.clock.tick(this.connection.queue_check_interval);
@@ -132,10 +126,8 @@ var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest
         req.respond(200, this.headers, this.responses['wrong features']);
         assert(!this.connection.process_response(req));
         this.connection.connect();
-        this.server.respondWith('POST', '/http-base/', [200,
-            this.headers, this.responses['connect']
-        ]);
-        this.server.respond();
+        req = this.server.requests[this.server.requests.length-1];
+        req.respond(200, this.headers, this.responses['connect']);
         assert(this.connection.established);
         req = this.connection.create_request();
         req.onreadystatechange = null;
@@ -143,7 +135,8 @@ var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest
         this.connection.process_response(req);
         assert(!this.connection.established);
         this.connection.connect();
-        this.server.respond();
+        req = this.server.requests[this.server.requests.length-1];
+        req.respond(200, this.headers, this.responses['connect']);
         req = this.connection.create_request();
         req.onreadystatechange = null;
         req.respond(200, this.headers, this.responses['features']);
