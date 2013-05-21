@@ -14,36 +14,22 @@ var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest
             'content-type': 'application/xml'
         };
         this.responses = {
-            'connect': new XMLSerializer().serializeToString(
-                jslix.build(
-                    this.connection.ResponseStanza.create({
-                        ver: '1.8',
-                        wait: 60,
-                        from: 'server.com',
-                        sid: 'some_sid',
-                        polling: 2,
-                        inactivity: 90,
-                        requests: 2
-                    })
-                )
-            ),
-            'wrong features': new XMLSerializer().serializeToString(
-                jslix.build(jslix.stanzas.FeaturesStanza.create())
-            ),
-            'terminate': new XMLSerializer().serializeToString(
-                jslix.build(
-                    this.connection.BodyStanza.create({
-                        type: 'terminate'
-                    })
-                )
-            ),
-            'features': new XMLSerializer().serializeToString(
-                jslix.build(
-                    this.connection.BodyStanza.create({
-                        link: jslix.stanzas.FeaturesStanza.create({})
-                    })
-                )
-            )
+            'connect': this.connection.ResponseStanza.create({
+                ver: '1.8',
+                wait: 60,
+                from: 'server.com',
+                sid: 'some_sid',
+                polling: 2,
+                inactivity: 90,
+                requests: 2
+            }).toString(),
+            'wrong features': jslix.stanzas.FeaturesStanza.create().toString(),
+            'terminate': this.connection.BodyStanza.create({
+                type: 'terminate'
+            }).toString(),
+            'features': this.connection.BodyStanza.create({
+                link: jslix.stanzas.FeaturesStanza.create({})
+            }).toString(),
         };
     },
     tearDown: function(){
