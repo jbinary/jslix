@@ -44,12 +44,12 @@
     stanzas.response = jslix.Element({
         xmlns: roster.ROSTER_NS,
         items: new fields.ElementNode(stanzas.item, false, true)
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
     stanzas.request = jslix.Element({
         result_class: stanzas.response,
         xmlns: roster.ROSTER_NS
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
     stanzas.update_request = jslix.Element({
         clean_from: function(value, top) {
@@ -73,7 +73,7 @@
                                     'jslix.roster')
 
         var request = stanzas.request.create({
-            parent: jslix.stanzas.iq.create({type: 'get'})
+            parent: jslix.stanzas.IQStanza.create({type: 'get'})
         });
         var that = this;
         this._dispatcher.send(request).done(function(result) {

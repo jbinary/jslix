@@ -26,7 +26,7 @@
 
     var base_query = jslix.Element({
         element_name: 'vCard'
-    }, [base_ns, jslix.stanzas.query]);
+    }, [base_ns, jslix.stanzas.QueryStanza]);
 
     stanzas.name = jslix.Element({
         element_name: 'N',
@@ -90,7 +90,9 @@
     vcard.prototype.get = function(jid, from) {
         from = from || this._dispatcher.connection.jid;
         var request = stanzas.request.create({
-            parent: jslix.stanzas.iq.create({type: 'get', to: jid, from: from})
+            parent: jslix.stanzas.IQStanza.create({
+                type: 'get', to: jid, from: from
+            })
         });
         return this._dispatcher.send(request);       
     }

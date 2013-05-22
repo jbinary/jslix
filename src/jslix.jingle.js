@@ -87,7 +87,7 @@
         initiator: new fields.JIDAttr('initiator'),
         sid: new fields.StringAttr('sid', true),
         contents: new fields.ElementNode(jingle.stanzas.content, true, true)
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
 
 // The code was adapted from

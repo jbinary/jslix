@@ -86,7 +86,7 @@
             // wait some time if any message will be sent we can link to
             // or send a blank message hook can use to link
             activity.send_timeout = setTimeout(function() {
-                var message = jslix.stanzas.message.create({
+                var message = jslix.stanzas.MessageStanza.create({
                     to: jid,
                     type: 'chat',
                     id: 'chatstates_fake'
@@ -111,7 +111,7 @@
     Chatstates.stanzas.State = jslix.Element({
         xmlns: Chatstates.NS,
         element_name: ':state',
-        parent_element: jslix.stanzas.message,
+        parent_element: jslix.stanzas.MessageStanza,
         // Validators
         clean_state: function(value) {
             if (['active', 'inactive', 'gone', 'composing','paused'].
@@ -134,7 +134,7 @@
         anyHandler: function(el, top) {
             this.set_support_flag(top.from, true);
             Chatstates.signals.updated.dispatch(top.from, el.state);
-            return new jslix.stanzas.empty_stanza();
+            return new jslix.stanzas.EmptyStanza();
         }
     }, [Chatstates.stanzas.State]);
 
@@ -172,11 +172,11 @@
                 });
                 el.link(state);
             } else if (is_fake) {
-                el = new jslix.stanzas.empty_stanza();
+                el = new jslix.stanzas.EmptyStanza();
             }
             return el;
         }
-    }, [jslix.stanzas.message]);
+    }, [jslix.stanzas.MessageStanza]);
 
     // TODO: unload method, should clean all the timeouts
     jslix.Chatstates._name = 'jslix.Chatstates';
