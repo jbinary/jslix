@@ -1,6 +1,6 @@
 var DispatcherTest = buster.testCase('DispatcherTest', {
     setUp: function(){
-        this.dispatcher = new jslix.dispatcher();
+        this.dispatcher = new jslix.Dispatcher();
         this.dispatcher.connection = {
             last_stanza: null,
             send: function(stanza){
@@ -25,8 +25,8 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
         assert(this.dispatcher.hooks['stub'].length == 1);
     },
     testUnregisterPlugin: function(){
-        var plugin = jslix.sasl,
-            name = jslix.sasl.prototype._name;
+        var plugin = jslix.SASL,
+            name = jslix.SASL.prototype._name;
         this.dispatcher.registerPlugin(plugin);
         assert(name in this.dispatcher.plugins);
         this.dispatcher.addHook('stub', function(){

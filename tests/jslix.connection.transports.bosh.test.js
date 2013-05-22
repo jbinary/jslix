@@ -1,9 +1,9 @@
 var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest', {
     setUp: function(){
-        this.dispatcher = new jslix.dispatcher();
-        this.connection = new jslix.connection.transports.bosh(this.dispatcher,
+        this.dispatcher = new jslix.Dispatcher();
+        this.connection = new jslix.Connection.transports.BOSH(this.dispatcher,
             new jslix.JID('user@server.com'), 'password', '/http-base/');
-        assert(this.connection._dispatcher instanceof jslix.dispatcher);
+        assert(this.connection._dispatcher instanceof jslix.Dispatcher);
         assert(this.connection.jid instanceof jslix.JID);
         assert(this.connection.password == 'password');
         assert(this.connection.http_base == '/http-base/');
@@ -109,8 +109,8 @@ var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest
                 session: true
             });
         this.dispatcher.dispatch(jslix.build(features));
-        assert(jslix.bind.prototype._name in this.dispatcher.plugins);
-        assert(jslix.session.prototype._name in this.dispatcher.plugins);
+        assert(jslix.Bind.prototype._name in this.dispatcher.plugins);
+        assert(jslix.Session.prototype._name in this.dispatcher.plugins);
     },
     testCleanSlots: function(){
         var req = this.connection.create_request();

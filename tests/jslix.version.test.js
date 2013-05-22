@@ -6,8 +6,8 @@ var VersionTest = buster.testCase('VersionTest', {
                 this.lst_stnz = doc;
             }
         };
-        this.dispatcher = new jslix.dispatcher(this.connection);
-        this.disco_plugin = this.dispatcher.registerPlugin(jslix.disco);
+        this.dispatcher = new jslix.Dispatcher(this.connection);
+        this.disco_plugin = this.dispatcher.registerPlugin(jslix.Disco);
         this.options = {
             name: 'Deadushka Moroz',
             version: '1.0',
@@ -21,7 +21,7 @@ var VersionTest = buster.testCase('VersionTest', {
             found = false;
 
         refute.exception(function(){
-            version = test.dispatcher.registerPlugin(jslix.version, test.options);
+            version = test.dispatcher.registerPlugin(jslix.Version, test.options);
         });
 
         refute.exception(function(){
@@ -44,7 +44,7 @@ var VersionTest = buster.testCase('VersionTest', {
         assert(version.getVersion() ==  "1.0");
     },
     testGet: function(){
-        var version = this.dispatcher.registerPlugin(jslix.version, this.options),
+        var version = this.dispatcher.registerPlugin(jslix.Version, this.options),
             jid = new jslix.JID('posoh@urta'),
             test = this,
             stanza;
@@ -68,12 +68,12 @@ var VersionTest = buster.testCase('VersionTest', {
 
     },
     testEqualityName: function(){
-        var version = this.dispatcher.registerPlugin(jslix.version, this.options);
+        var version = this.dispatcher.registerPlugin(jslix.Version, this.options);
         version.setName('some_name');
         assert(version.getName() == 'some_name');
     },
     testResponse: function(){
-        var version = this.dispatcher.registerPlugin(jslix.version, this.options),
+        var version = this.dispatcher.registerPlugin(jslix.Version, this.options),
             request = jslix.stanzas.IQStanza.create({
                 type: 'get',
                 to: 'user@server.com',

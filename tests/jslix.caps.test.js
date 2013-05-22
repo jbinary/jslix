@@ -9,14 +9,14 @@ var CapsTest = buster.testCase('CapsTest', {
                 this.last_stanza = stanza;
             }
         };
-        this.dispatcher = new jslix.dispatcher(fake_connection);
-        this.disco_plugin = this.dispatcher.registerPlugin(jslix.disco);
+        this.dispatcher = new jslix.Dispatcher(fake_connection);
+        this.disco_plugin = this.dispatcher.registerPlugin(jslix.Disco);
         this.disco_plugin.init();
     },
     testException: function(){
         var dispatcher = this.dispatcher;
         assert.exception(function(){
-            dispatcher.registerPlugin(jslix.caps);
+            dispatcher.registerPlugin(jslix.Caps);
         });
     },
     testNoException: function(){
@@ -24,7 +24,7 @@ var CapsTest = buster.testCase('CapsTest', {
             disco_plugin = this.disco_plugin,
             caps_plugin;
         refute.exception(function(){
-            caps_plugin = dispatcher.registerPlugin(jslix.caps, {
+            caps_plugin = dispatcher.registerPlugin(jslix.Caps, {
                 'disco_plugin': disco_plugin
             });
         });
@@ -34,7 +34,7 @@ var CapsTest = buster.testCase('CapsTest', {
             This test use some data from XEP-0115
             Link: http://xmpp.org/extensions/xep-0115.html#howitworks
         */
-        var caps_plugin = this.dispatcher.registerPlugin(jslix.caps, {
+        var caps_plugin = this.dispatcher.registerPlugin(jslix.Caps, {
                 'disco_plugin': this.disco_plugin 
             }),
             valid_verification_string = 'QgayPKawpkPSDYmwT/WM94uAlu0=';
@@ -47,15 +47,15 @@ var CapsTest = buster.testCase('CapsTest', {
         );
     },
     testDestructor: function(){
-        var caps_plugin = this.dispatcher.registerPlugin(jslix.caps, {
+        var caps_plugin = this.dispatcher.registerPlugin(jslix.Caps, {
             disco_plugin: this.disco_plugin
         });
         this.spy(caps_plugin, 'destructor');
-        this.dispatcher.unregisterPlugin(jslix.caps);
+        this.dispatcher.unregisterPlugin(jslix.Caps);
         assert.called(caps_plugin.destructor);
     },
     testDisconnectHandler: function(){
-        var caps_plugin = this.dispatcher.registerPlugin(jslix.caps, {
+        var caps_plugin = this.dispatcher.registerPlugin(jslix.Caps, {
             disco_plugin: this.disco_plugin
         });
         caps_plugin._broken_nodes.push('some');
@@ -64,7 +64,7 @@ var CapsTest = buster.testCase('CapsTest', {
         assert(caps_plugin._broken_nodes.length == 0);
     },
     testGetJIDFeatures: function(){
-        var caps_plugin = this.dispatcher.registerPlugin(jslix.caps, {
+        var caps_plugin = this.dispatcher.registerPlugin(jslix.Caps, {
                 disco_plugin: this.disco_plugin,
                 storage: sessionStorage
             });

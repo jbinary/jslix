@@ -13,8 +13,8 @@ var SASLMechanismsDigestMD5Test = buster.testCase('SASLMechanismsDigestMD5Test',
                 return true;
             }
         };
-        this.dispatcher = new jslix.dispatcher(this.connection);
-        this.digest_md5 = this.dispatcher.registerPlugin(jslix.sasl.mechanisms['DIGEST-MD5']);
+        this.dispatcher = new jslix.Dispatcher(this.connection);
+        this.digest_md5 = this.dispatcher.registerPlugin(jslix.SASL.mechanisms['DIGEST-MD5']);
     },
     testAuth: function(){
         var auth = this.digest_md5.auth();
@@ -22,13 +22,13 @@ var SASLMechanismsDigestMD5Test = buster.testCase('SASLMechanismsDigestMD5Test',
     },
     testResponse: function(){
         this.dispatcher.dispatch(jslix.build(
-            jslix.sasl.prototype.ChallengeStanza.create({
+            jslix.SASL.prototype.ChallengeStanza.create({
                 content: CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(''))
             })
         ));
         var response = this.connection.lst_stnz;
         refute.exception(function(){
-            jslix.parse(response, jslix.sasl.prototype.ResponseStanza);
+            jslix.parse(response, jslix.SASL.prototype.ResponseStanza);
         });
     },
     testGetFirstResponse: function(){
@@ -38,14 +38,14 @@ var SASLMechanismsDigestMD5Test = buster.testCase('SASLMechanismsDigestMD5Test',
     },
     testGetSecondResponse: function(){
         this.dispatcher.dispatch(jslix.build(
-            jslix.sasl.prototype.ChallengeStanza.create({
+            jslix.SASL.prototype.ChallengeStanza.create({
                 content: CryptoJS.enc.Base64.stringify(
                     CryptoJS.enc.Latin1.parse('cnonce=some_cnonce,rspauth=dcd07b6b671d60735cac1c3b8787ea16'))
             })
         ));
         var response = this.connection.lst_stnz;
         refute.exception(function(){
-            jslix.parse(response, jslix.sasl.prototype.ResponseStanza);
+            jslix.parse(response, jslix.SASL.prototype.ResponseStanza);
         });
         assert(this.connection.status == null);
         this.digest_md5._challenge['rspauth'] = 'wrong rspauth';

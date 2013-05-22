@@ -6,8 +6,8 @@ var DiscoTest = buster.testCase('DiscoTest', {
                 this.last_stanza = stanza;
             }
         };
-        this.dispatcher = new jslix.dispatcher(fake_connection);
-        this.disco_plugin = this.dispatcher.registerPlugin(jslix.disco);
+        this.dispatcher = new jslix.Dispatcher(fake_connection);
+        this.disco_plugin = this.dispatcher.registerPlugin(jslix.Disco);
         this.disco_plugin.init();
         this.request = jslix.stanzas.IQStanza.create({
             from: 'some_jid1',

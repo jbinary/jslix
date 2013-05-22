@@ -1,18 +1,18 @@
 var SessionTest = buster.testCase('SessionTest', {
     setUp: function(){
-        this.dispatcher = new jslix.dispatcher();
+        this.dispatcher = new jslix.Dispatcher();
         this.dispatcher.connection = {
             lst_stnz: null,
             send: function(doc){
                 this.lst_stnz = doc;
             }
         }
-        this.session = new jslix.session(this.dispatcher);
+        this.session = new jslix.Session(this.dispatcher);
     },
     testResponse: function(){
         var bind_result = jslix.stanzas.IQStanza.create({
             type: 'set',
-            link: jslix.bind.prototype.ResponseStanza.create({
+            link: jslix.Bind.prototype.ResponseStanza.create({
                 jid: 'user@server.com/res'
             })
         });
