@@ -12,9 +12,9 @@
 
     jslix.roster = function(dispatcher){
         this._dispatcher = dispatcher;
-        this.signals = roster.signals;
     }
-    var roster = jslix.roster;
+
+    var roster = jslix.roster.prototype;
 
     roster._name = 'jslix.roster';
 
@@ -27,10 +27,7 @@
     };
 
     // Stanzas
-    roster.stanzas = {};
-    var stanzas = roster.stanzas;
-
-    stanzas.item = jslix.Element({
+    roster.ItemStanza = jslix.Element({
         element_name: 'item',
         xmlns: roster.ROSTER_NS,
 
@@ -41,43 +38,43 @@
         groups: new fields.StringNode('group', false, true)
     });
 
-    stanzas.response = jslix.Element({
+    roster.ResponseStanza = jslix.Element({
         xmlns: roster.ROSTER_NS,
-        items: new fields.ElementNode(stanzas.item, false, true)
+        items: new fields.ElementNode(roster.ItemStanza, false, true)
     }, [jslix.stanzas.QueryStanza]);
 
-    stanzas.request = jslix.Element({
-        result_class: stanzas.response,
+    roster.RequestStanza = jslix.Element({
+        result_class: roster.ResponseStanza,
         xmlns: roster.ROSTER_NS
     }, [jslix.stanzas.QueryStanza]);
 
-    stanzas.update_request = jslix.Element({
+    roster.UpdateRequestStanza = jslix.Element({
         clean_from: function(value, top) {
             var myjid = this._dispatcher.myjid;
-            if ([myjid.getBareJID, myjid.toString(), myjid.getDomain()].indexOf(top.from) == -1) {
+            if ([myjid.getBareJID, myjid.toString(), myjid.getDomain()].indexOf(
+                    top.from) == -1) {
                 throw "not-authorized";
             }
             return value;
         },
         setHandler: function(query, top) {
-            roster.signals.updated.dispatch(query.items);
+            this.signals.updated.dispatch(query.items);
             return top.makeReply();
         }
-    }, [stanzas.response]);
+    }, [roster.ResponseStanza]);
 
     // Methods
-    roster.prototype.init = function() {
+    roster.init = function() {
         var d = $.Deferred();
 
-        this._dispatcher.addHandler(stanzas.update_request, this,
-                                    'jslix.roster')
+        this._dispatcher.addHandler(this.UpdateRequestStanza, this, this._name);
 
-        var request = stanzas.request.create({
+        var request = this.RequestStanza.create({
             parent: jslix.stanzas.IQStanza.create({type: 'get'})
         });
         var that = this;
         this._dispatcher.send(request).done(function(result) {
-            roster.signals.got.dispatch(result.items);
+            that.signals.got.dispatch(result.items);
             d.resolve(result);
         }).fail(function(failure) {
             d.reject(failure);

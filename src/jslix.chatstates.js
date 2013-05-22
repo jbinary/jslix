@@ -6,7 +6,7 @@
         WrongElement = jslix.exceptions.WrongElement,
         my_activity;
 
-    jslix.Chatstates = function(dispatcher, options) {
+    jslix.chatstates = function(dispatcher, options) {
         this.options = options || {};
         this._dispatcher = dispatcher;
         this.my_activity = {};
@@ -27,30 +27,28 @@
             this.options.send_timeout = 0.25;
         }
     }
-    var Chatstates = jslix.Chatstates;
-    var proto = Chatstates.prototype;
+    var chatstates = jslix.chatstates.prototype;
 
     // Signals
-    Chatstates.signals = {
+    chatstates.signals = {
         updated: new Signal()
     }
 
-    Chatstates.stanzas = {};
+    chatstates.CHATSTATES_NS = 'http://jabber.org/protocol/chatstates';
 
-    Chatstates.NS = 'http://jabber.org/protocol/chatstates'
-    proto.init = function() {
+    chatstates.init = function() {
         if (this.options['disco_plugin'] !== undefined) {
-            this.options['disco_plugin'].registerFeature(Chatstates.NS);
+            this.options['disco_plugin'].registerFeature(this.CHATSTATES_NS);
         }
         if (this._dispatcher) {
-            this._dispatcher.addHandler(Chatstates.stanzas.Handler, this,
-                                        jslix.Chatstates._name);
-            this._dispatcher.addHook('send', Chatstates.stanzas.Hook, this,
-                                     jslix.Chatstates._name);
+            this._dispatcher.addHandler(chatstates.StateHandler, this,
+                this._name);
+            this._dispatcher.addHook('send', chatstates.MessageHook, this,
+                this._name);
         }
     }
 
-    proto.update_my_activity = function(state, jid) {
+    chatstates.update_my_activity = function(state, jid) {
         var activity = this.my_activity[jid.getBareJID()] || {'state': state};
         var old_activity = activity['state'];
         activity['state'] = state;
@@ -97,19 +95,19 @@
         this.my_activity[jid.getBareJID()] = activity;
     }
 
-    proto.get_support_flag = function(jid) {
+    chatstates.get_support_flag = function(jid) {
         var flag = this.support_map[jid.toString()] ||
                    this.support_map_bare[jid.getBareJID()];
         return flag;
     }
 
-    proto.set_support_flag = function(jid, flag) {
+    chatstates.set_support_flag = function(jid, flag) {
         this.support_map[jid.toString()] = flag;
         this.support_map_bare[jid.getBareJID()] = flag;
     }
 
-    Chatstates.stanzas.State = jslix.Element({
-        xmlns: Chatstates.NS,
+    chatstates.StateStanza = jslix.Element({
+        xmlns: chatstates.CHATSTATES_NS,
         element_name: ':state',
         parent_element: jslix.stanzas.MessageStanza,
         // Validators
@@ -122,7 +120,7 @@
         }
     });
 
-    Chatstates.stanzas.Handler = jslix.Element({
+    chatstates.StateHandler = jslix.Element({
         clean_type: function(value) {
             // seems stupid but what if we'll want to add support for
             // another message types?
@@ -133,12 +131,12 @@
         },
         anyHandler: function(el, top) {
             this.set_support_flag(top.from, true);
-            Chatstates.signals.updated.dispatch(top.from, el.state);
-            return new jslix.stanzas.EmptyStanza();
+            this.signals.updated.dispatch(top.from, el.state);
+            return jslix.stanzas.EmptyStanza.create();
         }
-    }, [Chatstates.stanzas.State]);
+    }, [chatstates.StateStanza]);
 
-    Chatstates.stanzas.Hook = jslix.Element({
+    chatstates.MessageHook = jslix.Element({
         clean_type: function(value) {
             if (value !== 'chat') {
                 throw new WrongElement();
@@ -167,17 +165,17 @@
                 if (flag === undefined) {
                     this.set_support_flag(el.to, false);
                 }
-                var state = Chatstates.stanzas.State.create({
+                var state = chatstates.StateStanza.create({
                     state: activity.state
                 });
                 el.link(state);
             } else if (is_fake) {
-                el = new jslix.stanzas.EmptyStanza();
+                el = jslix.stanzas.EmptyStanza.create();
             }
             return el;
         }
     }, [jslix.stanzas.MessageStanza]);
 
     // TODO: unload method, should clean all the timeouts
-    jslix.Chatstates._name = 'jslix.Chatstates';
+    jslix.chatstates._name = 'jslix.chatstates';
 })();
