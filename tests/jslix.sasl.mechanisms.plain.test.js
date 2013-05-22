@@ -4,8 +4,8 @@ var SASLMechanismsPlainTest = buster.testCase('SASLMechanismsPlainTest', {
             jid: new jslix.JID('user@server.com'),
             password: 'password'
         }
-        this.dispatcher = new jslix.dispatcher(this.connection);
-        this.plain = new jslix.sasl.mechanisms['PLAIN'](this.dispatcher);
+        this.dispatcher = new jslix.Dispatcher(this.connection);
+        this.plain = new jslix.SASL.mechanisms['PLAIN'](this.dispatcher);
     },
     testAuth: function(){
         var stanza = this.plain.auth(),

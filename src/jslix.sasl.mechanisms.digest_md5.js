@@ -3,7 +3,7 @@
 
     var jslix = window.jslix;
 
-    jslix.sasl.mechanisms['DIGEST-MD5'] = function(dispatcher){
+    jslix.SASL.mechanisms['DIGEST-MD5'] = function(dispatcher){
         this._dispatcher = dispatcher;
         this._challenge = {
             'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.getDomain(),
@@ -12,7 +12,7 @@
         this._dispatcher.addHandler(this.ChallengeStanza, this);
     }
 
-    var digest_md5 = jslix.sasl.mechanisms['DIGEST-MD5'].prototype;
+    var digest_md5 = jslix.SASL.mechanisms['DIGEST-MD5'].prototype;
 
     digest_md5.ChallengeStanza = jslix.Element({
         handler: function(top){
@@ -29,16 +29,16 @@
             else
                 return this.getSecondResponse();
         }
-    }, [jslix.sasl.prototype.ChallengeStanza]);
+    }, [jslix.SASL.prototype.ChallengeStanza]);
 
     digest_md5.auth = function(){
-        return jslix.sasl.prototype.AuthStanza.create({
+        return jslix.SASL.prototype.AuthStanza.create({
             mechanism: 'DIGEST-MD5'
         });
     }
 
     digest_md5.getFirstResponse  = function(cnonce){
-        this._challenge['cnonce'] = cnonce || jslix.sasl.generate_random_string();
+        this._challenge['cnonce'] = cnonce || jslix.SASL.generate_random_string();
         var a1_sub_params_1 = CryptoJS.MD5([
                 this._dispatcher.connection.jid.getNode(),
                 this._dispatcher.connection.jid.getDomain(),
@@ -66,7 +66,7 @@
                 'response="' + response + '"',
                 'charset="utf-8"'].join(',')));
 
-        return jslix.sasl.prototype.ResponseStanza.create({
+        return jslix.SASL.prototype.ResponseStanza.create({
             content: content
         });
     }
@@ -90,7 +90,7 @@
                     CryptoJS.MD5(a2).toString(CryptoJS.enc.Hex)].join(':')).toString(CryptoJS.enc.Hex),
             valid = rsptest == this._challenge['rspauth'];
             this._challenge['rspauth'] = undefined;
-        return valid ? jslix.sasl.prototype.ResponseStanza.create({content: ''}) : this._dispatcher.connection.disconnect();
+        return valid ? jslix.SASL.prototype.ResponseStanza.create({content: ''}) : this._dispatcher.connection.disconnect();
 
     }
 

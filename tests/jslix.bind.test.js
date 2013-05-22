@@ -1,6 +1,6 @@
 var BindTest = buster.testCase('BindTest', {
     setUp: function(){
-        this.dispatcher = new jslix.dispatcher();
+        this.dispatcher = new jslix.Dispatcher();
         this.dispatcher.connection = {
             lst_stnz: null,
             send: function(doc){
@@ -8,7 +8,7 @@ var BindTest = buster.testCase('BindTest', {
             },
             jid: new jslix.JID('test@server.com')
         }
-        this.bind = new jslix.bind(this.dispatcher);
+        this.bind = new jslix.Bind(this.dispatcher);
     },
     testRestartResult: function(){
         var restart_result = jslix.stanzas.FeaturesStanza.create({

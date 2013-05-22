@@ -1,7 +1,7 @@
 var ConnectionTest = buster.testCase('ConnectionTest', {
     setUp: function(){
-        this.connection = new jslix.connection('jid', 'password', 'http_base');
-        this.dispatcher = new jslix.dispatcher(this.connection);
+        this.connection = new jslix.Connection('jid', 'password', 'http_base');
+        this.dispatcher = new jslix.Dispatcher(this.connection);
         assert(this.connection._connection == null);
         assert(this.connection.http_base == 'http_base');
         assert(this.connection.jid instanceof jslix.JID);

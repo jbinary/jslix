@@ -1,6 +1,6 @@
 var JslixTest = buster.testCase('JslixTest', {
     setUp: function(){
-        this.dispatcher = new jslix.dispatcher();
+        this.dispatcher = new jslix.Dispatcher();
         this.dispatcher.connection = {
             count: 0,
             send: function(doc, cb){
@@ -27,8 +27,9 @@ var JslixTest = buster.testCase('JslixTest', {
         refute.exception(function(){jslix.parse(iqStanzaDocument, jslix.stanzas.IQStanza);});
         
         
-        assert.exception(function(){jslix.parse(iqStanzaDocument, jslix.stanzas.QueryStanza);},
-                jslix.WrongElement);
+        assert.exception(function(){
+            jslix.parse(iqStanzaDocument, jslix.stanzas.QueryStanza);
+        }, 'WrongElement');
         
         var parsedStanza = jslix.parse(iqStanzaDocument, jslix.stanzas.IQStanza);
 

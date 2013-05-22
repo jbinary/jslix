@@ -10,13 +10,13 @@
     var fields = jslix.fields;
     var Signal = signals.Signal;
 
-    jslix.roster = function(dispatcher){
+    jslix.Roster = function(dispatcher){
         this._dispatcher = dispatcher;
     }
 
-    var roster = jslix.roster.prototype;
+    var roster = jslix.Roster.prototype;
 
-    roster._name = 'jslix.roster';
+    roster._name = 'jslix.Roster';
 
     roster.ROSTER_NS = 'jabber:iq:roster';
 

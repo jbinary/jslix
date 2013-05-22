@@ -3,14 +3,14 @@
 
     var jslix = window.jslix;
 
-    jslix.disco = function(dispatcher){
+    jslix.Disco = function(dispatcher){
         this.identities = [];
         this.features = [];
         this._dispatcher = dispatcher;
         this._nodeHandlers = [];
     }
 
-    var disco = jslix.disco.prototype;
+    var disco = jslix.Disco.prototype;
 
     disco.init = function() {
         this._dispatcher.addHandler(this.RequestStanza, this, this._name);
@@ -124,7 +124,7 @@
         return result;
     }
 
-    disco._name = 'jslix.disco';
+    disco._name = 'jslix.Disco';
 
     disco.signals = {
         disco_changed: new signals.Signal()

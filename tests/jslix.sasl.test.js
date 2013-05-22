@@ -3,13 +3,13 @@ var SASLTest = buster.testCase('SASLTest', {
         this.connection = {
             status: null
         };
-        this.dispatcher = new jslix.dispatcher(this.connection);
-        this.sasl = new jslix.sasl(this.dispatcher);
+        this.dispatcher = new jslix.Dispatcher(this.connection);
+        this.sasl = new jslix.SASL(this.dispatcher);
     },
     testGenerateRandomString: function(){
-        var value = jslix.sasl.generate_random_string();
+        var value = jslix.SASL.generate_random_string();
         assert(value.length == 14);
-        assert(jslix.sasl.generate_random_string() != value);
+        assert(jslix.SASL.generate_random_string() != value);
     },
     testSuccess: function(){
         this.dispatcher.dispatch(jslix.build(
@@ -19,7 +19,7 @@ var SASLTest = buster.testCase('SASLTest', {
     },
     testMechanisms: function(){
         var connection = this.connection;
-        jslix.sasl.mechanisms['fake'] = function(dispatcher){
+        jslix.SASL.mechanisms['fake'] = function(dispatcher){
             this.auth = function(){
                 connection.status = 'auth';
             }

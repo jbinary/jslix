@@ -3,15 +3,15 @@
 
     var jslix = window.jslix;
 
-    jslix.session = function(dispatcher){
+    jslix.Session = function(dispatcher){
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.BindResultStanza, this);
         this.deferred = $.Deferred();
     }
 
-    var session = jslix.session.prototype;
+    var session = jslix.Session.prototype;
 
-    session._name = 'jslix.session';
+    session._name = 'jslix.Session';
 
     session.SESSION_NS = 'urn:ietf:params:xml:ns:xmpp-session';
 
@@ -28,7 +28,7 @@
                 that.deferred.reject(reason);
             });
         }
-    }, [jslix.bind.prototype.ResponseStanza]);
+    }, [jslix.Bind.prototype.ResponseStanza]);
 
     session.request = jslix.Element({
         xmlns: session.SESSION_NS,

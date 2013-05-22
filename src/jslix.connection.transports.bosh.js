@@ -3,7 +3,7 @@
 
     var jslix = window.jslix;
 
-    jslix.connection.transports.bosh = function(dispatcher, jid, password, http_base){
+    jslix.Connection.transports.BOSH = function(dispatcher, jid, password, http_base){
         this.queue_check_interval = 250;
         this.established = false;
         this.requests = 1; // TODO: it should be possible to tune these; 2 is more suitable to be default here?
@@ -20,7 +20,7 @@
         this.http_base = http_base;
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.FeaturesStanza, this);
-        this.sasl = this._dispatcher.registerPlugin(jslix.sasl);
+        this.sasl = this._dispatcher.registerPlugin(jslix.SASL);
         var that = this;
         this.sasl.deferred.done(function() {
             dispatcher.send(that.restart());
@@ -31,7 +31,7 @@
         this._connection_deferred = null;
     }
 
-    var bosh = jslix.connection.transports.bosh.prototype;
+    var bosh = jslix.Connection.transports.BOSH.prototype;
 
     bosh.signals = {
         fail: new signals.Signal()
@@ -95,13 +95,13 @@
     }, [bosh.EmptyStanza]);
 
     bosh.FeaturesStanza = jslix.Element({
-        bind: new jslix.fields.FlagNode('bind', false, jslix.bind.prototype.BIND_NS),
-        session: new jslix.fields.FlagNode('session', false, jslix.session.prototype.SESSION_NS),
+        bind: new jslix.fields.FlagNode('bind', false, jslix.Bind.prototype.BIND_NS),
+        session: new jslix.fields.FlagNode('session', false, jslix.Session.prototype.SESSION_NS),
         handler: function(top){
             if(top.bind)
-                this._dispatcher.registerPlugin(jslix.bind);
+                this._dispatcher.registerPlugin(jslix.Bind);
             if(top.session) {
-                var session = this._dispatcher.registerPlugin(jslix.session);
+                var session = this._dispatcher.registerPlugin(jslix.Session);
                 var that = this;
                 session.deferred.done(function() {
                     that._connection_deferred.resolve();

@@ -3,15 +3,15 @@
 
     var jslix = window.jslix;
 
-    jslix.bind = function(dispatcher){
+    jslix.Bind = function(dispatcher){
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.RestartResultStanza, this);
         this._dispatcher.addHandler(this.ResponseStanza, this);
     }
 
-    var bind = jslix.bind.prototype;
+    var bind = jslix.Bind.prototype;
 
-    bind._name = 'jslix.bind';
+    bind._name = 'jslix.Bind';
 
     bind.BIND_NS = 'urn:ietf:params:xml:ns:xmpp-bind';
 

@@ -3,7 +3,7 @@
 
     var jslix = window.jslix;
 
-    jslix.dispatcher = function(connection) {
+    jslix.Dispatcher = function(connection) {
         this.connection = connection;
         this.handlers = [];
         this.top_handlers = [];
@@ -13,7 +13,7 @@
         this.debug = window.debug || false;
     }
 
-    var dispatcher = jslix.dispatcher.prototype;
+    var dispatcher = jslix.Dispatcher.prototype;
 
     dispatcher.registerPlugin = function(plugin, options){
         // XXX: We don't use any aditional plugin initialization yet.
