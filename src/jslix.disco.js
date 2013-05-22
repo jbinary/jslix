@@ -39,7 +39,7 @@
                 feature_var: feature_var
             })
         );
-        disco.signals.disco_changed.dispatch();
+        this.signals.disco_changed.dispatch();
     }
 
     disco.getFeatures = function(){
@@ -54,7 +54,7 @@
                 name: name
             })
         );
-        disco.signals.disco_changed.dispatch();
+        this.signals.disco_changed.dispatch();
     }
 
     disco.getIdentities = function(){

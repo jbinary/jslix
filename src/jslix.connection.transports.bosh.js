@@ -226,7 +226,7 @@
                 result = true;
             }else{
                 this.established = false;
-                bosh.signals.fail.dispatch(response.status);
+                this.signals.fail.dispatch(response.status);
             }
             response.closed = true;
         }
