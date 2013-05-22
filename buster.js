@@ -17,7 +17,7 @@ config['jslix'] = {
         'src/jslix.bind.js',
         'src/jslix.session.js',
         'src/jslix.dispatcher.js',
-        'src/jslix.JID.js',
+        'src/jslix.jid.js',
         'src/jslix.sasl.js',
         'src/jslix.sasl.mechanisms.*.js',
         'src/jslix.connection.js',
