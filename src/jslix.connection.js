@@ -36,7 +36,7 @@
     }
 
     connection.disconnect = function(){
-        connection.signals.disconnect.dispatch();
+        this.signals.disconnect.dispatch();
         return this._connection ? this._connection.disconnect() : false;
     }
 
