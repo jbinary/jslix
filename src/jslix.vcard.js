@@ -12,13 +12,10 @@
     jslix.vcard = function(dispatcher) {
         this._dispatcher = dispatcher;
     }
-    var vcard = jslix.vcard;
+    var vcard = jslix.vcard.prototype;
 
     vcard._name = 'jslix.vcard';
     vcard.VCARD_NS = 'vcard-temp';
-
-    vcard.stanzas = {};
-    var stanzas = vcard.stanzas;
 
     var base_ns = jslix.Element({
         xmlns: vcard.VCARD_NS
@@ -28,7 +25,7 @@
         element_name: 'vCard'
     }, [base_ns, jslix.stanzas.QueryStanza]);
 
-    stanzas.name = jslix.Element({
+    vcard.NameStanza = jslix.Element({
         element_name: 'N',
         
         family_name: new fields.StringNode('FAMILY'),
@@ -36,39 +33,39 @@
         middle_name: new fields.StringNode('MIDDLE')
     }, [base_ns]);
 
-    stanzas.organization = jslix.Element({
+    vcard.OrganizationStanza = jslix.Element({
         element_name: 'ORG',
 
         name: new fields.StringNode('ORGNAME'),
         unit: new fields.StringNode('ORGUNIT')
     }, [base_ns]);
 
-    stanzas.telephone = jslix.Element({
+    vcard.TelephoneStanza = jslix.Element({
         // TODO
     }, [base_ns]);
 
-    stanzas.address = jslix.Element({
+    vcard.AddressStanza = jslix.Element({
         // TODO
     }, [base_ns]);
 
-    stanzas.email = jslix.Element({
+    vcard.EmailStanza = jslix.Element({
         // TODO
     }, [base_ns]);
 
-    stanzas.photo = jslix.Element({
+    vcard.PhotoStanza = jslix.Element({
         element_name: 'PHOTO',
 
         type: new fields.StringNode('TYPE'),
         binval: new fields.StringNode('BINVAL')
     }, [base_ns]);
 
-    stanzas.vcard = jslix.Element({
+    vcard.VCardStanza = jslix.Element({
         full_name: new fields.StringNode('FN'),
-        name: new fields.ElementNode(stanzas.name),
+        name: new fields.ElementNode(vcard.NameStanza),
         nickname: new fields.StringNode('NICKNAME'),
         url: new fields.StringNode('URL'),
         birthday: new fields.StringNode('BDAY'),
-        organization: new fields.ElementNode(stanzas.organization),
+        organization: new fields.ElementNode(vcard.OrganizationStanza),
         title: new fields.StringNode('TITLE'),
         role: new fields.StringNode('ROLE'),
         // telephones TODO
@@ -76,20 +73,20 @@
         // emails TODO
         jid: new fields.StringNode('JABBERID'),
         description: new fields.StringNode('DESC'),
-        photo: new fields.ElementNode(stanzas.photo)
+        photo: new fields.ElementNode(vcard.PhotoStanza)
     }, [base_query]);
 
-    stanzas.request = jslix.Element({
-        result_class: stanzas.vcard
+    vcard.RequestStanza = jslix.Element({
+        result_class: vcard.VCardStanza
     }, [base_query]);
 
-    vcard.prototype.init = function() {
+    vcard.init = function() {
         // TODO: add disco feature
     }
 
-    vcard.prototype.get = function(jid, from) {
+    vcard.get = function(jid, from) {
         from = from || this._dispatcher.connection.jid;
-        var request = stanzas.request.create({
+        var request = this.RequestStanza.create({
             parent: jslix.stanzas.IQStanza.create({
                 type: 'get', to: jid, from: from
             })
