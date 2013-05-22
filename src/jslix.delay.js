@@ -1,7 +1,7 @@
 "use strict";
-
 (function() {
     var jslix = window.jslix;
+
     jslix.delayed = {};
 
     jslix.delayed.stanzas = {

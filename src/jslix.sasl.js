@@ -3,7 +3,7 @@
 
     var jslix = window.jslix;
 
-    jslix.sasl = function(dispatcher){
+    jslix.SASL = function(dispatcher){
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.MechanismsStanza, this);
         this._dispatcher.addHandler(this.SuccessStanza, this);
@@ -12,13 +12,9 @@
         this.deferred = $.Deferred();
     }
 
-    jslix.sasl.mechanisms = {};
+    jslix.SASL.mechanisms = {};
 
-    var sasl = jslix.sasl.prototype;
-
-    sasl._name = 'jslix.sasl';
-
-    jslix.sasl.generate_random_string = function(length){
+    jslix.SASL.generate_random_string = function(length){
         var result = '',
             length = length || 14,
             tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -27,6 +23,10 @@
                 new Date().getTime())*(tab.length-1)));
         return result;
     }
+
+    var sasl = jslix.SASL.prototype;
+
+    sasl._name = 'jslix.SASL';
 
     sasl.SASL_NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
 
@@ -80,8 +80,8 @@
             if(!this._mechanism){
                 for(var i=0; i<top.mechanisms.length; i++){
                     var mechanism = top.mechanisms[i];
-                    if(jslix.sasl.mechanisms[mechanism]){
-                        this._mechanism = new jslix.sasl.mechanisms[mechanism](
+                    if(jslix.SASL.mechanisms[mechanism]){
+                        this._mechanism = new jslix.SASL.mechanisms[mechanism](
                             this._dispatcher);
                         break;
                     }

@@ -9,12 +9,13 @@
     var fields = jslix.fields;
     var Signal;
     
-    jslix.vcard = function(dispatcher) {
+    jslix.VCard = function(dispatcher) {
         this._dispatcher = dispatcher;
     }
-    var vcard = jslix.vcard.prototype;
 
-    vcard._name = 'jslix.vcard';
+    var vcard = jslix.VCard.prototype;
+
+    vcard._name = 'jslix.VCard';
     vcard.VCARD_NS = 'vcard-temp';
 
     var base_ns = jslix.Element({

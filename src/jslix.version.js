@@ -4,7 +4,7 @@
     var jslix = window.jslix,
         fields = jslix.fields;
 
-    jslix.version= function(dispatcher, options) {
+    jslix.Version= function(dispatcher, options) {
         this.options = options || {};
         this._name = this.options.name || '';
         this._version = this.options.version || '';
@@ -13,9 +13,9 @@
 
     };
 
-    var version = jslix.version.prototype;
+    var version = jslix.Version.prototype;
 
-    version._name = 'jslix.version';
+    version._name = 'jslix.Version';
 
     version.VERSION_NS = 'jabber:iq:version';
 

@@ -3,7 +3,7 @@
 
     var jslix = window.jslix;
 
-    jslix.connection = function(jid, password, http_base){
+    jslix.Connection = function(jid, password, http_base){
         this._connection = null;
         this.http_base = http_base;
         this.jid = new jslix.JID(jid);
@@ -12,9 +12,9 @@
             this.jid.setResource('default');
     }
 
-    jslix.connection.transports = {};
+    jslix.Connection.transports = {};
 
-    var connection = jslix.connection.prototype;
+    var connection = jslix.Connection.prototype;
 
     connection.signals = {
         disconnect: new signals.Signal()
@@ -22,7 +22,7 @@
 
 
     connection.connect = function(dispatcher){
-        this._connection = new jslix.connection.transports.bosh(dispatcher,
+        this._connection = new jslix.Connection.transports.BOSH(dispatcher,
             this.jid, this.password, this.http_base);
         return this._connection.connect();
     }

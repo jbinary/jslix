@@ -2,13 +2,13 @@
 (function(){
     var jslix = window.jslix;
 
-    jslix.caps = function(dispatcher, options){
+    jslix.Caps = function(dispatcher, options){
         this.options = options || {};
         this.options.node = this.options.node || 'https://github.com/jbinary/jslix';
         this.storage = this.options.storage;
         this._dispatcher = dispatcher;
         if(this.options['disco_plugin'] === undefined){
-            throw new Error('jslix.disco plugin required!');
+            throw new Error('jslix.Disco plugin required!');
         }
         this.options.disco_plugin.registerFeature(this.CAPS_NS);
         this._dispatcher.addHook('send', this.PresenceHook, this, this._name);
@@ -26,7 +26,7 @@
         this._broken_nodes = [];
     }
 
-    var caps = jslix.caps.prototype;
+    var caps = jslix.Caps.prototype;
 
     caps.destructor = function(){
         this.options.disco_plugin.signals.disco_changed.remove(
@@ -89,7 +89,7 @@
 
     caps.CAPS_NS = 'http://jabber.org/protocol/caps';
 
-    caps._name = 'jslix.caps';
+    caps._name = 'jslix.Caps';
 
     caps.C = jslix.Element({
         parent_element: jslix.stanzas.PresenceStanza,

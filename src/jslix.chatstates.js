@@ -6,7 +6,7 @@
         WrongElement = jslix.exceptions.WrongElement,
         my_activity;
 
-    jslix.chatstates = function(dispatcher, options) {
+    jslix.Chatstates = function(dispatcher, options) {
         this.options = options || {};
         this._dispatcher = dispatcher;
         this.my_activity = {};
@@ -27,7 +27,10 @@
             this.options.send_timeout = 0.25;
         }
     }
-    var chatstates = jslix.chatstates.prototype;
+    var chatstates = jslix.Chatstates.prototype;
+
+    // TODO: unload method, should clean all the timeouts
+    chatstates._name = 'jslix.Chatstates';
 
     // Signals
     chatstates.signals = {
@@ -176,6 +179,4 @@
         }
     }, [jslix.stanzas.MessageStanza]);
 
-    // TODO: unload method, should clean all the timeouts
-    jslix.chatstates._name = 'jslix.chatstates';
 })();
