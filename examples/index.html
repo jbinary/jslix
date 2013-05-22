@@ -21,7 +21,7 @@
         <script src="../src/jslix.connection.js"></script>
         <script src="../src/jslix.connection.transports.bosh.js"></script>
         <script src="../src/jslix.dispatcher.js"></script>
-        <script src="../src/jslix.JID.js"></script>
+        <script src="../src/jslix.jid.js"></script>
         <script src="../src/jslix.version.js"></script>
         <script src="../src/jslix.sasl.js"></script>
         <script src="../src/jslix.sasl.mechanisms.plain.js"></script>
@@ -43,7 +43,7 @@
                     },
                     client = new jslix.Client(options);
                     client.connect().done(function(){
-                        var disco_plugin = client.registerPlugin(jslix.disco);
+                        var disco_plugin = client.registerPlugin(jslix.Disco);
                         var plugins_options = {
                                 'disco_plugin': disco_plugin,
                                 'storage': sessionStorage,
@@ -51,9 +51,9 @@
                                 'version': 'beta'
                             };
                         disco_plugin.registerIdentity('client', 'web', 'jslix');
-                        client.registerPlugin(jslix.version, plugins_options).init();
+                        client.registerPlugin(jslix.Version, plugins_options).init();
                         disco_plugin.init();
-                        client.registerPlugin(jslix.caps, plugins_options);
+                        client.registerPlugin(jslix.Caps, plugins_options);
                         client.send(jslix.stanzas.PresenceStanza.create());
                     });
                     window.client = client;
