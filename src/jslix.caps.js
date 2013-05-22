@@ -128,7 +128,7 @@
                                     response.identities, response.features
                                 )
                             );
-                        if(!verification_string === el.ver){
+                        if(verification_string !== el.ver){
                             self._broken_nodes.push(node);
                         }
                         self.storage.setItem(verification_string, data);
