@@ -13,7 +13,7 @@ var SASLTest = buster.testCase('SASLTest', {
     },
     testSuccess: function(){
         this.dispatcher.dispatch(jslix.build(
-            jslix.sasl.stanzas.success.create()
+            this.sasl.SuccessStanza.create()
         ));
         assert(this.sasl.deferred.state() == 'resolved');
     },
@@ -25,8 +25,8 @@ var SASLTest = buster.testCase('SASLTest', {
             }
         };
         this.dispatcher.dispatch(jslix.build(
-            jslix.stanzas.features.create({
-                link: jslix.sasl.stanzas.mechanisms.create({
+            jslix.stanzas.FeaturesStanza.create({
+                link: this.sasl.MechanismsStanza.create({
                     mechanisms: ['fake']
                 })
             })

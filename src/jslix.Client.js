@@ -12,13 +12,13 @@
         this.dispatcher = new jslix.dispatcher(this.connection);
     }
 
-    jslix.Client._name = 'jslix.Client';
-
     jslix.Client.prototype = new jslix.BaseClient();
 
-    jslix.Client.prototype.constructor = jslix.Client;
+    var Client = jslix.Client.prototype;
 
-    jslix.Client.prototype.connect = function(){
+    Client.constructor = jslix.Client;
+
+    Client.connect = function(){
         return this.connection.connect(this.dispatcher);
     }
 

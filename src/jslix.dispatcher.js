@@ -10,41 +10,46 @@
         this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
+        this.debug = window.debug || false;
     }
 
-    jslix.dispatcher._name = 'jslix.dispatcher';
+    var dispatcher = jslix.dispatcher.prototype;
 
-    var dispatcher = jslix.dispatcher;
-
-    dispatcher.prototype.registerPlugin = function(plugin, options){
+    dispatcher.registerPlugin = function(plugin, options){
         // XXX: We don't use any aditional plugin initialization yet.
-        if(!this.plugins[plugin._name]){
-            this.plugins[plugin._name] = new plugin(this, options);
+        var name = plugin.prototype._name;
+        if(!this.plugins[name]){
+            this.plugins[name] = new plugin(this, options);
         }
-        return this.plugins[plugin._name];
+        return this.plugins[name];
     }
 
-    dispatcher.prototype.unregisterPlugin = function(plugin){
+    dispatcher.unregisterPlugin = function(plugin){
 
-        var remove_handlers = function(list) {
-            return list.filter(function(value){
-                return !value[2] == plugin._name;
-            });
-        }
+        var name = plugin.prototype._name,
+            remove_handlers = function(list) {
+                return list.filter(function(value){
+                    return !value[2] == name;
+                });
+            };
 
         this.top_handlers = remove_handlers(this.top_handlers);
         this.handlers = remove_handlers(this.handlers);
         for (var k in this.hooks) {
             this.hooks[k] = remove_handlers(this.hooks[k]);
         }
-        delete this.plugins[plugin._name];
+        var loaded_plugin = this.plugins[name];
+        if(loaded_plugin && typeof loaded_plugin.destructor === 'function'){
+            loaded_plugin.destructor();
+        }
+        delete this.plugins[name];
     }
 
-    dispatcher.prototype._addHandler = function(list, handler, host, plugin_name){
+    dispatcher._addHandler = function(list, handler, host, plugin_name){
         list[list.length] = [handler, host, plugin_name];
     }
 
-    dispatcher.prototype.addHandler = function(handler, host, plugin_name) {
+    dispatcher.addHandler = function(handler, host, plugin_name) {
         var list = this.handlers;
         if (typeof handler.handler == 'function') {
             list = this.top_handlers;
@@ -52,13 +57,13 @@
         return this._addHandler(list, handler, host, plugin_name);
     }
 
-    dispatcher.prototype.addHook = function(name, hook, host, plugin_name) {
+    dispatcher.addHook = function(name, hook, host, plugin_name) {
         var list = this.hooks[name] || [];
         this.hooks[name] = list;
         return this._addHandler(list, hook, host, plugin_name);
     }
 
-    dispatcher.prototype.dispatch = function(el) {
+    dispatcher.dispatch = function(el) {
         if(el.nodeName != '#document'){
             var doc = document.implementation.createDocument(null, null, null);
             doc.appendChild(el);
@@ -75,7 +80,7 @@
                 var func = top.handler;
                 var result = func.call(host, top);
                 if(result){
-                    if(!(result instanceof jslix.stanzas.break_stanza))
+                    if(!(result instanceof jslix.stanzas.BreakStanza))
                         this.send(result);
                     break;
                 }
@@ -83,8 +88,8 @@
         }
         if(top) return;
 
-        var tops = [jslix.stanzas.iq, jslix.stanzas.presence,
-                    jslix.stanzas.message];
+        var tops = [jslix.stanzas.IQStanza, jslix.stanzas.PresenceStanza,
+                    jslix.stanzas.MessageStanza];
         for (var i=0; i<tops.length; i++) {
             try {
                 var top = jslix.parse(el, tops[i]);
@@ -110,8 +115,10 @@
                     d.resolve(result);
                 } catch (e) {
                     // TODO: proper logging here
-                    console.log('Got exception while parsing', result_class, el);
-                    console.log(e, e.stack);
+                    if(self.debug){
+                        console.log('Got exception while parsing', result_class, el);
+                        console.log(e, e.stack);
+                    }
                     d.reject(e);
                 }
             } else if (!result_class && top.type == 'result') {
@@ -145,7 +152,9 @@
 
         var loop_fail = function(failure) {
             // TODO: proper logging here
-            console.log(failure, failure.stack);
+            if(self.debug){
+                console.log(failure, failure.stack);
+            }
             if (can_error) {
                 if (typeof failure == 'object' && 
                     'definition' in failure) self.send(failure)
@@ -209,14 +218,14 @@
             loop();
     }
 
-    dispatcher.prototype.send = function(els) {
+    dispatcher.send = function(els) {
         if(els.length === undefined) els = [els];
         var d = null;
         for (var i=0; i<els.length; i++) {
             var el = els[i];
             // TODO: BreakStanza
             var el = this.check_hooks(el);
-            if(el instanceof jslix.stanzas.empty_stanza) {
+            if(el instanceof jslix.stanzas.EmptyStanza) {
                 continue;
             }
             var top = el.getTop();
@@ -231,11 +240,11 @@
         return d;
     }
 
-    dispatcher.prototype.check_hooks = function(el) {
+    dispatcher.check_hooks = function(el) {
         // TODO: optimisation here can be done, we don't need to build
         // document and then parse it again, some light validation can
         // be applied
-        if (el instanceof jslix.stanzas.empty_stanza) return el;
+        if (el instanceof jslix.stanzas.EmptyStanza) return el;
         var hooks = this.hooks['send'],
             obj = el;
         if(hooks instanceof Array){

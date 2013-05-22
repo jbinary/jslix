@@ -1,82 +1,82 @@
 "use strict";
-(function(window) {
+(function(){
 
     var jslix = window.jslix,
         fields = jslix.fields;
 
-    jslix.version = function(dispatcher, options) {
+    jslix.version= function(dispatcher, options) {
         this.options = options || {};
         this._name = this.options.name || '';
         this._version = this.options.version || '';
-        this._os = this.options.os || jslix.version._defineOs();
+        this._os = this.options.os || this._defineOs();
         this._dispatcher = dispatcher;
 
     };
 
-    jslix.version._name= 'jslix.version';
+    var version = jslix.version.prototype;
 
-    jslix.version.VERSION_NS = 'jabber:iq:version';
+    version._name = 'jslix.version';
 
-    jslix.version.stanzas = {};
+    version.VERSION_NS = 'jabber:iq:version';
 
-    jslix.version.prototype.setName = function(name){
+    version.setName = function(name){
         this._name = name;
     }
 
-    jslix.version.prototype.getName = function(){
+    version.getName = function(){
         return this._name;
     }
 
-    jslix.version.prototype.setVersion = function(version){
+    version.setVersion = function(version){
         this._version = version;
     }
 
-    jslix.version.prototype.getVersion = function(){
+    version.getVersion = function(){
         return this._version;
     }
 
-    jslix.version.prototype.getOs = function(){
+    version.getOs = function(){
         return this._os;
     }
 
-    jslix.version._defineOs = function(){
+    version._defineOs = function(){
         var os = window.navigator ? window.navigator.appName : 'n/a',
             version = window.navigator ? window.navigator.appVersion: 'n/a';
         return version != 'n/a' ? os + ' ' + version : os;
     };
 
-    jslix.version.prototype.get = function(jid) {
-        var iq = jslix.stanzas.iq.create({
+    version.get = function(jid) {
+        var iq = jslix.stanzas.IQStanza.create({
             type: 'get',
             to: jid,
-            link: jslix.version.stanzas.request.create()
+            link: this.RequestStanza.create()
         });
         return this._dispatcher.send(iq);
     };
 
-    jslix.version.prototype.init = function(){
+    version.init = function(){
         if (this._dispatcher){
-            this._dispatcher.addHandler(jslix.version.stanzas.request, this);
+            this._dispatcher.addHandler(this.RequestStanza, this);
         }
         if(this.options['disco_plugin'] != undefined){
-            this.options.disco_plugin.registerFeature(jslix.version.VERSION_NS);
+            this.options.disco_plugin.registerFeature(this.VERSION_NS);
         }
     };
 
-    jslix.version.stanzas.response = jslix.Element({
+    version.ResponseStanza = jslix.Element({
         //Definition
-        xmlns: jslix.version.VERSION_NS,
+        xmlns: version.VERSION_NS,
         //Fields
         name: new fields.StringNode('name', true),
         version: new fields.StringNode('version', true),
         os: new fields.StringNode('os')
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
-    jslix.version.stanzas.request = jslix.Element({
+    version.RequestStanza = jslix.Element({
         //Definition
-        xmlns: jslix.version.VERSION_NS,
+        xmlns: version.VERSION_NS,
         //Handlers
-        result_class: jslix.version.stanzas.response,
+        result_class: version.ResponseStanza,
         getHandler: function(query, top) {
             return query.makeResult({
                 version: this.getVersion(),
@@ -84,6 +84,6 @@
                 os:  this.getOs()
             });
         }
-    }, [jslix.stanzas.query]);
+    }, [jslix.stanzas.QueryStanza]);
 
-})(window);
+})();

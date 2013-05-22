@@ -11,29 +11,29 @@
         this.options = options;
     }
 
-    jslix.BaseClient._name = 'jslix.BaseClient';
+    var BaseClient = jslix.BaseClient.prototype;
 
-    jslix.BaseClient.prototype.connect = function(){
+    BaseClient.connect = function(){
         return this.connection.connect(this.dispatcher);
     }
 
-    jslix.BaseClient.prototype.registerPlugin = function(plugin, options){
+    BaseClient.registerPlugin = function(plugin, options){
         return this.dispatcher.registerPlugin(plugin, options);
     }
 
-    jslix.BaseClient.prototype.unregisterPlugin = function(plugin){
+    BaseClient.unregisterPlugin = function(plugin){
         this.dispatcher.unregisterPlugin(plugin);
     }
 
-    jslix.BaseClient.prototype.addHandler = function(handler, host, plugin_name){
+    BaseClient.addHandler = function(handler, host, plugin_name){
         this.dispatcher.addHandler(handler, host, plugin_name);
     }
 
-    jslix.BaseClient.prototype.send = function(stanza){
+    BaseClient.send = function(stanza){
         return this.dispatcher.send(stanza);
     }
 
-    jslix.BaseClient.prototype.disconnect = function(){
+    BaseClient.disconnect = function(){
         return this.dispatcher.send(this.connection.disconnect());
     }
 

@@ -55,39 +55,46 @@
 
     jslix.stanzas = {};
 
-    jslix.stanzas.special_stanza = function(){
-        this.__definition__ = jslix.stanzas.special_stanza;
+    jslix.stanzas.SpecialStanza = function(){
+        this.type_name = 'Special stanza';
+        this.__definition__ = jslix.stanzas.SpecialStanza;
     }
 
-    jslix.stanzas.special_stanza.create = function(){
-        return new jslix.stanzas.special_stanza();
+    jslix.stanzas.SpecialStanza.prototype.toString = function(){
+        return ['<', this.type_name, '>'].join('');
     }
 
-    jslix.stanzas.empty_stanza = function(){
-        this.__definition__ = jslix.stanzas.empty_stanza;
+    jslix.stanzas.SpecialStanza.create = function(){
+        return new jslix.stanzas.SpecialStanza();
     }
 
-    jslix.stanzas.empty_stanza.create = function(){
-        return new jslix.stanzas.empty_stanza();
+    jslix.stanzas.EmptyStanza = function(){
+        this.type_name = 'Empty stanza';
+        this.__definition__ = jslix.stanzas.EmptyStanza;
     }
 
-    jslix.stanzas.empty_stanza.prototype = new jslix.stanzas.special_stanza();
-
-    jslix.stanzas.empty_stanza.prototype.constructor = jslix.stanzas.empty_stanza;
-
-    jslix.stanzas.break_stanza = function(){
-        this.__definition__ = jslix.stanzas.break_stanza;
+    jslix.stanzas.EmptyStanza.create = function(){
+        return new jslix.stanzas.EmptyStanza();
     }
 
-    jslix.stanzas.break_stanza.create = function(){
-        return new jslix.stanzas.break_stanza();
+    jslix.stanzas.EmptyStanza.prototype = new jslix.stanzas.SpecialStanza();
+
+    jslix.stanzas.EmptyStanza.prototype.constructor = jslix.stanzas.EmptyStanza;
+
+    jslix.stanzas.BreakStanza = function(){
+        this.type_name = 'Break stanza';
+        this.__definition__ = jslix.stanzas.BreakStanza;
     }
 
-    jslix.stanzas.break_stanza.prototype = new jslix.stanzas.special_stanza();
+    jslix.stanzas.BreakStanza.create = function(){
+        return new jslix.stanzas.BreakStanza();
+    }
 
-    jslix.stanzas.break_stanza.prototype.constructor = jslix.stanzas.break_stanza;
+    jslix.stanzas.BreakStanza.prototype = new jslix.stanzas.SpecialStanza();
 
-    jslix.stanzas.base_stanza = {
+    jslix.stanzas.BreakStanza.prototype.constructor = jslix.stanzas.BreakStanza;
+
+    jslix.stanzas.BaseStanza = {
         create : function(params) {
             params = params || {};
             var result = jslix.createStanza(this);                
@@ -111,17 +118,20 @@
             params.type = params.type || conditions[params.condition];
             params.parent = this.getTop().makeReply('error');
             var eclass = this.__definition__.error_class || 
-                            jslix.stanzas.error;
+                            jslix.stanzas.ErrorStanza;
             var error = eclass.create(params);
             return error;
         },
         makeResult : function(params) {
             params.parent = this.getTop().makeReply();
             return this.__definition__.result_class.create(params);
+        },
+        toString: function(){
+            return new XMLSerializer().serializeToString(jslix.build(this));
         }
     }
 
-    jslix.stanzas.stanza = jslix.Element({
+    jslix.stanzas.Stanza = jslix.Element({
         xmlns: jslix.STANZAS_NS,
         to: new fields.JIDAttr('to', false),
         from: new fields.JIDAttr('from', false),
@@ -142,13 +152,13 @@
         }
     });
 
-    jslix.stanzas.message = jslix.Element({
+    jslix.stanzas.MessageStanza = jslix.Element({
         element_name: 'message',
         body: new fields.StringNode('body', false),
         thread: new fields.StringNode('thread', false)
-    }, [jslix.stanzas.stanza]);
+    }, [jslix.stanzas.Stanza]);
 
-    jslix.stanzas.presence = jslix.Element({
+    jslix.stanzas.PresenceStanza = jslix.Element({
         element_name: 'presence',
         show: new fields.StringNode('show', false),
         status: new fields.StringNode('status', false),
@@ -159,9 +169,9 @@
                 throw new ElementParseError('Presence show element has the wrong value');
             return value
         }
-    }, [jslix.stanzas.stanza]);
+    }, [jslix.stanzas.Stanza]);
 
-    jslix.stanzas.iq = jslix.Element({
+    jslix.stanzas.IQStanza = jslix.Element({
         element_name: 'iq',
         id: new fields.StringAttr('id', true),
         type: new fields.StringAttr('type', true), // TODO: validate types everywhere
@@ -169,18 +179,18 @@
         create: function(params) {
             params.id = params.id || jslix.randomUUID();
 
-            return jslix.stanzas.stanza.create.call(this, params);
+            return jslix.stanzas.Stanza.create.call(this, params);
         }
-    }, [jslix.stanzas.stanza]);
+    }, [jslix.stanzas.Stanza]);
 
-    jslix.stanzas.query = jslix.Element({
+    jslix.stanzas.QueryStanza = jslix.Element({
         element_name: 'query',
-        parent_element: jslix.stanzas.iq,
+        parent_element: jslix.stanzas.IQStanza,
         node: new fields.StringAttr('node', false)
     });
 
-    jslix.stanzas.error = jslix.Element({
-        parent_element: jslix.stanzas.stanza,
+    jslix.stanzas.ErrorStanza = jslix.Element({
+        parent_element: jslix.stanzas.Stanza,
         xmlns: jslix.STANZAS_NS,
         element_name: 'error',
         type: new fields.StringAttr('type', true),
@@ -195,7 +205,7 @@
         }
     });
 
-    jslix.stanzas.features = jslix.Element({
+    jslix.stanzas.FeaturesStanza = jslix.Element({
         xmlns: jslix.STREAMS_NS,
         element_name: 'features'
     });

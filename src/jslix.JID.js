@@ -44,8 +44,6 @@
         }
     };
 
-    jslix.JID._name = 'jslix.JID';
-
     jslix.JID.exceptions = {
         JIDInvalidException: function(message){
             this.message = message;

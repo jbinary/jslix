@@ -12,25 +12,31 @@
             this.jid.setResource('default');
     }
 
-    jslix.connection._name = 'jslix.connection';
-
     jslix.connection.transports = {};
 
-    jslix.connection.prototype.connect = function(dispatcher){
+    var connection = jslix.connection.prototype;
+
+    connection.signals = {
+        disconnect: new signals.Signal()
+    };
+
+
+    connection.connect = function(dispatcher){
         this._connection = new jslix.connection.transports.bosh(dispatcher,
             this.jid, this.password, this.http_base);
         return this._connection.connect();
     }
 
-    jslix.connection.prototype.restart = function(){
+    connection.restart = function(){
         return this._connection ? this._connection.restart() : false;
     }
 
-    jslix.connection.prototype.send = function(doc){
+    connection.send = function(doc){
         return this._connection ? this._connection.send(doc) : false;
     }
 
-    jslix.connection.prototype.disconnect = function(){
+    connection.disconnect = function(){
+        connection.signals.disconnect.dispatch();
         return this._connection ? this._connection.disconnect() : false;
     }
 

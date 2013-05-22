@@ -9,14 +9,12 @@
             'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.getDomain(),
             'nc': '00000001'
         };
-        this._dispatcher.addHandler(jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge, this);
+        this._dispatcher.addHandler(this.ChallengeStanza, this);
     }
 
-    jslix.sasl.mechanisms['DIGEST-MD5']._name = 'jslix.sasl.mechanisms.DIGEST-MD5';
+    var digest_md5 = jslix.sasl.mechanisms['DIGEST-MD5'].prototype;
 
-    jslix.sasl.mechanisms['DIGEST-MD5'].stanzas = {};
-
-    jslix.sasl.mechanisms['DIGEST-MD5'].stanzas.challenge = jslix.Element({
+    digest_md5.ChallengeStanza = jslix.Element({
         handler: function(top){
             var hash = CryptoJS.enc.Latin1.stringify(CryptoJS.enc.Base64.parse(top.content)),
                 params = hash.split(',');
@@ -31,15 +29,15 @@
             else
                 return this.getSecondResponse();
         }
-    }, [jslix.sasl.stanzas.challenge]);
+    }, [jslix.sasl.prototype.ChallengeStanza]);
 
-    jslix.sasl.mechanisms['DIGEST-MD5'].prototype.auth = function(){
-        return jslix.sasl.stanzas.auth.create({
+    digest_md5.auth = function(){
+        return jslix.sasl.prototype.AuthStanza.create({
             mechanism: 'DIGEST-MD5'
         });
     }
 
-    jslix.sasl.mechanisms['DIGEST-MD5'].prototype.getFirstResponse  = function(cnonce){
+    digest_md5.getFirstResponse  = function(cnonce){
         this._challenge['cnonce'] = cnonce || jslix.sasl.generate_random_string();
         var a1_sub_params_1 = CryptoJS.MD5([
                 this._dispatcher.connection.jid.getNode(),
@@ -68,12 +66,12 @@
                 'response="' + response + '"',
                 'charset="utf-8"'].join(',')));
 
-        return jslix.sasl.stanzas.response.create({
+        return jslix.sasl.prototype.ResponseStanza.create({
             content: content
         });
     }
 
-    jslix.sasl.mechanisms['DIGEST-MD5'].prototype.getSecondResponse = function(){
+    digest_md5.getSecondResponse = function(){
         var a1_sub_params_1 = CryptoJS.MD5([
                 this._dispatcher.connection.jid.getNode(),
                 this._dispatcher.connection.jid.getDomain(),
@@ -92,7 +90,7 @@
                     CryptoJS.MD5(a2).toString(CryptoJS.enc.Hex)].join(':')).toString(CryptoJS.enc.Hex),
             valid = rsptest == this._challenge['rspauth'];
             this._challenge['rspauth'] = undefined;
-        return valid ? jslix.sasl.stanzas.response.create({content: ''}) : this._dispatcher.connection.disconnect();
+        return valid ? jslix.sasl.prototype.ResponseStanza.create({content: ''}) : this._dispatcher.connection.disconnect();
 
     }
 

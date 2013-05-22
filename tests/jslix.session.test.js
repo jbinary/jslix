@@ -10,16 +10,17 @@ var SessionTest = buster.testCase('SessionTest', {
         this.session = new jslix.session(this.dispatcher);
     },
     testResponse: function(){
-        var bind_result = jslix.stanzas.iq.create({
+        var bind_result = jslix.stanzas.IQStanza.create({
             type: 'set',
-            link: jslix.bind.stanzas.response.create({
+            link: jslix.bind.prototype.ResponseStanza.create({
                 jid: 'user@server.com/res'
             })
         });
         this.dispatcher.dispatch(jslix.build(bind_result));
-        var stnz = this.dispatcher.connection.lst_stnz;
+        var stnz = this.dispatcher.connection.lst_stnz,
+            test = this;
         refute.exception(function(){
-            jslix.parse(stnz, jslix.session.stanzas.request);
+            jslix.parse(stnz, test.session.request);
         });
     }
 });

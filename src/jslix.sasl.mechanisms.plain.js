@@ -7,16 +7,16 @@
         this._dispatcher = dispatcher;
     };
 
-    jslix.sasl.mechanisms['PLAIN']._name = 'jslix.sasl.mechanisms.PLAIN';
+    var plain = jslix.sasl.mechanisms['PLAIN'].prototype;
 
-    jslix.sasl.mechanisms['PLAIN'].prototype.getPlainMessage = function(){
+    plain.getPlainMessage = function(){
         return CryptoJS.enc.Base64.stringify(
             CryptoJS.enc.Latin1.parse(
                 this._dispatcher.connection.jid.getBareJID() + '\0' + this._dispatcher.connection.jid.getNode() + '\0' + this._dispatcher.connection.password));
     }
 
-    jslix.sasl.mechanisms['PLAIN'].prototype.auth = function(){
-        return jslix.sasl.stanzas.auth.create({
+    plain.auth = function(){
+        return jslix.sasl.prototype.AuthStanza.create({
             mechanism: 'PLAIN',
             content: this.getPlainMessage()
         });

@@ -25,14 +25,15 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
         assert(this.dispatcher.hooks['stub'].length == 1);
     },
     testUnregisterPlugin: function(){
-        var plugin = jslix.sasl;
+        var plugin = jslix.sasl,
+            name = jslix.sasl.prototype._name;
         this.dispatcher.registerPlugin(plugin);
-        assert(plugin._name in this.dispatcher.plugins);
+        assert(name in this.dispatcher.plugins);
         this.dispatcher.addHook('stub', function(){
             return stub;
-        }, {stub: 'stub'}, plugin._name);
+        }, {stub: 'stub'}, name);
         this.dispatcher.unregisterPlugin(plugin);
-        refute(plugin._name in this.dispatcher.plugins);
+        refute(name in this.dispatcher.plugins);
         refute(this.dispatcher.handlers.lenght && this.dispatcher.top_handlers.lenght);
     },
     testCheckHooks: function(){
@@ -41,7 +42,7 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
                     el.id = this.id;
                     return el;
                 }
-            }, [jslix.stanzas.iq]),
+            }, [jslix.stanzas.IQStanza]),
             iq_settings = this.get_iq_settings(),
             context = {
                 id: jslix.randomUUID()
@@ -51,18 +52,14 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
         result = this.dispatcher.check_hooks(
             definition.create(iq_settings)
         );
-        refute.exception(function(){
-            result = jslix.parse(result, definition);
-        });
+        assert(result.__definition__ && result.__definition__ === definition);
         assert(result.id == context.id);
-        this.dispatcher.unregisterPlugin({_name: 'fake_plugin'});
+        this.dispatcher.unregisterPlugin({ prototype: {_name: 'fake_plugin'}});
         assert.isArray(this.dispatcher.hooks['send']);
         assert(this.dispatcher.hooks['send'].length == 0);
         this.dispatcher.addHook('send', {}, {}, 'fake_plugin');
         result = this.dispatcher.check_hooks(definition.create(iq_settings));
-        refute.exception(function(){
-            result = jslix.parse(result, definition);
-        });
+        assert(result.__definition__ && result.__definition__ === definition);
         assert(function(){
             for(var key in iq_settings){
                 if(iq_settings[key] != result[key]){
@@ -77,17 +74,17 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
             iq_settings = this.get_iq_settings('result');
         this.dispatcher.deferreds[iq_settings.id] = [deferred, {
             __definition__: {
-                result_class: jslix.stanzas.message
+                result_class: jslix.stanzas.MessageStanza
             }
         }];
-        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.IQStanza.create(iq_settings)));
         assert(deferred.state() == 'rejected');
         assert.equals(this.dispatcher.deferreds, {})
         deferred = $.Deferred();
         this.dispatcher.deferreds[iq_settings.id] = [deferred, {
             __definition__: {}
         }];
-        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.IQStanza.create(iq_settings)));
         assert(deferred.state() == 'resolved');
         assert.equals(this.dispatcher.deferreds, {});
         deferred = $.Deferred();
@@ -95,7 +92,7 @@ var DispatcherTest = buster.testCase('DispatcherTest', {
         this.dispatcher.deferreds[iq_settings.id] = [deferred, {
             __definition__: {}
         }];
-        this.dispatcher.dispatch(jslix.build(jslix.stanzas.iq.create(iq_settings)));
+        this.dispatcher.dispatch(jslix.build(jslix.stanzas.IQStanza.create(iq_settings)));
         assert(deferred.state() == 'rejected');
     }
 });

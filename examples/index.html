@@ -34,6 +34,7 @@
         <script>
             function doLogin(oForm) {
                 document.getElementById('err').innerHTML = '';
+                    window.debug = true;
                     var options = {
                         http_base: oForm.http_base.value,
                         jid: oForm.jid.value,
@@ -41,28 +42,21 @@
                         register: oForm.register.checked
                     },
                     client = new jslix.Client(options);
-                    window.client = client;
-                    var deferred = window.client.connect();
-                    deferred.done(function(){
-                        var disco_plugin = client.registerPlugin(jslix.disco),
-                            plugins_options = {
-                                'disco_plugin': disco_plugin
+                    client.connect().done(function(){
+                        var disco_plugin = client.registerPlugin(jslix.disco);
+                        var plugins_options = {
+                                'disco_plugin': disco_plugin,
+                                'storage': sessionStorage,
+                                'name': 'jslix',
+                                'version': 'beta'
                             };
-                        disco_plugin.registerIdentity(
-                            jslix.disco.stanzas.identity.create({
-                                category: 'client',
-                                type: 'web',
-                                name: 'jslix'
-                            })
-                        );
-                        client.registerPlugin(jslix.version, plugins_options).init('jslix', 'beta');
+                        disco_plugin.registerIdentity('client', 'web', 'jslix');
+                        client.registerPlugin(jslix.version, plugins_options).init();
+                        disco_plugin.init();
                         client.registerPlugin(jslix.caps, plugins_options);
-                        client.connection.send(
-                            jslix.build(
-                                jslix.stanzas.presence.create()
-                            )
-                        );
+                        client.send(jslix.stanzas.PresenceStanza.create());
                     });
+                    window.client = client;
                 return false;
             }
         </script>
@@ -72,7 +66,7 @@
         <div id="err"></div>
 
         <div id="login_pane">
-            <form name="loginForm" onSubmit="return doLogin(this);" action="#">
+            <form name="loginForm" onSubmit="return doLogin(this);" action="" method="post">
                 <table>
                     <tr>
                         <th><label for="http_base">HTTP Base</label></th><td>

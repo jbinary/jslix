@@ -1,4 +1,4 @@
-var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
+var ConnectionTransportsBOSHTest = buster.testCase('ConnectionTransportsBOSHTest', {
     setUp: function(){
         this.dispatcher = new jslix.dispatcher();
         this.connection = new jslix.connection.transports.bosh(this.dispatcher,
@@ -14,36 +14,22 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
             'content-type': 'application/xml'
         };
         this.responses = {
-            'connect': new XMLSerializer().serializeToString(
-                jslix.build(
-                    jslix.connection.transports.bosh.stanzas.response.create({
-                        ver: '1.8',
-                        wait: 60,
-                        from: 'server.com',
-                        sid: 'some_sid',
-                        polling: 2,
-                        inactivity: 90,
-                        requests: 2
-                    })
-                )
-            ),
-            'wrong features': new XMLSerializer().serializeToString(
-                jslix.build(jslix.stanzas.features.create())
-            ),
-            'terminate': new XMLSerializer().serializeToString(
-                jslix.build(
-                    jslix.connection.transports.bosh.stanzas.body.create({
-                        type: 'terminate'
-                    })
-                )
-            ),
-            'features': new XMLSerializer().serializeToString(
-                jslix.build(
-                    jslix.connection.transports.bosh.stanzas.body.create({
-                        link: jslix.stanzas.features.create({})
-                    })
-                )
-            )
+            'connect': this.connection.ResponseStanza.create({
+                ver: '1.8',
+                wait: 60,
+                from: 'server.com',
+                sid: 'some_sid',
+                polling: 2,
+                inactivity: 90,
+                requests: 2
+            }).toString(),
+            'wrong features': jslix.stanzas.FeaturesStanza.create().toString(),
+            'terminate': this.connection.BodyStanza.create({
+                type: 'terminate'
+            }).toString(),
+            'features': this.connection.BodyStanza.create({
+                link: jslix.stanzas.FeaturesStanza.create({})
+            }).toString(),
         };
     },
     tearDown: function(){
@@ -61,44 +47,40 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
         assert(req == null);
     },
     testConnect: function(){
-        this.server.respondWith('POST', '/http-base/', [200,
-            this.headers, this.responses['connect']
-        ]);
-
         this.connection.connect();
         assert.equals(this.server.requests.length, 1);
-        var req = this.server.requests[this.server.requests.length-1];
+        var req = this.server.requests[this.server.requests.length-1],
+            test = this;
         assert.match(req, {
             method: 'POST',
             url: '/http-base/'
         });
         refute.exception(function(){
-            jslix.parse(req.requestBody, jslix.connection.transports.bosh.stanzas.request);
+            jslix.parse(req.requestBody, test.connection.RequestStanza);
         });
-        this.server.respond();
+        req.respond(200, this.headers, this.responses['connect']);
         assert(this.connection.established);
         assert(this.connection._sid == 'some_sid');
         this.clock.tick(this.connection.polling*1000+this.connection.queue_check_interval);
         assert.equals(this.server.requests.length, 2);
     },
     testDisconnect: function(){
-        this.server.respondWith('POST', '/http-base/', [200,
-            this.headers, this.responses['connect']
-        ]);
         this.connection.connect();
-        this.server.respond();
+        var req = this.server.requests[this.server.requests.length-1];
+        req.respond(200, this.headers, this.responses['connect']);
         assert.equals(this.server.requests.length, 1);
         this.dispatcher.send(this.connection.disconnect());
         this.clock.tick(this.connection.queue_check_interval);
         assert.equals(this.server.requests.length, 2);
         var req = this.server.requests[this.server.requests.length-1],
-            stanza = null;
+            stanza = null,
+            test = this;
         assert.match(req, {
             method: 'POST',
             url: '/http-base/'
         });
         refute.exception(function(){
-            stanza = jslix.parse(req.requestBody, jslix.connection.transports.bosh.stanzas.empty);
+            stanza = jslix.parse(req.requestBody, test.connection.EmptyStanza);
         });
         assert(stanza != null && stanza.type == 'terminate');
     },
@@ -107,26 +89,28 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
         assert(stnz.xmpp_restart == 'true');
     },
     testResponse: function(){
-        var wrong_response = jslix.connection.transports.bosh.stanzas.response.create({
+        var wrong_response = this.connection.ResponseStanza.create({
                 ver: '1.8',
                 wait: 60,
                 from: 'server.com',
                 polling: 2,
                 inactivity: 90,
                 request: 2
-            });
+            }),
+            test = this;
         assert.exception(function(){
-            jslix.parse(jslix.build(wrong_response), jslix.connection.transports.bosh.stanzas.response);
+            jslix.parse(jslix.build(wrong_response),
+                test.connection.ResponseStanza);
         }, 'WrongElement');
     },
     testFeatures: function(){
-        var features = jslix.connection.transports.bosh.stanzas.features.create({
+        var features = this.connection.FeaturesStanza.create({
                 bind: true,
                 session: true
             });
         this.dispatcher.dispatch(jslix.build(features));
-        assert(jslix.bind._name in this.dispatcher.plugins);
-        assert(jslix.session._name in this.dispatcher.plugins);
+        assert(jslix.bind.prototype._name in this.dispatcher.plugins);
+        assert(jslix.session.prototype._name in this.dispatcher.plugins);
     },
     testCleanSlots: function(){
         var req = this.connection.create_request();
@@ -142,10 +126,8 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
         req.respond(200, this.headers, this.responses['wrong features']);
         assert(!this.connection.process_response(req));
         this.connection.connect();
-        this.server.respondWith('POST', '/http-base/', [200,
-            this.headers, this.responses['connect']
-        ]);
-        this.server.respond();
+        req = this.server.requests[this.server.requests.length-1];
+        req.respond(200, this.headers, this.responses['connect']);
         assert(this.connection.established);
         req = this.connection.create_request();
         req.onreadystatechange = null;
@@ -153,7 +135,8 @@ var BOSHConnectionTest = buster.testCase('BOSHConnectionTest', {
         this.connection.process_response(req);
         assert(!this.connection.established);
         this.connection.connect();
-        this.server.respond();
+        req = this.server.requests[this.server.requests.length-1];
+        req.respond(200, this.headers, this.responses['connect']);
         req = this.connection.create_request();
         req.onreadystatechange = null;
         req.respond(200, this.headers, this.responses['features']);
