@@ -1,8 +1,7 @@
 "use strict";
 (function(){
 
-    var jslix = window.jslix,
-        logging = window.log4javascript;
+    var jslix = window.jslix;
 
     jslix.Dispatcher = function(connection) {
         this.connection = connection;
@@ -253,8 +252,8 @@
                     var _obj = jslix.parse(doc, hook[0]);
                     var host = hook[1];
                 } catch (e) {
+                    this.logger.error(e, e.stack);
                     _obj = null;
-                    // TODO: logging
                 }
                 if (_obj) {
                     var func = _obj[top.type + 'Handler'] || _obj['anyHandler'];
@@ -263,7 +262,9 @@
                     // TODO: do we need EmptyStanza here?
                     try {
                         obj = func.call(host, _obj, _obj.getTop());
-                    } catch (e) {} // TODO: logging
+                    } catch (e) {
+                        this.logger.error(e, e.stack);
+                    }
                 }
             }
         }
