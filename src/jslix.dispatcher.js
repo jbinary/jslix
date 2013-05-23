@@ -1,7 +1,8 @@
 "use strict";
 (function(){
 
-    var jslix = window.jslix;
+    var jslix = window.jslix,
+        logging = window.log4javascript;
 
     jslix.Dispatcher = function(connection) {
         this.connection = connection;
@@ -10,10 +11,19 @@
         this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
-        this.debug = window.debug || false;
+        this.logger = null;
+        if(logging){
+            var appender = new logging.BrowserConsoleAppender(),
+                layout = new logging.PatternLayout('%d %p %c - %m%n');
+            appender.setLayout(layout);
+            this.logger = logging.getLogger(this._name);
+            this.logger.addAppender(appender);
+        }
     }
 
     var dispatcher = jslix.Dispatcher.prototype;
+
+    dispatcher._name = 'jslix.Dispatcher';
 
     dispatcher.registerPlugin = function(plugin, options){
         // XXX: We don't use any aditional plugin initialization yet.
@@ -114,10 +124,9 @@
                     var result = jslix.parse(el, result_class);
                     d.resolve(result);
                 } catch (e) {
-                    // TODO: proper logging here
-                    if(self.debug){
-                        console.log('Got exception while parsing', result_class, el);
-                        console.log(e, e.stack);
+                    if(self.logger){
+                        self.logger.error('Got exception while parsing', result_class, el);
+                        self.logger.error(e, e.stack);
                     }
                     d.reject(e);
                 }
@@ -151,9 +160,8 @@
         }
 
         var loop_fail = function(failure) {
-            // TODO: proper logging here
-            if(self.debug){
-                console.log(failure, failure.stack);
+            if(self.logger){
+                self.logger.error(failure, failure.stack);
             }
             if (can_error) {
                 if (typeof failure == 'object' && 
