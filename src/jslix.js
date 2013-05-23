@@ -569,5 +569,28 @@
         return doc;
     }
 
+    jslix.getLogger = function(logger_name, appender, layout){
+        var logging = window.log4javascript;
+        if(logging){
+            var appender = appender || new logging.BrowserConsoleAppender(),
+                layout = layout || new logging.PatternLayout('%d %p %c - %m%n'),
+                logger = logging.getLogger(logger_name);
+            appender.setLayout(layout);
+            logger.addAppender(appender);
+            return logger;
+        }else{
+            var stub = new Function(),
+                fake_logger = {
+                    trace: stub,
+                    debug: stub,
+                    info: stub,
+                    warn: stub,
+                    error: stub,
+                    fatal: stub
+                };
+            return fake_logger;
+        }
+    }
+
   window.jslix = jslix;
 })();

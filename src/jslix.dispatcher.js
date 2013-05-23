@@ -11,14 +11,7 @@
         this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
-        this.logger = null;
-        if(logging){
-            var appender = new logging.BrowserConsoleAppender(),
-                layout = new logging.PatternLayout('%d %p %c - %m%n');
-            appender.setLayout(layout);
-            this.logger = logging.getLogger(this._name);
-            this.logger.addAppender(appender);
-        }
+        this.logger = jslix.getLogger(this._name);
     }
 
     var dispatcher = jslix.Dispatcher.prototype;
@@ -124,10 +117,8 @@
                     var result = jslix.parse(el, result_class);
                     d.resolve(result);
                 } catch (e) {
-                    if(self.logger){
-                        self.logger.error('Got exception while parsing', result_class, el);
-                        self.logger.error(e, e.stack);
-                    }
+                    self.logger.error('Got exception while parsing', result_class, el);
+                    self.logger.error(e, e.stack);
                     d.reject(e);
                 }
             } else if (!result_class && top.type == 'result') {
@@ -160,9 +151,7 @@
         }
 
         var loop_fail = function(failure) {
-            if(self.logger){
-                self.logger.error(failure, failure.stack);
-            }
+            self.logger.error(failure, failure.stack);
             if (can_error) {
                 if (typeof failure == 'object' && 
                     'definition' in failure) self.send(failure)
