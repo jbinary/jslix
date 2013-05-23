@@ -11,7 +11,7 @@
         this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
-        this.logger = jslix.getLogger(this._name);
+        this.logger = jslix.logging.getLogger(this._name);
     }
 
     var dispatcher = jslix.Dispatcher.prototype;
