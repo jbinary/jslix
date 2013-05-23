@@ -10,10 +10,12 @@
         this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
-        this.debug = window.debug || false;
+        this.logger = jslix.logging.getLogger(this._name);
     }
 
     var dispatcher = jslix.Dispatcher.prototype;
+
+    dispatcher._name = 'jslix.Dispatcher';
 
     dispatcher.registerPlugin = function(plugin, options){
         // XXX: We don't use any aditional plugin initialization yet.
@@ -114,11 +116,8 @@
                     var result = jslix.parse(el, result_class);
                     d.resolve(result);
                 } catch (e) {
-                    // TODO: proper logging here
-                    if(self.debug){
-                        console.log('Got exception while parsing', result_class, el);
-                        console.log(e, e.stack);
-                    }
+                    self.logger.error('Got exception while parsing', result_class, el);
+                    self.logger.error(e, e.stack);
                     d.reject(e);
                 }
             } else if (!result_class && top.type == 'result') {
@@ -151,10 +150,7 @@
         }
 
         var loop_fail = function(failure) {
-            // TODO: proper logging here
-            if(self.debug){
-                console.log(failure, failure.stack);
-            }
+            self.logger.error(failure, failure.stack);
             if (can_error) {
                 if (typeof failure == 'object' && 
                     'definition' in failure) self.send(failure)
@@ -256,8 +252,8 @@
                     var _obj = jslix.parse(doc, hook[0]);
                     var host = hook[1];
                 } catch (e) {
+                    this.logger.error(e, e.stack);
                     _obj = null;
-                    // TODO: logging
                 }
                 if (_obj) {
                     var func = _obj[top.type + 'Handler'] || _obj['anyHandler'];
@@ -266,7 +262,9 @@
                     // TODO: do we need EmptyStanza here?
                     try {
                         obj = func.call(host, _obj, _obj.getTop());
-                    } catch (e) {} // TODO: logging
+                    } catch (e) {
+                        this.logger.error(e, e.stack);
+                    }
                 }
             }
         }
