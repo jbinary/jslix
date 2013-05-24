@@ -1,16 +1,16 @@
 "use strict";
-(function(){
+define(['jslix.fields', 'jslix.stanzas', 'libs/signals'],
+    function(fields, stanzas, signals){
 
-    var jslix = window.jslix;
-
-    jslix.Disco = function(dispatcher){
+    var plugin = function(dispatcher){
         this.identities = [];
         this.features = [];
         this._dispatcher = dispatcher;
         this._nodeHandlers = [];
     }
 
-    var disco = jslix.Disco.prototype;
+    var disco = plugin.prototype,
+        Element = stanzas.Element;
 
     disco.init = function() {
         this._dispatcher.addHandler(this.RequestStanza, this, this._name);
@@ -65,7 +65,7 @@
         return this._dispatcher.send(
             disco.RequestStanza.create({
                 node: node,
-                parent: jslix.stanzas.IQStanza.create({
+                parent: stanzas.IQStanza.create({
                     to: jid,
                     type: 'get'
                 })
@@ -134,30 +134,30 @@
 
     disco.DISCO_ITEMS_NS = 'http://jabber.org/protocol/disco#items';
 
-    disco.FeatureStanza = jslix.Element({
+    disco.FeatureStanza = Element({
         xmlns: disco.DISCO_INFO_NS,
         element_name: 'feature',
-        feature_var: new jslix.fields.StringAttr('var', true)
+        feature_var: new fields.StringAttr('var', true)
     });
 
-    disco.IdentityStanza = jslix.Element({
+    disco.IdentityStanza = Element({
         xmlns: disco.DISCO_INFO_NS,
         element_name: 'identity',
-        xml_lang: new jslix.fields.StringAttr('xml:lang', false),
-        category: new jslix.fields.StringAttr('category', true),
-        type: new jslix.fields.StringAttr('type', true),
-        name: new jslix.fields.StringAttr('name', false)
+        xml_lang: new fields.StringAttr('xml:lang', false),
+        category: new fields.StringAttr('category', true),
+        type: new fields.StringAttr('type', true),
+        name: new fields.StringAttr('name', false)
     });
 
-    disco.ResponseStanza = jslix.Element({
+    disco.ResponseStanza = Element({
         xmlns: disco.DISCO_INFO_NS,
-        identities: new jslix.fields.ElementNode(disco.IdentityStanza,
+        identities: new fields.ElementNode(disco.IdentityStanza,
             true, true),
-        features: new jslix.fields.ElementNode(disco.FeatureStanza,
+        features: new fields.ElementNode(disco.FeatureStanza,
             false, true)
-    }, [jslix.stanzas.QueryStanza]);
+    }, [stanzas.QueryStanza]);
 
-    disco.RequestStanza = jslix.Element({
+    disco.RequestStanza = Element({
         xmlns: disco.DISCO_INFO_NS,
         result_class: disco.ResponseStanza,
         getHandler: function(query, top){
@@ -175,6 +175,8 @@
             }
             return this.create_response(query);
         },
-    }, [jslix.stanzas.QueryStanza]);
+    }, [stanzas.QueryStanza]);
 
-})();
+    return plugin;
+
+});

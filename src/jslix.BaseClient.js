@@ -1,9 +1,7 @@
 "use strict";
-(function(){
+define(function(){
 
-    var jslix = window.jslix;
-
-    jslix.BaseClient = function(options){
+    var BaseClient = function(options){
         if(!options)
             return;
         this.connection = null;
@@ -11,7 +9,7 @@
         this.options = options;
     }
 
-    var base_client = jslix.BaseClient.prototype;
+    var base_client = BaseClient.prototype;
 
     base_client.connect = function(){
         return this.connection.connect(this.dispatcher);
@@ -37,4 +35,6 @@
         return this.dispatcher.send(this.connection.disconnect());
     }
 
-})();
+    return BaseClient;
+
+});

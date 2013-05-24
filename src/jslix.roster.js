@@ -4,17 +4,17 @@
  */
 
 "use strict";
-(function(){
+define(['jslix.fields', 'jslix.stanzas', 'libs/signals'],
+    function(fields, stanzas, signals){
 
-    var jslix = window.jslix;
-    var fields = jslix.fields;
-    var Signal = signals.Signal;
+    var Signal = signals.Signal,
+        Element = stanzas.Element;
 
-    jslix.Roster = function(dispatcher){
+    var plugin = function(dispatcher){
         this._dispatcher = dispatcher;
     }
 
-    var roster = jslix.Roster.prototype;
+    var roster = plugin.prototype;
 
     roster._name = 'jslix.Roster';
 
@@ -27,7 +27,7 @@
     };
 
     // Stanzas
-    roster.ItemStanza = jslix.Element({
+    roster.ItemStanza = Element({
         element_name: 'item',
         xmlns: roster.ROSTER_NS,
 
@@ -38,17 +38,17 @@
         groups: new fields.StringNode('group', false, true)
     });
 
-    roster.ResponseStanza = jslix.Element({
+    roster.ResponseStanza = Element({
         xmlns: roster.ROSTER_NS,
         items: new fields.ElementNode(roster.ItemStanza, false, true)
-    }, [jslix.stanzas.QueryStanza]);
+    }, [stanzas.QueryStanza]);
 
-    roster.RequestStanza = jslix.Element({
+    roster.RequestStanza = Element({
         result_class: roster.ResponseStanza,
         xmlns: roster.ROSTER_NS
-    }, [jslix.stanzas.QueryStanza]);
+    }, [stanzas.QueryStanza]);
 
-    roster.UpdateRequestStanza = jslix.Element({
+    roster.UpdateRequestStanza = Element({
         clean_from: function(value, top) {
             var myjid = this._dispatcher.myjid;
             if ([myjid.getBareJID, myjid.toString(), myjid.getDomain()].indexOf(
@@ -70,7 +70,7 @@
         this._dispatcher.addHandler(this.UpdateRequestStanza, this, this._name);
 
         var request = this.RequestStanza.create({
-            parent: jslix.stanzas.IQStanza.create({type: 'get'})
+            parent: stanzas.IQStanza.create({type: 'get'})
         });
         var that = this;
         this._dispatcher.send(request).done(function(result) {
@@ -81,4 +81,7 @@
         });
         return d;
     }
-})();
+
+    return plugin;
+
+});

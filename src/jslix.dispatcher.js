@@ -1,19 +1,18 @@
 "use strict";
-(function(){
+define(['jslix', 'jslix.stanzas', 'jslix.exceptions', 'jslix.logging'],
+    function(jslix, stanzas, exceptions, logging){
 
-    var jslix = window.jslix;
-
-    jslix.Dispatcher = function(connection) {
+    var Dispatcher = function(connection) {
         this.connection = connection;
         this.handlers = [];
         this.top_handlers = [];
         this.hooks = {};
         this.deferreds = {};
         this.plugins = {};
-        this.logger = jslix.logging.getLogger(this._name);
+        this.logger = logging.getLogger(this._name);
     }
 
-    var dispatcher = jslix.Dispatcher.prototype;
+    var dispatcher = Dispatcher.prototype;
 
     dispatcher._name = 'jslix.Dispatcher';
 
@@ -82,7 +81,7 @@
                 var func = top.handler;
                 var result = func.call(host, top);
                 if(result){
-                    if(!(result instanceof jslix.stanzas.BreakStanza))
+                    if(!(result instanceof stanzas.BreakStanza))
                         this.send(result);
                     break;
                 }
@@ -90,8 +89,8 @@
         }
         if(top) return;
 
-        var tops = [jslix.stanzas.IQStanza, jslix.stanzas.PresenceStanza,
-                    jslix.stanzas.MessageStanza];
+        var tops = [stanzas.IQStanza, stanzas.PresenceStanza,
+                    stanzas.MessageStanza];
         for (var i=0; i<tops.length; i++) {
             try {
                 var top = jslix.parse(el, tops[i]);
@@ -181,8 +180,8 @@
             try {
                 var obj = jslix.parse(el, handler);
             } catch (e) {
-                if (e instanceof jslix.exceptions.WrongElement) return continue_loop();
-                if (e instanceof jslix.exceptions.ElementParseError) {
+                if (e instanceof exceptions.WrongElement) return continue_loop();
+                if (e instanceof exceptions.ElementParseError) {
                     bad_request = true;
                     return continue_loop(); // TODO: pass an exception message?
                 }
@@ -221,7 +220,7 @@
             var el = els[i];
             // TODO: BreakStanza
             var el = this.check_hooks(el);
-            if(el instanceof jslix.stanzas.EmptyStanza) {
+            if(el instanceof stanzas.EmptyStanza) {
                 continue;
             }
             var top = el.getTop();
@@ -240,7 +239,7 @@
         // TODO: optimisation here can be done, we don't need to build
         // document and then parse it again, some light validation can
         // be applied
-        if (el instanceof jslix.stanzas.EmptyStanza) return el;
+        if (el instanceof stanzas.EmptyStanza) return el;
         var hooks = this.hooks['send'],
             obj = el;
         if(hooks instanceof Array){
@@ -270,4 +269,7 @@
         }
         return obj;
     }
-})();
+
+    return Dispatcher;
+
+});

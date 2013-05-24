@@ -1,7 +1,5 @@
 "use strict";
-(function(){
-
-    var jslix = window.jslix;
+define(['jslix.Class', 'jslix.exceptions'], function(Class, exceptions){
 
     var JID_FORBIDDEN = ['"',' ','&','\'','/',':','<','>','@'];
 
@@ -23,7 +21,7 @@
     for(var key in codesForEscape)
       codesForUnescape[codesForEscape[key]] = key;
 
-    jslix.JID = function(jid){
+    var JID = function(jid){
         this._node = '';
         this._domain = '';
         this._resource = '';
@@ -44,39 +42,38 @@
         }
     };
 
-    jslix.JID.exceptions = {
-        JIDInvalidException: function(message){
-            this.message = message;
+    JID.exceptions = {
+        JIDInvalidException: Class(exceptions.Error, function(msg){
+            exceptions.Error.call(this, msg);
             this.name = "JIDInvalidException";
-        }
+        })
     };
 
-    var JID = jslix.JID,
-        JIDInvalidException = JID.exceptions.JIDInvalidException;
+    var JIDInvalidException = JID.exceptions.JIDInvalidException;
 
-    jslix.JID.prototype.getNode = function(){
+    JID.prototype.getNode = function(){
         return this._node;
     };
 
-    jslix.JID.prototype.getDomain = function(){
+    JID.prototype.getDomain = function(){
         return this._domain;
     };
 
-    jslix.JID.prototype.getBareJID = function(){
+    JID.prototype.getBareJID = function(){
         return this._node + '@' + this._domain;
     }
 
-    jslix.JID.prototype.getResource = function(){
+    JID.prototype.getResource = function(){
         return this._resource;
     };
 
-    jslix.JID.prototype.setNode = function(node){
+    JID.prototype.setNode = function(node){
         JID._checkNodeName(node);
         this._node = node || '';
         return this;
     };
 
-    jslix.JID.prototype.setDomain = function(domain){
+    JID.prototype.setDomain = function(domain){
         if (!domain || domain == '')
          throw new JIDInvalidException("domain name missing");
         JID._checkNodeName(domain);
@@ -84,12 +81,12 @@
         return this;
     };
 
-    jslix.JID.prototype.setResource = function(resource){
+    JID.prototype.setResource = function(resource){
         this._resource = resource || '';
         return this;
     };
 
-    jslix.JID.prototype.toString = function(){
+    JID.prototype.toString = function(){
         var jid = '';
         if (this.getNode() && this.getNode() != '')
             jid = this.getNode() + '@';
@@ -99,22 +96,22 @@
         return jid;
     };
 
-    jslix.JID.prototype.removeResource = function(){
+    JID.prototype.removeResource = function(){
         return this.setResource();
     };
 
-    jslix.JID.prototype.clone = function(){
+    JID.prototype.clone = function(){
         return new JID(this.toString());
     };
 
-    jslix.JID.prototype.isEntity = function(jid){
+    JID.prototype.isEntity = function(jid){
         if (typeof jid == 'string')
             jid = (new JID(jid));
         jid.removeResource();
         return (this.clone().removeResource().toString() === jid.toString());
     };
 
-    jslix.JID.prototype.escape = function(node, domain, resource){
+    JID.prototype.escape = function(node, domain, resource){
         var escapeNode = '';
         for (var i = 0; i < node.length; i++)
             if (JID_FORBIDDEN.indexOf(node[i]) != -1)
@@ -138,7 +135,7 @@
         });
     };
 
-    jslix.JID.prototype.unescape = function(){
+    JID.prototype.unescape = function(){
         var resultJID = '',
             node = this.getNode();
         for(var i=0; i < node.length; i++){
@@ -163,7 +160,7 @@
         return resultJID;
     };
 
-    jslix.JID._checkNodeName = function(nodeprep){
+    JID._checkNodeName = function(nodeprep){
         if (!nodeprep || nodeprep == '')
             return;
         for (var i=0; i< JID_FORBIDDEN.length; i++)
@@ -171,4 +168,6 @@
                 throw new JIDInvalidException("forbidden char in nodename: " + JID_FORBIDDEN[i]);
     };
 
-})();
+    return JID;
+
+});

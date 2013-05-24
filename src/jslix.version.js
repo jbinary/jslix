@@ -1,10 +1,7 @@
 "use strict";
-(function(){
+define(['jslix.fields', 'jslix.stanzas'], function(fields, stanzas){
 
-    var jslix = window.jslix,
-        fields = jslix.fields;
-
-    jslix.Version= function(dispatcher, options) {
+    var plugin = function(dispatcher, options) {
         this.options = options || {};
         this._name = this.options.name || '';
         this._version = this.options.version || '';
@@ -13,7 +10,8 @@
 
     };
 
-    var version = jslix.Version.prototype;
+    var version = plugin.prototype,
+        Element = stanzas.Element;
 
     version._name = 'jslix.Version';
 
@@ -46,7 +44,7 @@
     };
 
     version.get = function(jid) {
-        var iq = jslix.stanzas.IQStanza.create({
+        var iq = stanzas.IQStanza.create({
             type: 'get',
             to: jid,
             link: this.RequestStanza.create()
@@ -56,23 +54,23 @@
 
     version.init = function(){
         if (this._dispatcher){
-            this._dispatcher.addHandler(this.RequestStanza, this);
+            this._dispatcher.addHandler(this.RequestStanza, this, this._name);
         }
         if(this.options['disco_plugin'] != undefined){
             this.options.disco_plugin.registerFeature(this.VERSION_NS);
         }
     };
 
-    version.ResponseStanza = jslix.Element({
+    version.ResponseStanza = Element({
         //Definition
         xmlns: version.VERSION_NS,
         //Fields
         name: new fields.StringNode('name', true),
         version: new fields.StringNode('version', true),
         os: new fields.StringNode('os')
-    }, [jslix.stanzas.QueryStanza]);
+    }, [stanzas.QueryStanza]);
 
-    version.RequestStanza = jslix.Element({
+    version.RequestStanza = Element({
         //Definition
         xmlns: version.VERSION_NS,
         //Handlers
@@ -84,6 +82,8 @@
                 os:  this.getOs()
             });
         }
-    }, [jslix.stanzas.QueryStanza]);
+    }, [stanzas.QueryStanza]);
 
-})();
+    return plugin;
+
+});

@@ -1,25 +1,26 @@
 "use strict";
-(function(){
+define(['jslix.dispatcher', 'jslix.connection', 'jslix.BaseClient'],
+    function(Dispatcher, Connection, BaseClient){
 
-    var jslix = window.jslix;
-
-    jslix.Client = function(options){
+    var Client = function(options){
         if (!options) return;
-        jslix.BaseClient.call(this, options);
+        BaseClient.call(this, options);
         this.options['http_base'] = this.options['http_base'] || '/http-base/';
-        this.connection = new jslix.Connection(this.options['jid'],
+        this.connection = new Connection(this.options['jid'],
            this.options['password'], this.options['http_base']);
-        this.dispatcher = new jslix.Dispatcher(this.connection);
+        this.dispatcher = new Dispatcher(this.connection);
     }
 
-    jslix.Client.prototype = new jslix.BaseClient();
+    Client.prototype = new BaseClient();
 
-    var client = jslix.Client.prototype;
+    var client = Client.prototype;
 
-    client.constructor = jslix.Client;
+    client.constructor = Client;
 
     client.connect = function(){
         return this.connection.connect(this.dispatcher);
     }
 
-})();
+    return Client;
+
+});

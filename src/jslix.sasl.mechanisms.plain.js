@@ -1,13 +1,15 @@
 "use strict";
-(function(){
+define(['jslix.sasl', 'cryptojs/components/core',
+        'cryptojs/components/enc-base64'],
+    function(SASL, CryptoJS){
     
-    var jslix = window.jslix;
-
-    jslix.SASL.mechanisms['PLAIN'] = function(dispatcher){
+    var auth_plugin = function(dispatcher){
         this._dispatcher = dispatcher;
     };
 
-    var plain = jslix.SASL.mechanisms['PLAIN'].prototype;
+    SASL.mechanisms['PLAIN'] = auth_plugin;
+
+    var plain = auth_plugin.prototype;
 
     plain.getPlainMessage = function(){
         return CryptoJS.enc.Base64.stringify(
@@ -16,10 +18,12 @@
     }
 
     plain.auth = function(){
-        return jslix.SASL.prototype.AuthStanza.create({
+        return SASL.prototype.AuthStanza.create({
             mechanism: 'PLAIN',
             content: this.getPlainMessage()
         });
     }
 
-})();
+    return auth_plugin;
+
+});
