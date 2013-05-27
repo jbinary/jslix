@@ -115,7 +115,8 @@ define(['jslix', 'jslix.stanzas', 'jslix.exceptions', 'jslix.logging'],
                     var result = jslix.parse(el, result_class);
                     d.resolve(result);
                 } catch (e) {
-                    self.logger.error('Got exception while parsing', result_class, el);
+                    self.logger.error('Got exception while parsing',
+                        new XMLSerializer().serializeToString(el), 'Wrong result_class?');
                     self.logger.error(e, e.stack);
                     d.reject(e);
                 }
