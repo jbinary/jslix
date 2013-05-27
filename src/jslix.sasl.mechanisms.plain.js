@@ -1,6 +1,6 @@
 "use strict";
-define(['jslix.sasl', 'cryptojs/components/core',
-        'cryptojs/components/enc-base64'],
+define(['jslix.sasl', 'cryptojs/core',
+        'cryptojs/enc-base64'],
     function(SASL, CryptoJS){
     
     var auth_plugin = function(dispatcher){

@@ -1,6 +1,6 @@
 "use strict";
-define(['jslix.stanzas', 'jslix.sasl', 'cryptojs/components/core',
-        'cryptojs/components/enc-base64', 'cryptojs/components/md5'],
+define(['jslix.stanzas', 'jslix.sasl', 'cryptojs/core',
+        'cryptojs/enc-base64', 'cryptojs/md5'],
     function(stanzas, SASL, CryptoJS){
 
     var auth_plugin = function(dispatcher){

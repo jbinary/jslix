@@ -1,7 +1,7 @@
 "use strict";
 define(['jslix.fields', 'jslix.stanzas', 'jslix.jid',
-        'cryptojs/components/core', 'cryptojs/components/enc-base64',
-        'cryptojs/components/sha1'],
+        'cryptojs/core', 'cryptojs/enc-base64',
+        'cryptojs/sha1'],
     function(fields, stanzas, JID, CryptoJS){
 
     var plugin = function(dispatcher, options){
