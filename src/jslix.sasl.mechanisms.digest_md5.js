@@ -1,9 +1,9 @@
 "use strict";
-(function(){
+define(['jslix.stanzas', 'jslix.sasl', 'cryptojs/core',
+        'cryptojs/enc-base64', 'cryptojs/md5'],
+    function(stanzas, SASL, CryptoJS){
 
-    var jslix = window.jslix;
-
-    jslix.SASL.mechanisms['DIGEST-MD5'] = function(dispatcher){
+    var auth_plugin = function(dispatcher){
         this._dispatcher = dispatcher;
         this._challenge = {
             'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.getDomain(),
@@ -12,9 +12,11 @@
         this._dispatcher.addHandler(this.ChallengeStanza, this);
     }
 
-    var digest_md5 = jslix.SASL.mechanisms['DIGEST-MD5'].prototype;
+    SASL.mechanisms['DIGEST-MD5'] = auth_plugin;
 
-    digest_md5.ChallengeStanza = jslix.Element({
+    var digest_md5 = auth_plugin.prototype;
+
+    digest_md5.ChallengeStanza = stanzas.Element({
         handler: function(top){
             var hash = CryptoJS.enc.Latin1.stringify(CryptoJS.enc.Base64.parse(top.content)),
                 params = hash.split(',');
@@ -29,16 +31,16 @@
             else
                 return this.getSecondResponse();
         }
-    }, [jslix.SASL.prototype.ChallengeStanza]);
+    }, [SASL.prototype.ChallengeStanza]);
 
     digest_md5.auth = function(){
-        return jslix.SASL.prototype.AuthStanza.create({
+        return SASL.prototype.AuthStanza.create({
             mechanism: 'DIGEST-MD5'
         });
     }
 
     digest_md5.getFirstResponse  = function(cnonce){
-        this._challenge['cnonce'] = cnonce || jslix.SASL.generate_random_string();
+        this._challenge['cnonce'] = cnonce || SASL.generate_random_string();
         var a1_sub_params_1 = CryptoJS.MD5([
                 this._dispatcher.connection.jid.getNode(),
                 this._dispatcher.connection.jid.getDomain(),
@@ -66,7 +68,7 @@
                 'response="' + response + '"',
                 'charset="utf-8"'].join(',')));
 
-        return jslix.SASL.prototype.ResponseStanza.create({
+        return SASL.prototype.ResponseStanza.create({
             content: content
         });
     }
@@ -90,8 +92,10 @@
                     CryptoJS.MD5(a2).toString(CryptoJS.enc.Hex)].join(':')).toString(CryptoJS.enc.Hex),
             valid = rsptest == this._challenge['rspauth'];
             this._challenge['rspauth'] = undefined;
-        return valid ? jslix.SASL.prototype.ResponseStanza.create({content: ''}) : this._dispatcher.connection.disconnect();
+        return valid ? SASL.prototype.ResponseStanza.create({content: ''}) : this._dispatcher.connection.disconnect();
 
     }
 
-})();
+    return auth_plugin;
+
+});

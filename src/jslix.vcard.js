@@ -4,29 +4,27 @@
  */
 
 "use strict";
-(function() {
-    var jslix = window.jslix;
-    var fields = jslix.fields;
-    var Signal;
-    
-    jslix.VCard = function(dispatcher) {
-        this._dispatcher = dispatcher;
-    }
+define(['jslix.fields', 'jslix.stanzas'], function(fields, stanzas) {
 
-    var vcard = jslix.VCard.prototype;
+    var plugin = function(dispatcher) {
+        this._dispatcher = dispatcher;
+    };
+
+    var vcard = plugin.prototype,
+        Element = stanzas.Element;
 
     vcard._name = 'jslix.VCard';
     vcard.VCARD_NS = 'vcard-temp';
 
-    var base_ns = jslix.Element({
+    var base_ns = Element({
         xmlns: vcard.VCARD_NS
     });
 
-    var base_query = jslix.Element({
+    var base_query = Element({
         element_name: 'vCard'
-    }, [base_ns, jslix.stanzas.QueryStanza]);
+    }, [base_ns, stanzas.QueryStanza]);
 
-    vcard.NameStanza = jslix.Element({
+    vcard.NameStanza = Element({
         element_name: 'N',
         
         family_name: new fields.StringNode('FAMILY'),
@@ -34,33 +32,33 @@
         middle_name: new fields.StringNode('MIDDLE')
     }, [base_ns]);
 
-    vcard.OrganizationStanza = jslix.Element({
+    vcard.OrganizationStanza = Element({
         element_name: 'ORG',
 
         name: new fields.StringNode('ORGNAME'),
         unit: new fields.StringNode('ORGUNIT')
     }, [base_ns]);
 
-    vcard.TelephoneStanza = jslix.Element({
+    vcard.TelephoneStanza = Element({
         // TODO
     }, [base_ns]);
 
-    vcard.AddressStanza = jslix.Element({
+    vcard.AddressStanza = Element({
         // TODO
     }, [base_ns]);
 
-    vcard.EmailStanza = jslix.Element({
+    vcard.EmailStanza = Element({
         // TODO
     }, [base_ns]);
 
-    vcard.PhotoStanza = jslix.Element({
+    vcard.PhotoStanza = Element({
         element_name: 'PHOTO',
 
         type: new fields.StringNode('TYPE'),
         binval: new fields.StringNode('BINVAL')
     }, [base_ns]);
 
-    vcard.VCardStanza = jslix.Element({
+    vcard.VCardStanza = Element({
         full_name: new fields.StringNode('FN'),
         name: new fields.ElementNode(vcard.NameStanza),
         nickname: new fields.StringNode('NICKNAME'),
@@ -77,7 +75,7 @@
         photo: new fields.ElementNode(vcard.PhotoStanza)
     }, [base_query]);
 
-    vcard.RequestStanza = jslix.Element({
+    vcard.RequestStanza = Element({
         result_class: vcard.VCardStanza
     }, [base_query]);
 
@@ -88,11 +86,13 @@
     vcard.get = function(jid, from) {
         from = from || this._dispatcher.connection.jid;
         var request = this.RequestStanza.create({
-            parent: jslix.stanzas.IQStanza.create({
+            parent: stanzas.IQStanza.create({
                 type: 'get', to: jid, from: from
             })
         });
         return this._dispatcher.send(request);       
     }
 
-})();
+    return plugin;
+
+});

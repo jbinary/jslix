@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+    <head>
+        <title></title>
+        <script src="libs/require.js"></script>
+        <script src="require-config.js"></script>
+        <script>
+            require(['jslix.Client', 'jslix.disco', 'jslix.caps', 'jslix.version',
+                     'jslix.stanzas', 'libs/jquery', 'jslix.sasl.mechanisms.plain',
+                     'jslix.sasl.mechanisms.digest_md5'],
+                function(Client, Disco, Caps, Version, stanzas, $){
+                    $(function(){
+                        $(document).on('submit', '#loginForm', function(evt){
+                            var options = {
+                                    http_base: this.http_base.value,
+                                    jid: this.jid.value,
+                                    password: this.password.value,
+                                    register: this.register.checked
+                                },
+                                client = new Client(options);
+                            client.connect().done(function(){
+                                var disco_plugin = client.registerPlugin(Disco),
+                                    plugins_options = {
+                                        'disco_plugin': disco_plugin,
+                                        'storage': sessionStorage,
+                                        'name': 'jslix',
+                                        'version': 'beta'
+                                    };
+                                disco_plugin.registerIdentity('client', 'web', 'jslix');
+                                client.registerPlugin(Version, plugins_options).init();
+                                disco_plugin.init();
+                                client.registerPlugin(Caps, plugins_options);
+                                client.send(stanzas.PresenceStanza.create());
+                            });
+                            window.client = client;
+                            return false;
+                        });
+                    });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="login_pane">
+            <form id="loginForm" action="" method="post">
+                <table>
+                    <tr>
+                        <th><label for="http_base">HTTP Base</label></th><td>
+                        <input type="text" name="http_base" id="http_base" tabindex="1" value="/bosh/"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="jid">JID</label></th><td>
+                        <input type="text" name="jid" id="jid" tabindex="2" value="user@server.local"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="password">Password</label></th><td>
+                        <input type="password" name="password" id="password" tabindex="3" value="ghjcnjgfhjkm"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th><td>
+                        <input type="checkbox" name="register" id="register_checkbox" />
+                        <label for="register_checkbox">Register new account</label></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td><td>
+                        <input type="submit" value="Login" tabindex="4">
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+    </body>
+</html>

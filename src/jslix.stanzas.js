@@ -1,11 +1,30 @@
 "use strict";
-(function(){
+define(['jslix', 'jslix.fields', 'jslix.exceptions'],
+    function(jslix, fields, exceptions){
 
-    var jslix = window.jslix,
-        fields = jslix.fields,
-        ElementParseError = jslix.exceptions.ElementParseError;
+    var stanzas = {
+            STANZAS_NS: 'jabber:client',
+            STREAMS_NS:'http://etherx.jabber.org/streams'
+        };
 
-    jslix.randomUUID = function(){
+    stanzas.Element = function(object, bases) {
+        bases = bases || [stanzas.BaseStanza];
+        var _inherit = function(accum, object) {
+            for (var key in object) {
+                accum[key] = object[key];
+            }
+            return accum;
+        }
+        var result = {};
+        for (var i = 0; i<bases.length; i++) {
+            result = _inherit(result, bases[i]);
+        }
+        return _inherit(result, object);
+    };
+
+    var Element = stanzas.Element;
+
+    stanzas.randomUUID = function(){
         var s = [], itoh = '0123456789ABCDEF';
 
         // Make array of random hex digits. The UUID only has 32 digits in it, but we
@@ -51,50 +70,46 @@
         'unexpected-request': 'wait'
     }
 
-    jslix.STREAMS_NS = 'http://etherx.jabber.org/streams';
-
-    jslix.stanzas = {};
-
-    jslix.stanzas.SpecialStanza = function(){
+    stanzas.SpecialStanza = function(){
         this.type_name = 'Special stanza';
-        this.__definition__ = jslix.stanzas.SpecialStanza;
+        this.__definition__ = stanzas.SpecialStanza;
     }
 
-    jslix.stanzas.SpecialStanza.prototype.toString = function(){
+    stanzas.SpecialStanza.prototype.toString = function(){
         return ['<', this.type_name, '>'].join('');
     }
 
-    jslix.stanzas.SpecialStanza.create = function(){
-        return new jslix.stanzas.SpecialStanza();
+    stanzas.SpecialStanza.create = function(){
+        return new stanzas.SpecialStanza();
     }
 
-    jslix.stanzas.EmptyStanza = function(){
+    stanzas.EmptyStanza = function(){
         this.type_name = 'Empty stanza';
-        this.__definition__ = jslix.stanzas.EmptyStanza;
+        this.__definition__ = stanzas.EmptyStanza;
     }
 
-    jslix.stanzas.EmptyStanza.create = function(){
-        return new jslix.stanzas.EmptyStanza();
+    stanzas.EmptyStanza.create = function(){
+        return new stanzas.EmptyStanza();
     }
 
-    jslix.stanzas.EmptyStanza.prototype = new jslix.stanzas.SpecialStanza();
+    stanzas.EmptyStanza.prototype = new stanzas.SpecialStanza();
 
-    jslix.stanzas.EmptyStanza.prototype.constructor = jslix.stanzas.EmptyStanza;
+    stanzas.EmptyStanza.prototype.constructor = stanzas.EmptyStanza;
 
-    jslix.stanzas.BreakStanza = function(){
+    stanzas.BreakStanza = function(){
         this.type_name = 'Break stanza';
-        this.__definition__ = jslix.stanzas.BreakStanza;
+        this.__definition__ = stanzas.BreakStanza;
     }
 
-    jslix.stanzas.BreakStanza.create = function(){
-        return new jslix.stanzas.BreakStanza();
+    stanzas.BreakStanza.create = function(){
+        return new stanzas.BreakStanza();
     }
 
-    jslix.stanzas.BreakStanza.prototype = new jslix.stanzas.SpecialStanza();
+    stanzas.BreakStanza.prototype = new stanzas.SpecialStanza();
 
-    jslix.stanzas.BreakStanza.prototype.constructor = jslix.stanzas.BreakStanza;
+    stanzas.BreakStanza.prototype.constructor = stanzas.BreakStanza;
 
-    jslix.stanzas.BaseStanza = {
+    stanzas.BaseStanza = {
         create : function(params) {
             params = params || {};
             var result = jslix.createStanza(this);                
@@ -118,7 +133,7 @@
             params.type = params.type || conditions[params.condition];
             params.parent = this.getTop().makeReply('error');
             var eclass = this.__definition__.error_class || 
-                            jslix.stanzas.ErrorStanza;
+                            stanzas.ErrorStanza;
             var error = eclass.create(params);
             return error;
         },
@@ -131,8 +146,8 @@
         }
     }
 
-    jslix.stanzas.Stanza = jslix.Element({
-        xmlns: jslix.STANZAS_NS,
+    stanzas.Stanza = Element({
+        xmlns: stanzas.STANZAS_NS,
         to: new fields.JIDAttr('to', false),
         from: new fields.JIDAttr('from', false),
         id: new fields.StringAttr('id', false),
@@ -152,13 +167,13 @@
         }
     });
 
-    jslix.stanzas.MessageStanza = jslix.Element({
+    stanzas.MessageStanza = Element({
         element_name: 'message',
         body: new fields.StringNode('body', false),
         thread: new fields.StringNode('thread', false)
-    }, [jslix.stanzas.Stanza]);
+    }, [stanzas.Stanza]);
 
-    jslix.stanzas.PresenceStanza = jslix.Element({
+    stanzas.PresenceStanza = Element({
         element_name: 'presence',
         show: new fields.StringNode('show', false),
         status: new fields.StringNode('status', false),
@@ -166,32 +181,34 @@
         
         clean_show: function(value) {
             if ([undefined, 'chat', 'away', 'xa', 'dnd'].indexOf(value) == -1)
-                throw new ElementParseError('Presence show element has the wrong value');
+                throw new exceptions.ElementParseError(
+                    'Presence show element has the wrong value'
+                );
             return value
         }
-    }, [jslix.stanzas.Stanza]);
+    }, [stanzas.Stanza]);
 
-    jslix.stanzas.IQStanza = jslix.Element({
+    stanzas.IQStanza = Element({
         element_name: 'iq',
         id: new fields.StringAttr('id', true),
         type: new fields.StringAttr('type', true), // TODO: validate types everywhere
 
         create: function(params) {
-            params.id = params.id || jslix.randomUUID();
+            params.id = params.id || stanzas.randomUUID();
 
-            return jslix.stanzas.Stanza.create.call(this, params);
+            return stanzas.Stanza.create.call(this, params);
         }
-    }, [jslix.stanzas.Stanza]);
+    }, [stanzas.Stanza]);
 
-    jslix.stanzas.QueryStanza = jslix.Element({
+    stanzas.QueryStanza = Element({
         element_name: 'query',
-        parent_element: jslix.stanzas.IQStanza,
+        parent_element: stanzas.IQStanza,
         node: new fields.StringAttr('node', false)
     });
 
-    jslix.stanzas.ErrorStanza = jslix.Element({
-        parent_element: jslix.stanzas.Stanza,
-        xmlns: jslix.STANZAS_NS,
+    stanzas.ErrorStanza = Element({
+        parent_element: stanzas.Stanza,
+        xmlns: stanzas.STANZAS_NS,
         element_name: 'error',
         type: new fields.StringAttr('type', true),
         condition: new fields.ConditionNode('urn:ietf:params:xml:ns:xmpp-stanzas'),
@@ -200,14 +217,18 @@
         // Validators
         clean_type: function(value) {
             if (['cancel', 'continue', 'modify', 'auth', 'wait'].indexOf(value) == -1)
-                throw new ElementParseError('Wrong error type ' + value);
+                throw new exceptions.ElementParseError(
+                    'Wrong error type ' + value
+                );
             return value;
         }
     });
 
-    jslix.stanzas.FeaturesStanza = jslix.Element({
-        xmlns: jslix.STREAMS_NS,
+    stanzas.FeaturesStanza = Element({
+        xmlns: stanzas.STREAMS_NS,
         element_name: 'features'
     });
 
-})();
+    return stanzas;
+
+});

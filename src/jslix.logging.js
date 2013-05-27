@@ -1,9 +1,7 @@
 "use strict";
-(function(){
-    var jslix = window.jslix,
-        logging = window.log4javascript;
+define(['libs/log4javascript'], function(logging){
 
-    jslix.logging = {
+    var module = {
         settings: !logging ? undefined : {
             layouts: {
                 'default': new logging.PatternLayout('%d %p %c - %m%n')
@@ -51,6 +49,8 @@
                 return fake_logger;
             }
         }
-    }
+    };
 
-})();
+    return module;
+
+});

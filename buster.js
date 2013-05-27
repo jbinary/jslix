@@ -3,35 +3,30 @@ var config = module.exports;
 config['jslix'] = {
     env: 'browser',
     rootPath: './',
+    /* We can safe preload libs only if they don't use define function */
     libs: [
-        'libs/jquery.js',
-        'libs/signals.js',
-        'libs/cryptojs/rollups/md5.js',
-        'libs/cryptojs/rollups/sha1.js',
+        'libs/require.js',
+        'require-config.js',
+        'libs/log4javascript.js',
         'libs/cryptojs/components/core.js',
         'libs/cryptojs/components/enc-base64.js',
+        'libs/cryptojs/components/md5.js',
+        'libs/cryptojs/components/sha1.js'
     ],
-    sources: [
-        'src/jslix.js',
-        'src/jslix.stanzas.js',
-        'src/jslix.bind.js',
-        'src/jslix.session.js',
-        'src/jslix.dispatcher.js',
-        'src/jslix.jid.js',
-        'src/jslix.sasl.js',
-        'src/jslix.sasl.mechanisms.*.js',
-        'src/jslix.connection.js',
-        'src/jslix.connection.transports.*.js',
-        'src/jslix.version.js',
-        'src/jslix.caps.js',
-        'src/jslix.disco.js'
-    ],
-    tests: ['tests/*.js'],
-    extensions: [require('buster-coverage')],
-    'buster-coverage': {
+    /* If lib use define function you can add this lib to sources */
+    sources: ['src/*.js'],
+    resources: ['libs/jquery.js', 'libs/signals.js'],
+    tests: ['tests/*.test.js'],
+    extensions: [/*require('buster-coverage'),*/ require('buster-amd')],
+    /*'buster-coverage': {
         outputDirectory: 'coverage',
         format: 'lcov',
         combinedResultsOnly: true,
-        coverageExclusions: ['libs']
+        coverageExclusions: ['libs', 'resources']
+    },*/
+    'buster-amd': {
+        pathMapper: function(path){
+            return path.replace(/\.js$/, '').replace(/^\//, '../');
+        }
     }
 };

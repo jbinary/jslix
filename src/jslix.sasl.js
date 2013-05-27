@@ -1,20 +1,17 @@
 "use strict";
-(function(){
+define(['jslix.fields', 'jslix.stanzas', 'libs/jquery'],
+    function(fields, stanzas, $){
 
-    var jslix = window.jslix;
-
-    jslix.SASL = function(dispatcher){
+    var plugin = function(dispatcher){
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(this.MechanismsStanza, this);
-        this._dispatcher.addHandler(this.SuccessStanza, this);
-        this._dispatcher.addHandler(this.FailureStanza, this);
+        this._dispatcher.addHandler(this.MechanismsStanza, this, this._name);
+        this._dispatcher.addHandler(this.SuccessStanza, this, this._name);
+        this._dispatcher.addHandler(this.FailureStanza, this, this._name);
         this._mechanism = null;
         this.deferred = $.Deferred();
     }
 
-    jslix.SASL.mechanisms = {};
-
-    jslix.SASL.generate_random_string = function(length){
+    plugin.generate_random_string = function(length){
         var result = '',
             length = length || 14,
             tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -24,47 +21,50 @@
         return result;
     }
 
-    var sasl = jslix.SASL.prototype;
+    plugin.mechanisms = {};
+
+    var sasl = plugin.prototype,
+        Element = stanzas.Element;
 
     sasl._name = 'jslix.SASL';
 
     sasl.SASL_NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
 
-    sasl.AuthStanza = jslix.Element({
+    sasl.AuthStanza = Element({
         xmlns: sasl.SASL_NS,
         element_name: 'auth',
-        mechanism: new jslix.fields.StringAttr('mechanism', true),
-        content: new jslix.fields.StringNode(null, false, false, undefined, true)
+        mechanism: new fields.StringAttr('mechanism', true),
+        content: new fields.StringNode(null, false, false, undefined, true)
     });
 
-    sasl.ChallengeStanza = jslix.Element({
+    sasl.ChallengeStanza = Element({
         xmlns: sasl.SASL_NS,
         element_name: 'challenge',
-        content: new jslix.fields.StringNode(null, true, false, undefined, true)
+        content: new fields.StringNode(null, true, false, undefined, true)
     });
 
-    sasl.ResponseStanza = jslix.Element({
+    sasl.ResponseStanza = Element({
         xmlns: sasl.SASL_NS,
         element_name: 'response',
-        content: new jslix.fields.StringNode(null, true, false, undefined, true)
+        content: new fields.StringNode(null, true, false, undefined, true)
     });
 
-    sasl.AbortStanza = jslix.Element({
+    sasl.AbortStanza = Element({
         xmlns: sasl.SASL_NS,
         element_name: 'abort'
     });
 
-    sasl.FailureStanza = jslix.Element({
+    sasl.FailureStanza = Element({
         xmlns: sasl.SASL_NS,
         element_name: 'failure',
-        condition: new jslix.fields.ConditionNode(),
-        text: new jslix.fields.StringNode('text', false),
+        condition: new fields.ConditionNode(),
+        text: new fields.StringNode('text', false),
         handler: function(top) {
             this.deferred.reject(this);
         }
     });
 
-    sasl.SuccessStanza = jslix.Element({
+    sasl.SuccessStanza = Element({
         xmlns: sasl.SASL_NS,
         element_name: 'success',
         handler: function(top){
@@ -72,16 +72,16 @@
         }
     });
 
-    sasl.MechanismsStanza = jslix.Element({
+    sasl.MechanismsStanza = Element({
         xmlns: sasl.SASL_NS,
-        mechanisms: new jslix.fields.StringNode('mechanism', true, true),
-        parent_element: jslix.stanzas.FeaturesStanza,
+        mechanisms: new fields.StringNode('mechanism', true, true),
+        parent_element: stanzas.FeaturesStanza,
         handler: function(top){
             if(!this._mechanism){
                 for(var i=0; i<top.mechanisms.length; i++){
                     var mechanism = top.mechanisms[i];
-                    if(jslix.SASL.mechanisms[mechanism]){
-                        this._mechanism = new jslix.SASL.mechanisms[mechanism](
+                    if(plugin.mechanisms[mechanism]){
+                        this._mechanism = new plugin.mechanisms[mechanism](
                             this._dispatcher);
                         break;
                     }
@@ -92,4 +92,6 @@
         }
     });
 
-})();
+    return plugin;
+
+});

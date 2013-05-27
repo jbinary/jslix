@@ -1,20 +1,19 @@
 "use strict";
-(function(){
+define(['jslix.connection.transports.bosh', 'jslix.jid', 'libs/signals'],
+    function(BOSH, JID, signals){
 
-    var jslix = window.jslix;
-
-    jslix.Connection = function(jid, password, http_base){
+    var plugin = function(jid, password, http_base){
         this._connection = null;
         this.http_base = http_base;
-        this.jid = new jslix.JID(jid);
+        this.jid = new JID(jid);
         this.password = password;
         if(!this.jid.getResource())
             this.jid.setResource('default');
     }
 
-    jslix.Connection.transports = {};
+    plugin.transports = {};
 
-    var connection = jslix.Connection.prototype;
+    var connection = plugin.prototype;
 
     connection.signals = {
         disconnect: new signals.Signal()
@@ -22,7 +21,7 @@
 
 
     connection.connect = function(dispatcher){
-        this._connection = new jslix.Connection.transports.BOSH(dispatcher,
+        this._connection = new BOSH(dispatcher,
             this.jid, this.password, this.http_base);
         return this._connection.connect();
     }
@@ -40,4 +39,6 @@
         return this._connection ? this._connection.disconnect() : false;
     }
 
-})();
+    return plugin;
+
+});

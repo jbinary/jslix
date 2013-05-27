@@ -1,9 +1,9 @@
 "use strict";
-(function(){
+define(['jslix', 'jslix.fields', 'jslix.stanzas', 'jslix.sasl',
+        'jslix.session', 'jslix.bind', 'jslix.exceptions', 'libs/signals'],
+    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, signals){
 
-    var jslix = window.jslix;
-
-    jslix.Connection.transports.BOSH = function(dispatcher, jid, password, http_base){
+    var plugin = function(dispatcher, jid, password, http_base){
         this.queue_check_interval = 250;
         this.established = false;
         this.requests = 1; // TODO: it should be possible to tune these; 2 is more suitable to be default here?
@@ -19,8 +19,8 @@
         this.password = password;
         this.http_base = http_base;
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(this.FeaturesStanza, this);
-        this.sasl = this._dispatcher.registerPlugin(jslix.SASL);
+        this._dispatcher.addHandler(this.FeaturesStanza, this, this._name);
+        this.sasl = this._dispatcher.registerPlugin(SASL);
         var that = this;
         this.sasl.deferred.done(function() {
             dispatcher.send(that.restart());
@@ -31,7 +31,8 @@
         this._connection_deferred = null;
     }
 
-    var bosh = jslix.Connection.transports.BOSH.prototype;
+    var bosh = plugin.prototype,
+        Element = stanzas.Element;
 
     bosh.signals = {
         fail: new signals.Signal()
@@ -40,68 +41,68 @@
     bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
     bosh.XBOSH_NS = 'urn:xmpp:xbosh';
 
-    bosh.BodyStanza = jslix.Element({
+    bosh.BodyStanza = Element({
         xmlns: bosh.BOSH_NS,
         element_name: 'body',
-        type: new jslix.fields.StringAttr('type', false),
-        condition: new jslix.fields.StringAttr('condition', false)
+        type: new fields.StringAttr('type', false),
+        condition: new fields.StringAttr('condition', false)
     });
 
-    bosh.EmptyStanza = jslix.Element({
-        rid: new jslix.fields.IntegerAttr('rid', true),
-        sid: new jslix.fields.StringAttr('sid', true)
+    bosh.EmptyStanza = Element({
+        rid: new fields.IntegerAttr('rid', true),
+        sid: new fields.StringAttr('sid', true)
     }, [bosh.BodyStanza]);
 
-    bosh.BaseStanza = jslix.Element({
-        ver: new jslix.fields.StringAttr('ver', true),
-        wait: new jslix.fields.IntegerAttr('wait', true),
-        ack: new jslix.fields.IntegerAttr('ack', false)
+    bosh.BaseStanza = Element({
+        ver: new fields.StringAttr('ver', true),
+        wait: new fields.IntegerAttr('wait', true),
+        ack: new fields.IntegerAttr('ack', false)
     }, [bosh.BodyStanza]);
 
-    bosh.RequestStanza = jslix.Element({
-        to: new jslix.fields.JIDAttr('to', true),
-        rid: new jslix.fields.IntegerAttr('rid', true),
-        hold: new jslix.fields.IntegerAttr('hold', true),
+    bosh.RequestStanza = Element({
+        to: new fields.JIDAttr('to', true),
+        rid: new fields.IntegerAttr('rid', true),
+        hold: new fields.IntegerAttr('hold', true),
         // XXX: Temporary solution
-        xml_lang: new jslix.fields.StringAttr('xml:lang', true),
-        content: new jslix.fields.StringAttr('content', false),
-        route: new jslix.fields.StringAttr('route', false),
-        xmpp_version: new jslix.fields.StringAttr('xmpp:version', true),
-        xmlns_xmpp: new jslix.fields.StringAttr('xmlns:xmpp', true)
+        xml_lang: new fields.StringAttr('xml:lang', true),
+        content: new fields.StringAttr('content', false),
+        route: new fields.StringAttr('route', false),
+        xmpp_version: new fields.StringAttr('xmpp:version', true),
+        xmlns_xmpp: new fields.StringAttr('xmlns:xmpp', true)
     }, [bosh.BaseStanza]);
 
-    bosh.ResponseStanza = jslix.Element({
-        from: new jslix.fields.JIDAttr('from', true),
-        sid: new jslix.fields.StringAttr('sid', true),
-        polling: new jslix.fields.IntegerAttr('polling', true),
-        inactivity: new jslix.fields.IntegerAttr('inactivity', true),
-        requests: new jslix.fields.IntegerAttr('requests', true),
-        accept: new jslix.fields.StringAttr('accept', false),
-        maxpause: new jslix.fields.IntegerAttr('maxpause', false),
-        charsets: new jslix.fields.StringAttr('charsets', false),
-        secure: new jslix.fields.StringAttr('secure', false),
+    bosh.ResponseStanza = Element({
+        from: new fields.JIDAttr('from', true),
+        sid: new fields.StringAttr('sid', true),
+        polling: new fields.IntegerAttr('polling', true),
+        inactivity: new fields.IntegerAttr('inactivity', true),
+        requests: new fields.IntegerAttr('requests', true),
+        accept: new fields.StringAttr('accept', false),
+        maxpause: new fields.IntegerAttr('maxpause', false),
+        charsets: new fields.StringAttr('charsets', false),
+        secure: new fields.StringAttr('secure', false),
         clean_sid: function(value){
             if(!value)
-                throw new jslix.exceptions.WrongElement();
+                throw new exceptions.WrongElement();
             return value;
         }
     }, [bosh.BaseStanza]);
 
-    bosh.RestartStanza = jslix.Element({
-        to: new jslix.fields.JIDAttr('to', true),
-        xml_lang: new jslix.fields.StringAttr('xml:lang', true),
-        xmpp_restart: new jslix.fields.StringAttr('xmpp:restart', true),
-        xmlns_xmpp: new jslix.fields.StringAttr('xmlns:xmpp', true)
+    bosh.RestartStanza = Element({
+        to: new fields.JIDAttr('to', true),
+        xml_lang: new fields.StringAttr('xml:lang', true),
+        xmpp_restart: new fields.StringAttr('xmpp:restart', true),
+        xmlns_xmpp: new fields.StringAttr('xmlns:xmpp', true)
     }, [bosh.EmptyStanza]);
 
-    bosh.FeaturesStanza = jslix.Element({
-        bind: new jslix.fields.FlagNode('bind', false, jslix.Bind.prototype.BIND_NS),
-        session: new jslix.fields.FlagNode('session', false, jslix.Session.prototype.SESSION_NS),
+    bosh.FeaturesStanza = Element({
+        bind: new fields.FlagNode('bind', false, Bind.prototype.BIND_NS),
+        session: new fields.FlagNode('session', false, Session.prototype.SESSION_NS),
         handler: function(top){
             if(top.bind)
-                this._dispatcher.registerPlugin(jslix.Bind);
+                this._dispatcher.registerPlugin(Bind);
             if(top.session) {
-                var session = this._dispatcher.registerPlugin(jslix.Session);
+                var session = this._dispatcher.registerPlugin(Session);
                 var that = this;
                 session.deferred.done(function() {
                     that._connection_deferred.resolve();
@@ -111,13 +112,13 @@
                 });
             }
         }
-    }, [jslix.stanzas.FeaturesStanza]);
+    }, [stanzas.FeaturesStanza]);
 
     bosh.connect = function(){
         if (this._connection_deferred) return this._connection_deferred;
         this._connection_deferred = $.Deferred();
         this.send(jslix.build(
-            bosh.RequestStanza.create({
+            this.RequestStanza.create({
                 rid: this._rid,
                 to: this.jid.getDomain(),
                 ver: '1.8',
@@ -125,7 +126,7 @@
                 hold: this.requests,
                 xml_lang: 'en',
                 xmpp_version: '1.0',
-                xmlns_xmpp: bosh.XBOSH_NS
+                xmlns_xmpp: this.XBOSH_NS
             })
         ));
 
@@ -136,7 +137,7 @@
     bosh.send = function(doc){
         if(!doc || doc.firstChild.nodeName != 'body'){
             var body = jslix.build(
-                bosh.EmptyStanza.create({
+                this.EmptyStanza.create({
                     sid: this._sid,
                     rid: this._rid
                 }));
@@ -149,12 +150,12 @@
     }
 
     bosh.restart = function(){
-        return bosh.RestartStanza.create({
+        return this.RestartStanza.create({
             sid: this._sid,
             rid: this._rid,
             xml_lang: 'en',
             xmpp_restart: 'true',
-            xmlns_xmpp: bosh.XBOSH_NS
+            xmlns_xmpp: this.XBOSH_NS
         });
     }
 
@@ -195,13 +196,13 @@
         if(response.readyState == 4){
             if(response.status == 200 && response.responseXML){ // TODO: handle other statuses as well (404 at least)
                 var doc = response.responseXML;
-                var definitions = [bosh.BodyStanza, bosh.ResponseStanza];
+                var definitions = [this.BodyStanza, this.ResponseStanza];
                 var top = undefined;
                 for (var i=0; i<definitions.length; i++) {
                     try{
                         var top = jslix.parse(doc, definitions[i]);
                     } catch(e){
-                        if (!e instanceof jslix.exceptions.WrongElement)
+                        if (!e instanceof exceptions.WrongElement)
                             return result;
                     }
                 }
@@ -281,11 +282,13 @@
 
     bosh.disconnect = function(){
         this.established = false;
-        return bosh.EmptyStanza.create({
+        return this.EmptyStanza.create({
             sid: this._sid,
             rid: this._rid,
             type: 'terminate'
         });
     }
 
-})();
+    return plugin;
+
+});

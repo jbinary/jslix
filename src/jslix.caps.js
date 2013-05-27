@@ -1,8 +1,10 @@
 "use strict";
-(function(){
-    var jslix = window.jslix;
+define(['jslix.fields', 'jslix.stanzas', 'jslix.jid',
+        'cryptojs/core', 'cryptojs/enc-base64',
+        'cryptojs/sha1'],
+    function(fields, stanzas, JID, CryptoJS){
 
-    jslix.Caps = function(dispatcher, options){
+    var plugin = function(dispatcher, options){
         this.options = options || {};
         this.options.node = this.options.node || 'https://github.com/jbinary/jslix';
         this.storage = this.options.storage;
@@ -26,7 +28,8 @@
         this._broken_nodes = [];
     }
 
-    var caps = jslix.Caps.prototype;
+    var caps = plugin.prototype,
+        Element = stanzas.Element;
 
     caps.destructor = function(){
         this.options.disco_plugin.signals.disco_changed.remove(
@@ -58,7 +61,7 @@
             this
         );
         if(send_presence){
-            this._dispatcher.send(jslix.stanzas.PresenceStanza.create());
+            this._dispatcher.send(stanzas.PresenceStanza.create());
         }
     }
 
@@ -73,8 +76,8 @@
     }
 
     caps.getJIDFeatures = function(jid){
-        if(!(jid instanceof jslix.JID)){
-            var jid = new jslix.JID(jid);
+        if(!(jid instanceof JID)){
+            var jid = new JID(jid);
         }
         return this.storage.getItem(this._jid_cache[jid.toString()]);
     }
@@ -84,23 +87,23 @@
     }
 
     caps.itemsHandler = function(query){
-        return jslix.stanzas.EmptyStanza.create();
+        return stanzas.EmptyStanza.create();
     }
 
     caps.CAPS_NS = 'http://jabber.org/protocol/caps';
 
     caps._name = 'jslix.Caps';
 
-    caps.C = jslix.Element({
-        parent_element: jslix.stanzas.PresenceStanza,
+    caps.C = Element({
+        parent_element: stanzas.PresenceStanza,
         xmlns: caps.CAPS_NS,
         element_name: 'c',
-        hash: new jslix.fields.StringAttr('hash', true),
-        node: new jslix.fields.StringAttr('node', true),
-        ver: new jslix.fields.StringAttr('ver', true)
+        hash: new fields.StringAttr('hash', true),
+        node: new fields.StringAttr('node', true),
+        ver: new fields.StringAttr('ver', true)
     });
 
-    caps.PresenceHook = jslix.Element({
+    caps.PresenceHook = Element({
         anyHandler: function(el, top){
             var c = caps.C.create({
                 hash: 'sha-1',
@@ -110,9 +113,9 @@
             el.link(c);
             return el;
         }
-    }, [jslix.stanzas.PresenceStanza]);
+    }, [stanzas.PresenceStanza]);
 
-    caps.CapsHandler = jslix.Element({
+    caps.CapsHandler = Element({
         anyHandler: function(el, top){
             var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
                 node = [el.node, el.ver].join('#');
@@ -138,8 +141,10 @@
                     this._jid_cache[top.from.toString()] = node;
                 }
             }
-            return jslix.stanzas.EmptyStanza.create();
+            return stanzas.EmptyStanza.create();
         }
     }, [caps.C]);
 
-})();
+    return plugin;
+
+});

@@ -1,23 +1,23 @@
 "use strict";
-(function(){
+define(['jslix.stanzas', 'jslix.bind', 'libs/jquery'],
+    function(stanzas, Bind, $){
 
-    var jslix = window.jslix;
-
-    jslix.Session = function(dispatcher){
+    var plugin = function(dispatcher){
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(this.BindResultStanza, this);
+        this._dispatcher.addHandler(this.BindResultStanza, this, this._name);
         this.deferred = $.Deferred();
-    }
+    };
 
-    var session = jslix.Session.prototype;
+    var session = plugin.prototype,
+        Element = stanzas.Element;
 
     session._name = 'jslix.Session';
 
     session.SESSION_NS = 'urn:ietf:params:xml:ns:xmpp-session';
 
-    session.BindResultStanza = jslix.Element({
+    session.BindResultStanza = Element({
         handler: function(top){
-            var iq = jslix.stanzas.IQStanza.create({
+            var iq = stanzas.IQStanza.create({
                 type: 'set',
                 link: session.request.create({})
             });
@@ -28,12 +28,14 @@
                 that.deferred.reject(reason);
             });
         }
-    }, [jslix.Bind.prototype.ResponseStanza]);
+    }, [Bind.prototype.ResponseStanza]);
 
-    session.request = jslix.Element({
+    session.request = Element({
         xmlns: session.SESSION_NS,
         element_name: 'session',
-        parent_element: jslix.stanzas.IQStanza
+        parent_element: stanzas.IQStanza
     });
 
-})();
+    return plugin;
+
+});

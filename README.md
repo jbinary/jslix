@@ -9,6 +9,7 @@ Requirements:
 To run the tests, you will need install next software:
 - node.js;
 - buster.js;
+- buster-amd;
 - buster-coverage.
 
 Start the server:

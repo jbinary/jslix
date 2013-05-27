@@ -1,12 +1,12 @@
 "use strict";
-(function() {
-    var jslix = window.jslix,
-        fields = jslix.fields,
-        Signal = signals.Signal,
-        WrongElement = jslix.exceptions.WrongElement,
+define(['jslix.stanzas', 'libs/signals'],
+    function(stanzas, signals) {
+
+    var Signal = signals.Signal,
+        Element = stanzas.Element,
         my_activity;
 
-    jslix.Chatstates = function(dispatcher, options) {
+    var plugin = function(dispatcher, options) {
         this.options = options || {};
         this._dispatcher = dispatcher;
         this.my_activity = {};
@@ -27,7 +27,7 @@
             this.options.send_timeout = 0.25;
         }
     }
-    var chatstates = jslix.Chatstates.prototype;
+    var chatstates = plugin.prototype;
 
     // TODO: unload method, should clean all the timeouts
     chatstates._name = 'jslix.Chatstates';
@@ -87,7 +87,7 @@
             // wait some time if any message will be sent we can link to
             // or send a blank message hook can use to link
             activity.send_timeout = setTimeout(function() {
-                var message = jslix.stanzas.MessageStanza.create({
+                var message = stanzas.MessageStanza.create({
                     to: jid,
                     type: 'chat',
                     id: 'chatstates_fake'
@@ -109,10 +109,10 @@
         this.support_map_bare[jid.getBareJID()] = flag;
     }
 
-    chatstates.StateStanza = jslix.Element({
+    chatstates.StateStanza = Element({
         xmlns: chatstates.CHATSTATES_NS,
         element_name: ':state',
-        parent_element: jslix.stanzas.MessageStanza,
+        parent_element: stanzas.MessageStanza,
         // Validators
         clean_state: function(value) {
             if (['active', 'inactive', 'gone', 'composing','paused'].
@@ -123,7 +123,7 @@
         }
     });
 
-    chatstates.StateHandler = jslix.Element({
+    chatstates.StateHandler = Element({
         clean_type: function(value) {
             // seems stupid but what if we'll want to add support for
             // another message types?
@@ -135,11 +135,11 @@
         anyHandler: function(el, top) {
             this.set_support_flag(top.from, true);
             this.signals.updated.dispatch(top.from, el.state);
-            return jslix.stanzas.EmptyStanza.create();
+            return stanzas.EmptyStanza.create();
         }
     }, [chatstates.StateStanza]);
 
-    chatstates.MessageHook = jslix.Element({
+    chatstates.MessageHook = Element({
         clean_type: function(value) {
             if (value !== 'chat') {
                 throw new WrongElement();
@@ -173,10 +173,12 @@
                 });
                 el.link(state);
             } else if (is_fake) {
-                el = jslix.stanzas.EmptyStanza.create();
+                el = stanzas.EmptyStanza.create();
             }
             return el;
         }
-    }, [jslix.stanzas.MessageStanza]);
+    }, [stanzas.MessageStanza]);
 
-})();
+    return plugin;
+
+});
