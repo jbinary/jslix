@@ -1,6 +1,6 @@
 define(['jslix.jid', 'jslix.dispatcher', 'jslix.sasl', 'jslix.sasl.mechanisms.plain'],
     function(JID, Dispatcher, SASL){
-    var SASLMechanismsPlainTest = buster.testCase('SASLMechanismsPlainTest', {
+    buster.testCase('SASLMechanismsPlainTest', {
         setUp: function(){
             this.connection = {
                 jid: new JID('user@server.com'),

@@ -1,6 +1,6 @@
 define(['jslix.connection', 'jslix.dispatcher', 'jslix.jid'],
     function(Connection, Dispatcher, JID){
-    var ConnectionTest = buster.testCase('ConnectionTest', {
+    buster.testCase('ConnectionTest', {
         setUp: function(){
             this.connection = new Connection('jid', 'password', 'http_base');
             this.dispatcher = new Dispatcher(this.connection);

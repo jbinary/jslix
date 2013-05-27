@@ -28,7 +28,7 @@ define(['jslix.jid'],
 
     var badStrings = ["\\20rt", "rt@\\2", '\'node'];
 
-    var JIDTest = buster.testCase("JIDTest", {
+    buster.testCase("JIDTest", {
         testJIDBasic: function(){
             var jid = new JID("ruutu@finland/keys");
 

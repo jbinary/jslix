@@ -1,6 +1,6 @@
 define(['jslix', 'jslix.stanzas', 'jslix.dispatcher', 'jslix.sasl'],
     function(jslix, stanzas, Dispatcher, SASL){
-    var SASLTest = buster.testCase('SASLTest', {
+    buster.testCase('SASLTest', {
         setUp: function(){
             this.connection = {
                 status: null

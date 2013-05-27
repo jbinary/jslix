@@ -1,7 +1,7 @@
 define(['jslix', 'jslix.stanzas', 'jslix.jid', 'jslix.dispatcher',
         'jslix.disco', 'jslix.version', 'libs/jquery'],
     function(jslix, stanzas, JID, Dispatcher, Disco, Version, $){
-    var VersionTest = buster.testCase('VersionTest', {
+    buster.testCase('VersionTest', {
         setUp: function(){
             this.connection = {
                 lst_stnz: null,
