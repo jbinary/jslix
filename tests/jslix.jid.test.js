@@ -32,9 +32,9 @@ define(['jslix.jid'],
         testJIDBasic: function(){
             var jid = new JID("ruutu@finland/keys");
 
-            var node = jid.getNode();
-            var domain = jid.getDomain();
-            var resource = jid.getResource();
+            var node = jid.node;
+            var domain = jid.domain;
+            var resource = jid.resource;
 
             assert(node == "ruutu");
             assert(domain == "finland");

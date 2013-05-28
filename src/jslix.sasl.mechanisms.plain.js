@@ -14,7 +14,7 @@ define(['jslix.sasl', 'cryptojs/core',
     plain.getPlainMessage = function(){
         return CryptoJS.enc.Base64.stringify(
             CryptoJS.enc.Latin1.parse(
-                this._dispatcher.connection.jid.getBareJID() + '\0' + this._dispatcher.connection.jid.getNode() + '\0' + this._dispatcher.connection.password));
+                this._dispatcher.connection.jid.bare + '\0' + this._dispatcher.connection.jid.node + '\0' + this._dispatcher.connection.password));
     }
 
     plain.auth = function(){

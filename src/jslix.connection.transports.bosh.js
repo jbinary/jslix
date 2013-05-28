@@ -120,7 +120,7 @@ define(['jslix', 'jslix.fields', 'jslix.stanzas', 'jslix.sasl',
         this.send(jslix.build(
             this.RequestStanza.create({
                 rid: this._rid,
-                to: this.jid.getDomain(),
+                to: this.jid.domain,
                 ver: '1.8',
                 wait: this.wait,
                 hold: this.requests,
