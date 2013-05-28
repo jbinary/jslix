@@ -15,7 +15,7 @@ define(['jslix/stanzas', 'jslix/fields'], function(stanzas, fields){
         })
     };
 
-    module.stanzas.mixin = Element({
+    module.stanzas.mixin = stanzas.Element({
         delay: new fields.ElementNode(module.stanzas.delay)
     });
 

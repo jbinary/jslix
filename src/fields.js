@@ -41,7 +41,6 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
     fields.StringAttr = Class(
         fields.Attr,
         function(name, required) {
-            
             fields.Attr.call(this, name, required);
             //objAttr.prototype = this.prototype;
 
