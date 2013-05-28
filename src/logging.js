@@ -1,30 +1,35 @@
 "use strict";
 define(['require'], function(require){
 
-    var logging = undefined,
-        module = {};
+    var module = {
+        getLogger: function(){
+            var stub = new Function;
+            return {
+                    trace: stub,
+                    debug: stub,
+                    info: stub,
+                    warn: stub,
+                    error: stub,
+                    fatal: stub
+            };
+        }
+    };
 
-    try{
-        require(['libs/log4javascript'], function(log4javascript){
-            logging = log4javascript;
-            module.settings = {
-                layouts: {
-                    'default': new logging.PatternLayout('%d %p %c - %m%n')
-                },
-                appenders: {
-                    'default': new logging.BrowserConsoleAppender()
-                },
-                'jslix.Dispatcher': {
-                    level: 'ALL',
-                    layout: 'default',
-                    appenders: ['default']
-                }
+    require(['libs/log4javascript'], function(logging){
+        module.settings = {
+            layouts: {
+                'default': new logging.PatternLayout('%d %p %c - %m%n')
+            },
+            appenders: {
+                'default': new logging.BrowserConsoleAppender()
+            },
+            'jslix.Dispatcher': {
+                level: 'ALL',
+                layout: 'default',
+                appenders: ['default']
             }
-        }, new Function);
-    }catch(e){};
-
-    module.getLogger = function(logger_name, level, layout, appenders){
-        if(this.settings){
+        };
+        module.getLogger = function(logger_name, level, layout, appenders){
             var logger_settings = this.settings[logger_name] || {},
                 level = level instanceof logging.Level ? level : logging.Level[level || logger_settings.level || 'ALL'],
                 layout = layout instanceof logging.Layout ? layout : this.settings.layouts[layout || logger_settings.layout || 'default'];
@@ -44,19 +49,8 @@ define(['require'], function(require){
                 logger.addAppender(appender);
             }
             return logger;
-        }else{
-            var stub = new Function(),
-                fake_logger = {
-                    trace: stub,
-                    debug: stub,
-                    info: stub,
-                    warn: stub,
-                    error: stub,
-                    fatal: stub
-                };
-            return fake_logger;
-        }
-    };
+        };
+    }, new Function);
 
     return module;
 
