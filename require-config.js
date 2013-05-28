@@ -1,6 +1,7 @@
 require.config({
     baseUrl: 'src',
     paths: {
+        'jslix': '../src',
         'libs': '../libs',
         'cryptojs': '../libs/cryptojs/components'
     },
