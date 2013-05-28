@@ -12,9 +12,14 @@ config['jslix'] = {
         'libs/cryptojs/components/enc-base64.js',
         'libs/cryptojs/components/md5.js',
         'libs/cryptojs/components/sha1.js'
+        // XXX: Next two libs use define
+        // If we add it's to here we got error
+        // Link: http://requirejs.org/docs/errors.html#mismatch
+        // 'libs/jquery.js',
+        // 'libs/signals.js'
     ],
-    /* If lib use define function you can add this lib to sources */
     sources: ['src/*.js'],
+    /* If lib use define function you can add this lib to resources */
     resources: ['libs/jquery.js', 'libs/signals.js'],
     tests: ['tests/*.test.js'],
     extensions: [/*require('buster-coverage'),*/ require('buster-amd')],

@@ -5,9 +5,9 @@
         <script src="libs/require.js"></script>
         <script src="require-config.js"></script>
         <script>
-            require(['jslix.Client', 'jslix.disco', 'jslix.caps', 'jslix.version',
-                     'jslix.stanzas', 'libs/jquery', 'jslix.sasl.mechanisms.plain',
-                     'jslix.sasl.mechanisms.digest_md5'],
+            require(['jslix/client', 'jslix/disco', 'jslix/caps', 'jslix/version',
+                     'jslix/stanzas', 'libs/jquery', 'jslix/sasl.mechanisms.plain',
+                     'jslix/sasl.mechanisms.digest_md5'],
                 function(Client, Disco, Caps, Version, stanzas, $){
                     $(function(){
                         $(document).on('submit', '#loginForm', function(evt){
