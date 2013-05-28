@@ -90,10 +90,6 @@ define(['jslix.Class', 'jslix.exceptions'], function(Class, exceptions){
         return jid;
     };
 
-    JID.prototype.removeResource = function(){
-        return this.resource = '';
-    };
-
     JID.prototype.clone = function(bare){
         if(bare){
             return new JID(this.bare);
