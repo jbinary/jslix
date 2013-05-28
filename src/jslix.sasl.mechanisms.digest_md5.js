@@ -6,7 +6,7 @@ define(['jslix.stanzas', 'jslix.sasl', 'cryptojs/core',
     var auth_plugin = function(dispatcher){
         this._dispatcher = dispatcher;
         this._challenge = {
-            'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.getDomain(),
+            'digest-uri': 'xmpp/' + this._dispatcher.connection.jid.domain,
             'nc': '00000001'
         };
         this._dispatcher.addHandler(this.ChallengeStanza, this);
@@ -42,8 +42,8 @@ define(['jslix.stanzas', 'jslix.sasl', 'cryptojs/core',
     digest_md5.getFirstResponse  = function(cnonce){
         this._challenge['cnonce'] = cnonce || SASL.generate_random_string();
         var a1_sub_params_1 = CryptoJS.MD5([
-                this._dispatcher.connection.jid.getNode(),
-                this._dispatcher.connection.jid.getDomain(),
+                this._dispatcher.connection.jid.node,
+                this._dispatcher.connection.jid.domain,
                 this._dispatcher.connection.password].join(':')).toString(CryptoJS.enc.Latin1),
             a1_sub_params_2 = [
                 this._challenge['nonce'],
@@ -58,8 +58,8 @@ define(['jslix.stanzas', 'jslix.sasl', 'cryptojs/core',
                 'auth',
                 CryptoJS.MD5(a2).toString(CryptoJS.enc.Hex)].join(':')).toString(CryptoJS.enc.Hex),
             content = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse([
-                'username="' + this._dispatcher.connection.jid.getNode() + '"',
-                'realm="' + this._dispatcher.connection.jid.getDomain() + '"',
+                'username="' + this._dispatcher.connection.jid.node + '"',
+                'realm="' + this._dispatcher.connection.jid.domain + '"',
                 'nonce="' + this._challenge['nonce'] + '"',
                 'cnonce="' + this._challenge['cnonce'] + '"',
                 'nc="' + this._challenge['nc'] + '"',
@@ -75,8 +75,8 @@ define(['jslix.stanzas', 'jslix.sasl', 'cryptojs/core',
 
     digest_md5.getSecondResponse = function(){
         var a1_sub_params_1 = CryptoJS.MD5([
-                this._dispatcher.connection.jid.getNode(),
-                this._dispatcher.connection.jid.getDomain(),
+                this._dispatcher.connection.jid.node,
+                this._dispatcher.connection.jid.domain,
                 this._dispatcher.connection.password].join(':')).toString(CryptoJS.enc.Latin1),
             a1_sub_params_2 = [
                 this._challenge['nonce'],

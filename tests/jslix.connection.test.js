@@ -8,7 +8,7 @@ define(['jslix.connection', 'jslix.dispatcher', 'jslix.jid'],
             assert(this.connection.http_base == 'http_base');
             assert(this.connection.jid instanceof JID);
             assert(this.connection.password == 'password');
-            assert(this.connection.jid.getResource() == 'default');
+            assert(this.connection.jid.resource == 'default');
             this.server = sinon.fakeServer.create();
         },
         tearDown: function(){

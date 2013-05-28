@@ -22,23 +22,25 @@ define(['jslix.Class', 'jslix.exceptions'], function(Class, exceptions){
       codesForUnescape[codesForEscape[key]] = key;
 
     var JID = function(jid){
-        this._node = '';
-        this._domain = '';
-        this._resource = '';
         if (typeof(jid) == 'string'){
            if (jid.indexOf('@') != -1){
-              this.setNode(jid.substring(0, jid.indexOf('@')));
+              this.node = jid.substring(0, jid.indexOf('@'));
               jid = jid.substring(jid.indexOf('@') + 1);
+           }else{
+                this.node = '';
            }
+
           if (jid.indexOf('/') != -1){
-             this.setResource(jid.substring(jid.indexOf('/') + 1));
+             this.resource = jid.substring(jid.indexOf('/') + 1);
              jid = jid.substring(0, jid.indexOf('/'));
+          }else{
+             this.resource = '';
           }
-           this.setDomain(jid);
+          this.domain = jid;
         }else{
-           this.setNode(jid.node);
-           this.setDomain(jid.domain);
-           this.setResource(jid.resource);
+           this.node = jid.node;
+           this.domain = jid.domain;
+           this.resource = jid.resource;
         }
     };
 
@@ -51,64 +53,58 @@ define(['jslix.Class', 'jslix.exceptions'], function(Class, exceptions){
 
     var JIDInvalidException = JID.exceptions.JIDInvalidException;
 
-    JID.prototype.getNode = function(){
-        return this._node;
-    };
-
-    JID.prototype.getDomain = function(){
-        return this._domain;
-    };
-
-    JID.prototype.getBareJID = function(){
-        return this._node + '@' + this._domain;
+    JID.prototype = {
+        get node(){
+            return this._node;
+        },
+        set node(new_node){
+            this._node = JID._checkNodeName(new_node);
+        },
+        get domain(){
+            return this._domain;
+        },
+        set domain(new_domain){
+            if(!new_domain){
+                throw new JIDInvalidException('Domain name missing');
+            }
+            this._domain = JID._checkNodeName(new_domain);
+        },
+        get resource(){
+            return this._resource;
+        },
+        set resource(new_resource){
+            this._resource = new_resource;
+        },
+        get bare(){
+            return this.node + '@' + this.domain;
+        }
     }
-
-    JID.prototype.getResource = function(){
-        return this._resource;
-    };
-
-    JID.prototype.setNode = function(node){
-        JID._checkNodeName(node);
-        this._node = node || '';
-        return this;
-    };
-
-    JID.prototype.setDomain = function(domain){
-        if (!domain || domain == '')
-         throw new JIDInvalidException("domain name missing");
-        JID._checkNodeName(domain);
-        this._domain = domain;
-        return this;
-    };
-
-    JID.prototype.setResource = function(resource){
-        this._resource = resource || '';
-        return this;
-    };
 
     JID.prototype.toString = function(){
         var jid = '';
-        if (this.getNode() && this.getNode() != '')
-            jid = this.getNode() + '@';
-        jid += this.getDomain();
-        if (this.getResource() && this.getResource() != "")
-            jid += '/' + this.getResource();
+        if (this.node)
+            jid = this.node + '@';
+        jid += this.domain;
+        if (this.resource)
+            jid += '/' + this.resource;
         return jid;
     };
 
     JID.prototype.removeResource = function(){
-        return this.setResource();
+        return this.resource = '';
     };
 
-    JID.prototype.clone = function(){
+    JID.prototype.clone = function(bare){
+        if(bare){
+            return new JID(this.bare);
+        }
         return new JID(this.toString());
     };
 
     JID.prototype.isEntity = function(jid){
-        if (typeof jid == 'string')
-            jid = (new JID(jid));
-        jid.removeResource();
-        return (this.clone().removeResource().toString() === jid.toString());
+        var jid =  jid instanceof JID ? jid.clone(true) : new JID(jid).clone(true),
+            clone = this.clone(true);
+        return (clone.toString() === jid.toString());
     };
 
     JID.prototype.escape = function(node, domain, resource){
@@ -137,7 +133,7 @@ define(['jslix.Class', 'jslix.exceptions'], function(Class, exceptions){
 
     JID.prototype.unescape = function(){
         var resultJID = '',
-            node = this.getNode();
+            node = this.node;
         for(var i=0; i < node.length; i++){
             if (JID_FORBIDDEN.indexOf(node[i]) != -1 && node[i] != '\\')
                 throw new JIDInvalidException("forbidden char in escape nodename: " + JID_FORBIDDEN[i]);
@@ -154,9 +150,9 @@ define(['jslix.Class', 'jslix.exceptions'], function(Class, exceptions){
             }else
                 resultJID += node[i];
         }
-        resultJID += '@' + this.getDomain();
-        if (this.getResource() && this.getResource() != '')
-            resultJID += '/' + this.getResource();
+        resultJID += '@' + this.domain;
+        if (this.resource)
+            resultJID += '/' + this.resource;
         return resultJID;
     };
 
@@ -166,6 +162,7 @@ define(['jslix.Class', 'jslix.exceptions'], function(Class, exceptions){
         for (var i=0; i< JID_FORBIDDEN.length; i++)
             if (nodeprep.indexOf(JID_FORBIDDEN[i]) != -1)
                 throw new JIDInvalidException("forbidden char in nodename: " + JID_FORBIDDEN[i]);
+        return nodeprep;
     };
 
     return JID;

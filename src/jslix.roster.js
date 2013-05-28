@@ -51,7 +51,7 @@ define(['jslix.fields', 'jslix.stanzas', 'libs/signals'],
     roster.UpdateRequestStanza = Element({
         clean_from: function(value, top) {
             var myjid = this._dispatcher.myjid;
-            if ([myjid.getBareJID, myjid.toString(), myjid.getDomain()].indexOf(
+            if ([myjid.bare, myjid.toString(), myjid.domain].indexOf(
                     top.from) == -1) {
                 throw "not-authorized";
             }

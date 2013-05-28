@@ -26,7 +26,7 @@ define(['jslix.fields', 'jslix.stanzas', 'jslix.jid'],
             return stanzas.IQStanza.create({
                 type: 'set',
                 link: bind.RequestStanza.create({
-                    resource: this._dispatcher.connection.jid.getResource()
+                    resource: this._dispatcher.connection.jid.resource
                 })
             });
         }
