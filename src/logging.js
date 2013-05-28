@@ -1,5 +1,13 @@
 "use strict";
-define(['libs/log4javascript'], function(logging){
+define(['require'], function(require){
+
+    var logging = undefined;
+
+    try{
+        require(['libs/log4javascript'], function(log4javascript){
+            logging = log4javascript;
+        });
+    }catch(e){};
 
     var module = {
         settings: !logging ? undefined : {
