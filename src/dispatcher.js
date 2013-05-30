@@ -252,7 +252,11 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
                     var _obj = jslix.parse(doc, hook[0]);
                     var host = hook[1];
                 } catch (e) {
-                    this.logger.error(e, e.stack);
+                    if (e instanceof exceptions.ElementParseError) {
+                        this.logger.warning(e, e.stack);
+                    } else if (!(e instanceof exceptions.WrongElement)) {
+                        this.logger.error(e, e.stack);
+                    }
                     _obj = null;
                 }
                 if (_obj) {
