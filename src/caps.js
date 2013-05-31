@@ -131,7 +131,8 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
             var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
                 node = [el.node, el.ver].join('#');
             if(not_same_jid && !(node in this._broken_nodes)){
-                if(this.storage.getItem(node) === null){
+                var old_data = this.storage.getItem(node);
+                if(old_data === null){
                     var self = this;
                     this.options.disco_plugin.queryJIDFeatures(top.from, node).done(function(response){
                         var verification_string = self.getVerificationString(
@@ -146,12 +147,13 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                             self._broken_nodes.push(node);
                         }
                         self.storage.setItem(verification_string, data);
-                        self._jid_cache[top.from.toString()] = node;
                     });
-                }else{
-                    this._jid_cache[top.from.toString()] = node;
                 }
-                this.signals.caps_changed.dispatch(top.from);
+                this._jid_cache[top.from.toString()] = node;
+                var data = this.storage.getItem(node);
+                if(old_data != data){
+                    this.signals.caps_changed.dispatch(top.from, data);
+                }
             }
             return stanzas.EmptyStanza.create();
         }
