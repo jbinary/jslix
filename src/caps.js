@@ -1,8 +1,8 @@
 "use strict";
 define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
-        'cryptojs/core', 'cryptojs/enc-base64',
+        'cryptojs/core', 'libs/signals', 'cryptojs/enc-base64',
         'cryptojs/sha1'],
-    function(fields, stanzas, JID, CryptoJS){
+    function(fields, stanzas, JID, CryptoJS, signals){
 
     var plugin = function(dispatcher, options){
         this.options = options || {};
@@ -34,6 +34,10 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
 
     var caps = plugin.prototype,
         Element = stanzas.Element;
+
+    caps.signals = {
+        caps_changed: new signals.Signal()
+    };
 
     caps.destructor = function(){
         this.options.disco_plugin.signals.disco_changed.remove(
@@ -147,6 +151,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                 }else{
                     this._jid_cache[top.from.toString()] = node;
                 }
+                this.signals.caps_changed.dispatch(top.from);
             }
             return stanzas.EmptyStanza.create();
         }
