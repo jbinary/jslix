@@ -261,7 +261,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
                     // TODO: BreakStanza
                     // TODO: do we need EmptyStanza here?
                     try {
-                        obj = func.call(host, _obj, _obj.getTop());
+                        obj = func.call(host, obj, top);
                     } catch (e) {
                         this.logger.error(e, e.stack);
                     }
