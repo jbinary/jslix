@@ -8,6 +8,9 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
         this.options = options || {};
         this.options.node = this.options.node || 'https://github.com/jbinary/jslix';
         this.storage = this.options.storage;
+        if(!this.storage){
+            throw new Error('You should pass storage in options!');
+        }
         this._dispatcher = dispatcher;
         if(this.options['disco_plugin'] === undefined){
             throw new Error('jslix.Disco plugin required!');
