@@ -110,6 +110,16 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
     stanzas.BreakStanza.prototype.constructor = stanzas.BreakStanza;
 
     stanzas.BaseStanza = {
+        clone: function(){
+            var options = {};
+            for(var key in this.__definition__){
+                var attr = this.__definition__[key];
+                if(attr instanceof fields.Node || attr instanceof fields.Attr){
+                    options[key] = this[key]
+                }
+            }
+            return this.__definition__.create(options);
+        },
         create : function(params) {
             params = params || {};
             var result = jslix.createStanza(this);                
