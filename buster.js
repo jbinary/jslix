@@ -22,6 +22,7 @@ config['jslix'] = {
     /* If lib use define function you can add this lib to resources */
     resources: ['libs/jquery.js', 'libs/signals.js'],
     tests: ['tests/*.test.js'],
+    /* buster-coverage don't work with buster-amd */
     extensions: [/*require('buster-coverage'),*/ require('buster-amd')],
     /*'buster-coverage': {
         outputDirectory: 'coverage',

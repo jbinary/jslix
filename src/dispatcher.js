@@ -218,13 +218,13 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
         if(els.length === undefined) els = [els];
         var d = null;
         for (var i=0; i<els.length; i++) {
-            var el = els[i];
+            var el = els[i],
+                top = el.getTop();
             // TODO: BreakStanza
-            var el = this.check_hooks(el);
+            var el = this.check_hooks(el, top);
             if(el instanceof stanzas.EmptyStanza) {
                 continue;
             }
-            var top = el.getTop();
             if (top.__definition__.element_name == 'iq' && 
                 ['get', 'set'].indexOf(top.type) != -1) {
                 d = new $.Deferred();
@@ -236,20 +236,18 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
         return d;
     }
 
-    dispatcher.check_hooks = function(el) {
+    dispatcher.check_hooks = function(el, top) {
         // TODO: optimisation here can be done, we don't need to build
         // document and then parse it again, some light validation can
         // be applied
         if (el instanceof stanzas.EmptyStanza) return el;
-        var hooks = this.hooks['send'],
-            obj = el;
+        var hooks = this.hooks['send'];
         if(hooks instanceof Array){
-            var top = el.getTop();
             for (var i=0; i<hooks.length; i++) {
-                var doc = jslix.build(obj);
+                var doc = jslix.build(el);
                 var hook = hooks[i];
                 try {
-                    var _obj = jslix.parse(doc, hook[0]);
+                    var obj = jslix.parse(doc, hook[0]);
                     var host = hook[1];
                 } catch (e) {
                     if (e instanceof exceptions.ElementParseError) {
@@ -257,22 +255,22 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
                     } else if (!(e instanceof exceptions.WrongElement)) {
                         this.logger.error(e, e.stack);
                     }
-                    _obj = null;
+                    obj = null;
                 }
-                if (_obj) {
-                    var func = _obj[top.type + 'Handler'] || _obj['anyHandler'];
+                if (obj) {
+                    var func = obj[top.type + 'Handler'] || obj['anyHandler'];
                     if (!func) continue;
                     // TODO: BreakStanza
                     // TODO: do we need EmptyStanza here?
                     try {
-                        obj = func.call(host, _obj, _obj.getTop());
+                        el = func.call(host, el, top);
                     } catch (e) {
                         this.logger.error(e, e.stack);
                     }
                 }
             }
         }
-        return obj;
+        return el;
     }
 
     return Dispatcher;
