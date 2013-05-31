@@ -90,10 +90,11 @@ define(['jslix/class', 'jslix/exceptions'], function(Class, exceptions){
     };
 
     JID.prototype.clone = function(bare){
+        var new_jid = new JID(this);
         if(bare){
-            return new JID(this.bare);
+            new_jid.resource = null;
         }
-        return new JID(this);
+        return new_jid;
     };
 
     JID.prototype.isEntity = function(jid){
