@@ -93,13 +93,12 @@ define(['jslix/class', 'jslix/exceptions'], function(Class, exceptions){
         if(bare){
             return new JID(this.bare);
         }
-        return new JID(this.toString());
+        return new JID(this);
     };
 
     JID.prototype.isEntity = function(jid){
-        var jid = jid instanceof JID ? jid.clone(true) : new JID(jid).clone(true),
-            clone = this.clone(true);
-        return clone.toString() === jid.toString();
+        var bare_jid = jid instanceof JID ? jid.bare : new JID(jid).bare;
+        return this.bare === bare_jid;
     };
 
     JID.prototype.escape = function(node, domain, resource){
