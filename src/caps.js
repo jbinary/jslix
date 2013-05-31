@@ -29,6 +29,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
         );
         this._jid_cache = {};
         this._broken_nodes = [];
+        this._cached_presence = stanzas.PresenceStanza.create();
     }
 
     var caps = plugin.prototype,
@@ -64,7 +65,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
             this
         );
         if(send_presence){
-            this._dispatcher.send(stanzas.PresenceStanza.create());
+            this._dispatcher.send(this._cached_presence.clone());
         }
     }
 
@@ -113,6 +114,9 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                 node: this.options.node,
                 ver: this.getVerificationString()
             });
+            if(!el.to || el.to == el.from){
+                this._cached_presence = el.clone();
+            }
             el.link(c);
             return el;
         }
