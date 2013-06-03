@@ -152,7 +152,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                 }
                 this._jid_cache[top.from.toString()] = node;
                 if(old_data != data){
-                    this.signals.caps_changed.dispatch(top.from, data);
+                    this.signals.caps_changed.dispatch(top.from, JSON.parse(data));
                 }
             }
             return stanzas.EmptyStanza.create();
