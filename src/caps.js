@@ -29,7 +29,6 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
         );
         this._jid_cache = {};
         this._broken_nodes = [];
-        this._cached_presence;
     }
 
     var caps = plugin.prototype,
