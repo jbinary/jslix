@@ -79,6 +79,10 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
         return ['<', this.type_name, '>'].join('');
     }
 
+    stanzas.SpecialStanza.prototype.getTop = function(){
+        return this;
+    }
+
     stanzas.SpecialStanza.create = function(){
         return new stanzas.SpecialStanza();
     }
