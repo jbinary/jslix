@@ -51,16 +51,16 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/dispatcher', 'jslix/sasl', 'libs
                 },
                 result;
             this.dispatcher.addHook('send', definition, context, 'fake_plugin');
-            result = this.dispatcher.check_hooks(
-                definition.create(iq_settings)
-            );
+            var stanza = definition.create(iq_settings);
+            result = this.dispatcher.check_hooks(stanza, stanza.getTop());
             assert(result.__definition__ && result.__definition__ === definition);
             assert(result.id == context.id);
             this.dispatcher.unregisterPlugin({ prototype: {_name: 'fake_plugin'}});
             assert.isArray(this.dispatcher.hooks['send']);
             assert(this.dispatcher.hooks['send'].length == 0);
             this.dispatcher.addHook('send', {}, {}, 'fake_plugin');
-            result = this.dispatcher.check_hooks(definition.create(iq_settings));
+            var stanza = definition.create(iq_settings);
+            result = this.dispatcher.check_hooks(stanza, stanza.getTop());
             assert(result.__definition__ && result.__definition__ === definition);
             assert(function(){
                 for(var key in iq_settings){
