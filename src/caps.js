@@ -1,8 +1,8 @@
 "use strict";
 define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
-        'cryptojs/core', 'libs/signals', 'cryptojs/enc-base64',
+        'cryptojs/core', 'libs/signals', 'libs/jquery', 'cryptojs/enc-base64',
         'cryptojs/sha1'],
-    function(fields, stanzas, JID, CryptoJS, signals){
+    function(fields, stanzas, JID, CryptoJS, signals, $){
 
     var plugin = function(dispatcher, options){
         this.options = options || {};
@@ -131,6 +131,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                 node = [el.node, el.ver].join('#');
             if(not_same_jid && !(node in this._broken_nodes)){
                 var old_data = this.storage.getItem(node),
+                    data_ready = $.Deferred(),
                     data;
                 if(old_data === null){
                     var self = this;
@@ -147,12 +148,17 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                             self._broken_nodes.push(node);
                         }
                         self.storage.setItem(verification_string, data);
+                        data_ready.resolve(self);
                     });
+                }else{
+                    data_ready.resolve(this);
                 }
                 this._jid_cache[top.from.toString()] = node;
-                if(old_data != data){
-                    this.signals.caps_changed.dispatch(top.from, JSON.parse(data));
-                }
+                data_ready.done(function(caps_plugin){
+                    if(old_data != data){
+                        caps_plugin.signals.caps_changed.dispatch(top.from, JSON.parse(data));
+                    }
+                });
             }
             return stanzas.EmptyStanza.create();
         }
