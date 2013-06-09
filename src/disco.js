@@ -73,6 +73,13 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
         );
     }
 
+    disco.identitiesSortOrder = [
+        'category',
+        'type',
+        'xml_lang',
+        'name'
+    ];
+
     disco.extractData = function(identities, features){
         var result = {
                 identities: [],
@@ -81,23 +88,14 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
             identities = identities || this.getIdentities(),
             features = features || this.getFeatures();
         for(var i=0; i<identities.length; i++){
-            var identity = identities[i];
-            result.identities.push([
-                identity.category,
-                identity.type,
-                identity.xml_lang,
-                identity.name
-            ]);
+            result.identities.push(identities[i]);
         }
         result.identities.sort(function(a, b){
-            for(var i=0; i<4; i++){
-                if(a[i] === b[i]){
-                    continue;
-                }
-                if(a[i] < b[i]){
+            for(var i=0; i<identities.length; i++){
+                var key = this.identitiesSortOrder[i];
+                if(a[key] < b[key]){
                     return -1;
-                }
-                if(a[i] > b[i]){
+                } else if(a[key] > b[key]){
                     return 1
                 }
             }
