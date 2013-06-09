@@ -157,6 +157,15 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
         },
         toString: function(){
             return new XMLSerializer().serializeToString(jslix.build(this));
+        },
+        toJSON: function(){
+            var json = {};
+            for (var k in this) {
+                if (k[0] !== '_') {
+                    json[k] = this[k];
+                }
+            }
+            return json;
         }
     }
 
