@@ -126,14 +126,14 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
         },
         create : function(params) {
             params = params || {};
-            var result = jslix.createStanza(this);                
+            var result = jslix.createStanza(this);
             for (var k in params) {
                 if (['parent', 'link'].indexOf(k) == -1) {
                     result[k] = params[k];
                 }
-            }                
+            }
             if ('parent' in params) result.setParent(params.parent)
-            else if ('link' in params) result.link(params.link);                
+            else if ('link' in params) result.link(params.link);
             return result;
         },
         makeError : function(params_or_condition, text, type) {
@@ -146,7 +146,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
             }
             params.type = params.type || conditions[params.condition];
             params.parent = this.getTop().makeReply('error');
-            var eclass = this.__definition__.error_class || 
+            var eclass = this.__definition__.error_class ||
                             stanzas.ErrorStanza;
             var error = eclass.create(params);
             return error;
@@ -192,7 +192,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
         show: new fields.StringNode('show', false),
         status: new fields.StringNode('status', false),
         priority: new fields.IntegerNode('priority', false),
-        
+
         clean_show: function(value) {
             if ([undefined, 'chat', 'away', 'xa', 'dnd'].indexOf(value) == -1)
                 throw new exceptions.ElementParseError(
