@@ -140,33 +140,32 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
             var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
                 node = [el.node, el.ver].join('#');
             if(not_same_jid && !(node in this._broken_nodes)){
-                var old_data = this.storage.getItem(node),
-                    data_ready = $.Deferred(),
-                    data;
-                if(old_data === null){
+                var data_ready = $.Deferred(),
+                    data = this.storage.getItem(node);
+                if(data === null){
                     var self = this;
                     this.options.disco_plugin.queryJIDFeatures(top.from, node).done(function(response){
                         var verification_string = self.getVerificationString(
                                 response.identities, response.features
-                            );
+                            ),
+                            new_node = [el.node, verification_string].join('#');
                         data = JSON.stringify(
                             self.options.disco_plugin.extractData(
                                 response.identities, response.features
                             )
                         );
-                        if(verification_string !== el.ver){
+                        if(new_node != node){
                             self._broken_nodes.push(node);
-                            node = [el.node, verification_string].join('#');
                         }
-                        self.storage.setItem(node, data);
-                        data_ready.resolve(self);
+                        self.storage.setItem(new_node, data);
+                        data_ready.resolve(self, true);
                     });
                 }else{
-                    data_ready.resolve(this);
+                    data_ready.resolve(this, false);
                 }
                 this._jid_cache[top.from.toString()] = node;
-                data_ready.done(function(caps_plugin){
-                    if(old_data != data){
+                data_ready.done(function(caps_plugin, data_changed){
+                    if(data_changed){
                         caps_plugin.signals.caps_changed.dispatch(top.from, JSON.parse(data));
                     }
                 });
