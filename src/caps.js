@@ -156,8 +156,9 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                         );
                         if(verification_string !== el.ver){
                             self._broken_nodes.push(node);
+                            node = [el.node, verification_string].join('#');
                         }
-                        self.storage.setItem(verification_string, data);
+                        self.storage.setItem(node, data);
                         data_ready.resolve(self);
                     });
                 }else{
