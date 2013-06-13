@@ -139,12 +139,7 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
         type: new fields.StringAttr('type', true),
         name: new fields.StringAttr('name', false),
         getIdentityString: function(){
-            var identitiesSortOrder = [
-                    'category',
-                    'type',
-                    'xml_lang',
-                    'name'
-                ],
+            var identitiesSortOrder = disco.IdentityStanza.identitiesSortOrder,
                 result = [];
             for (var i=0; i<identitiesSortOrder.length; i++) {
                 var key = identitiesSortOrder[i];
@@ -155,6 +150,10 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
     });
 
     disco.IdentityStanza.identitiesSortOrder = [
+        'category',
+        'type',
+        'xml_lang',
+        'name'
     ];
 
 
