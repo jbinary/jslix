@@ -1,8 +1,8 @@
 "use strict";
 define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
-        'cryptojs/core', 'libs/signals', 'libs/jquery', 'cryptojs/enc-base64',
+        'cryptojs/core', 'libs/signals', 'cryptojs/enc-base64',
         'cryptojs/sha1'],
-    function(fields, stanzas, JID, CryptoJS, signals, $){
+    function(fields, stanzas, JID, CryptoJS, signals){
 
     var plugin = function(dispatcher, options){
         this.options = options || {};
@@ -130,7 +130,10 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
             var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
                 node = [el.node, el.ver].join('#');
             if(not_same_jid && !(node in this._broken_nodes)){
-                var data_ready = $.Deferred(),
+                var dispatch_signal = function(from, data){
+                    var data = JSON.parse(data);
+                        this.signals.caps_changed.dispatch(top.from, data);
+                    },
                     data = this.storage.getItem(node);
                 if(data === null){
                     var self = this;
@@ -148,17 +151,13 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                             self._broken_nodes.push(node);
                         }
                         self.storage.setItem(new_node, data);
-                        data_ready.resolve(self, true);
+                        dispatch_signal.call(self, top.from, data);
                     });
-                }else{
-                    data_ready.resolve(this, false);
+                }
+                if(this._jid_cache[top.from.toString()] != node){
+                    dispatch_signal.call(this, top.from, data);
                 }
                 this._jid_cache[top.from.toString()] = node;
-                data_ready.done(function(caps_plugin, data_changed){
-                    if(data_changed){
-                        caps_plugin.signals.caps_changed.dispatch(top.from, JSON.parse(data));
-                    }
-                });
             }
             return stanzas.EmptyStanza.create();
         }
