@@ -72,21 +72,11 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
         }
     }
 
-    caps.getIdentityString = function(identity) {
-        var identitiesSortOrder = this.options.disco_plugin.identitiesSortOrder,
-            result = [];
-        for (var i=0; i<identitiesSortOrder.length; i++) {
-            var key = identitiesSortOrder[i];
-            result[i] = identity[key] || '';
-        }
-        return result.join('/') + '<';
-    }
-
     caps.getVerificationString = function(identities, features){
         var string = '',
             data = this.options.disco_plugin.extractData(identities, features);
         for(var i=0; i<data.identities.length; i++){
-            string += this.getIdentityString(data.identities[i]);
+            string += data.identities[i].getIdentityString();
         }
         string += data.features.join('<') + '<';
         return CryptoJS.enc.Base64.stringify(CryptoJS.SHA1(string))
