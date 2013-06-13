@@ -131,7 +131,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
                 node = [el.node, el.ver].join('#');
             if(not_same_jid && !(node in this._broken_nodes)){
                 var dispatch_signal = function(from, data){
-                    var data = JSON.parse(data);
+                        var data = JSON.parse(data);
                         this.signals.caps_changed.dispatch(top.from, data);
                     },
                     data = this.storage.getItem(node);
