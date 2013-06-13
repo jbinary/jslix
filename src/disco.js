@@ -73,13 +73,6 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
         );
     }
 
-    disco.identitiesSortOrder = [
-        'category',
-        'type',
-        'xml_lang',
-        'name'
-    ];
-
     disco.extractData = function(identities, features){
         var result = {
                 identities: [],
@@ -92,7 +85,7 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
         }
         result.identities.sort(function(a, b){
             for(var i=0; i<identities.length; i++){
-                var key = this.identitiesSortOrder[i];
+                var key = disco.IdentityStanza.identitiesSortOrder[i];
                 if(a[key] < b[key]){
                     return -1;
                 } else if(a[key] > b[key]){
@@ -144,8 +137,25 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
         xml_lang: new fields.StringAttr('xml:lang', false),
         category: new fields.StringAttr('category', true),
         type: new fields.StringAttr('type', true),
-        name: new fields.StringAttr('name', false)
+        name: new fields.StringAttr('name', false),
+        getIdentityString: function(){
+            var identitiesSortOrder = disco.IdentityStanza.identitiesSortOrder,
+                result = [];
+            for (var i=0; i<identitiesSortOrder.length; i++) {
+                var key = identitiesSortOrder[i];
+                result[i] = this[key] || '';
+            }
+            return result.join('/') + '<';
+        }
     });
+
+    disco.IdentityStanza.identitiesSortOrder = [
+        'category',
+        'type',
+        'xml_lang',
+        'name'
+    ];
+
 
     disco.ResponseStanza = Element({
         xmlns: disco.DISCO_INFO_NS,

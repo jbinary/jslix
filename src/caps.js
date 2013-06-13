@@ -1,8 +1,8 @@
 "use strict";
 define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
-        'cryptojs/core', 'libs/signals', 'libs/jquery', 'cryptojs/enc-base64',
+        'cryptojs/core', 'libs/signals', 'cryptojs/enc-base64',
         'cryptojs/sha1'],
-    function(fields, stanzas, JID, CryptoJS, signals, $){
+    function(fields, stanzas, JID, CryptoJS, signals){
 
     var plugin = function(dispatcher, options){
         this.options = options || {};
@@ -72,21 +72,11 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
         }
     }
 
-    caps.getIdentityString = function(identity) {
-        var identitiesSortOrder = this.options.disco_plugin.identitiesSortOrder,
-            result = [];
-        for (var i=0; i<identitiesSortOrder.length; i++) {
-            var key = identitiesSortOrder[i];
-            result[i] = identity[key] || '';
-        }
-        return result.join('/') + '<';
-    }
-
     caps.getVerificationString = function(identities, features){
         var string = '',
             data = this.options.disco_plugin.extractData(identities, features);
         for(var i=0; i<data.identities.length; i++){
-            string += this.getIdentityString(data.identities[i]);
+            string += data.identities[i].getIdentityString();
         }
         string += data.features.join('<') + '<';
         return CryptoJS.enc.Base64.stringify(CryptoJS.SHA1(string))
@@ -140,35 +130,34 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
             var not_same_jid = top.from.toString() !== this._dispatcher.connection.jid.toString(),
                 node = [el.node, el.ver].join('#');
             if(not_same_jid && !(node in this._broken_nodes)){
-                var old_data = this.storage.getItem(node),
-                    data_ready = $.Deferred(),
-                    data;
-                if(old_data === null){
+                var dispatch_signal = function(from, data){
+                        var data = JSON.parse(data);
+                        this.signals.caps_changed.dispatch(top.from, data);
+                    },
+                    data = this.storage.getItem(node);
+                if(data === null){
                     var self = this;
                     this.options.disco_plugin.queryJIDFeatures(top.from, node).done(function(response){
                         var verification_string = self.getVerificationString(
                                 response.identities, response.features
-                            );
+                            ),
+                            new_node = [el.node, verification_string].join('#');
                         data = JSON.stringify(
                             self.options.disco_plugin.extractData(
                                 response.identities, response.features
                             )
                         );
-                        if(verification_string !== el.ver){
+                        if(new_node != node){
                             self._broken_nodes.push(node);
                         }
-                        self.storage.setItem(verification_string, data);
-                        data_ready.resolve(self);
+                        self.storage.setItem(new_node, data);
+                        dispatch_signal.call(self, top.from, data);
                     });
-                }else{
-                    data_ready.resolve(this);
+                }
+                if(this._jid_cache[top.from.toString()] != node){
+                    dispatch_signal.call(this, top.from, data);
                 }
                 this._jid_cache[top.from.toString()] = node;
-                data_ready.done(function(caps_plugin){
-                    if(old_data != data){
-                        caps_plugin.signals.caps_changed.dispatch(top.from, JSON.parse(data));
-                    }
-                });
             }
             return stanzas.EmptyStanza.create();
         }
