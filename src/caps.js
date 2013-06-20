@@ -86,7 +86,11 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
         if(!(jid instanceof JID)){
             var jid = new JID(jid);
         }
-        return this.storage.getItem(this._jid_cache[jid.toString()]);
+        return JSON.parse(
+            this.storage.getItem(
+                this._jid_cache[jid.toString()]
+            ) || '{}'
+        );
     }
 
     caps.infoHandler = function(query){
