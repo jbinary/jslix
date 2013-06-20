@@ -89,7 +89,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jid',
         return JSON.parse(
             this.storage.getItem(
                 this._jid_cache[jid.toString()]
-            ) || '{}'
+            ) || 'null'
         );
     }
 
