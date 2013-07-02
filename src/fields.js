@@ -223,7 +223,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
                 return values
             },
             put_to_el: function(stanza, values) {
-                if(!stanza.__definition__) {
+                if(!values.__definition__) {
                     values = this.definition.create(values);
                 }
                 var prepared = jslix.build(values, true);
