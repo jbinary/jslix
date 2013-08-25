@@ -12,6 +12,21 @@ define(['jslix/jid'], function(JID){
         }
     }
 
+    types.BooleanType = {
+        to_js: function(value) {
+            var map = {
+                '1': true,
+                '0': false,
+                'true': true,
+                'false': false
+            }
+            return map[value];
+        },
+        from_js: function(value) {
+            return !!value;
+        }
+    }
+
     types.StringType = {
         to_js: function(value) {
             if (typeof(value) == 'string' || value === null)

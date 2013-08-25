@@ -38,6 +38,14 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
 
     fields.Attr = Attr;
 
+    fields.BooleanAttr = Class(
+        fields.Attr,
+        function(name, required) {
+            fields.Attr.call(this, name, required);
+            this.type = types.BooleanType;
+        }
+    );
+
     fields.StringAttr = Class(
         fields.Attr,
         function(name, required) {
