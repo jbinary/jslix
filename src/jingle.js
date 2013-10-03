@@ -1,17 +1,117 @@
 "use strict";
-(function(){
+define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions'],
+    function(fields, stanzas, exceptions) {
 
-    var jslix = window.jslix;
-    var fields = jslix.fields;
-
-    jslix.jingle = {
-        stanzas: {},
-        _name: 'jslix.jingle'
+    var plugin = function(dispatcher, options) {
+        this._dispatcher = dispatcher;
+        this.webrtc = this.webrtc.call(this);
+        // XXX
+        this.state = {};
+        this.options = options || {
+            'acceptSessionCallback': function(stanza) {
+                return false;
+            }
+        };
     }
-    var jingle = jslix.jingle;
+
+    var jingle = plugin.prototype;
+    jingle._name = 'jslix.Jingle';
+
+    jingle.init = function() {
+        var initiate = stanzas.Element({
+            clean_action: function(value) {
+                if (value == 'session-initiate') return value;
+                throw new exceptions.WrongElement('Not a session initiate');
+            },
+            setHandler: function(stanza, top) {
+                var offer = jingle.webrtc.parseJingleStanza(stanza);
+                //throw('feature-not-implemented');
+                var pc = this.getPeerConnection(function() {
+                    debugger;
+                });
+                pc.setRemoteDescription("offer", offer);
+                var streams = this.options.acceptSessionCallback(stanza);
+                if (streams) {
+                    $.each(streams, function() {
+                        pc.addStream(this, null);
+                    });
+                    var answer = pc.createAnswer(offer, null);
+                    this.sendOffer(top.from, offer, 'session-accept',
+                                   stanza.sid);
+                    // TODO: handle error from "session-accept"?
+                } else {
+                    // TODO: add reason
+                    var terminate = this.JingleQuery.create({
+                        action: 'session-terminate',
+                        sid: stanza.sid
+                    });
+                    this._dispatcher.send(terminate);
+                }
+                return stanza.makeResult();
+            }
+        }, [this.JingleQuery]);
+        this._dispatcher.addHandler(initiate, this.state);
+    }
+
+    jingle.getPeerConnection = function(onSignalingMessage) {
+        var klass = window.webkitRTCPeerConnection ||
+                    window.mozRTCPeerConnection;
+        return new klass({
+            iceServers: [
+                { url: "stun:stun.l.google.com:19302" }
+            ]}, onSignalingMessage);
+    }
+
+    jingle.sendOffer = function(jid, offer, action, sid) {
+        if (sid === undefined) {
+            sid = Math.random().toString();
+        }
+        var iq = stanzas.IQStanza.create({
+            to: jid,
+            type: 'set'
+        });
+        var stanza = this.JingleQuery.create({
+            action: action,
+            sid: sid,
+            parent: iq
+        }),
+            _contents = this.webrtc.createJingleStanza(offer),
+            contents = [];
+        for (var k in _contents) {
+            contents.push(_contents[k]);
+        }
+        stanza.contents = contents;
+        return this._dispatcher.send(stanza);
+    }
+
+    jingle.initiate = function(jid, streams) {
+        var pc = this.getPeerConnection(function() {
+            debugger;
+        }), that = this;
+        pc.onicecandidate = function(event) {
+            debugger;
+        }
+        pc.onicechange = function(event) {
+            debugger;
+        }
+        window.pc = pc;
+        $.each(streams, function() {
+            pc.addStream(this, null);
+        });
+        var d = $.Deferred();
+        var offer = pc.createOffer(function(offer) {
+            d.resolve(offer);
+        }, function(failure) {
+            d.reject(failure);
+        });
+        d.then(function(offer) {
+            return that.sendOffer(jid, offer, 'session-initiate');
+        });
+        return d;
+    }
 
     // Payload description stanzas
-    jingle.stanzas.payload = jslix.Element({
+    jingle.PayloadElement = stanzas.Element({
         element_name: 'payload-type',
         id: new fields.StringAttr('id', true),
         name: new fields.StringAttr('name', true),
@@ -19,15 +119,15 @@
         channels: new fields.IntegerAttr('channels', false)
     });
 
-    jingle.stanzas.description = jslix.Element({
+    jingle.DescriptionElement = stanzas.Element({
         xmlns: 'urn:xmpp:jingle:apps:rtp:1',
         element_name: 'description',
         media: new fields.StringAttr('media', true), // TODO: validate this
-        payloads: new fields.ElementNode(jingle.stanzas.payload, true, true)
+        payloads: new fields.ElementNode(jingle.PayloadElement, true, true)
     });
 
     // Transport description stanzas
-    jingle.stanzas.candidate = jslix.Element({
+    jingle.CandidateElement = stanzas.Element({
         element_name: 'candidate',
         component: new fields.IntegerAttr('component', true),
         foundation: new fields.IntegerAttr('foundation', true),
@@ -46,16 +146,16 @@
             return value;
         }
     });
-    jingle.stanzas.ice_transport = jslix.Element({
+    jingle.IceTransportElement = stanzas.Element({
         element_name: 'transport',
         xmlns: 'urn:xmpp:jingle:transports:ice-udp:1',
         pwd: new fields.StringAttr('pwd', true),
         ufrag: new fields.StringAttr('ufrag', true),
-        candidates: new fields.ElementNode(jingle.stanzas.candidate, true, true)
+        candidates: new fields.ElementNode(jingle.CandidateElement, true, true)
     });
 
     // Encryption
-    jingle.stanzas.crypto = jslix.Element({
+    jingle.CryptoElement = stanzas.Element({
         element_name: 'crypto',
         'crypto-suite': new fields.StringAttr('crypto-suite'),
         'key-params': new fields.StringAttr('key-params'),
@@ -63,37 +163,38 @@
         'tag': new fields.StringAttr('tag')
     });
 
-    jingle.stanzas.encryption = jslix.Element({
+    jingle.EncryptionElement = stanzas.Element({
         element_name: 'encryption',
         required: new fields.IntegerAttr('required', false),
-        crypto: new fields.ElementNode(jingle.stanzas.crypto, true, true)
+        crypto: new fields.ElementNode(jingle.CryptoElement, true, true)
     });
 
     // Content description
-    jingle.stanzas.content = jslix.Element({
+    jingle.ContentElement = stanzas.Element({
         element_name: 'content',
         creator: new fields.StringAttr('creator', true),
         name: new fields.StringAttr('name', true),
-        description: new fields.ElementNode(jingle.stanzas.description),
-        transport: new fields.ElementNode(jingle.stanzas.ice_transport),
-        encryption: new fields.ElementNode(jingle.stanzas.encryption)
+        description: new fields.ElementNode(jingle.DescriptionElement),
+        transport: new fields.ElementNode(jingle.IceTransportElement),
+        encryption: new fields.ElementNode(jingle.EncryptionElement)
     });
 
     // The main element
-    jingle.stanzas.jingle = jslix.Element({
+    jingle.JingleQuery = stanzas.Element({
         element_name: 'jingle',
         xmlns: 'urn:xmpp:jingle:1',
         action: new fields.StringAttr('action', true),
         initiator: new fields.JIDAttr('initiator'),
         sid: new fields.StringAttr('sid', true),
-        contents: new fields.ElementNode(jingle.stanzas.content, true, true)
-    }, [jslix.stanzas.QueryStanza]);
+        contents: new fields.ElementNode(jingle.ContentElement, true, true)
+    }, [stanzas.QueryStanza]);
 
 
 // The code was adapted from
 // https://github.com/mweibel/sdpToJingle/blob/master/sdptojingle.js
 // Author: Michael Weibel <michael.weibel+xmpp@gmail.com>
-jingle.webrtc = (function(stanzas) {
+jingle.webrtc = function(stanzas) {
+    var that = this;
     // most of the constants are from libjingle webrtcsdp.cc
     var LINE_PREFIXES = {
             VERSION: "v",
@@ -142,14 +243,9 @@ jingle.webrtc = (function(stanzas) {
         KEY_DELIMITER = ":",
         PAYLOAD_DELIMITER = "/",
         LINE_BREAK = "\r\n",
-        SDP_PREFIX_LEN = 3,
         // TODO: Remove hardcoding. This is copied from libjingle webrtcsdp.cc
         HARDCODED_SDP = "v=0\\r\\no=- 0 0 IN IP4 127.0.0.1\\r\\ns=\\r\\nc=IN IP4 0.0.0.0\\r\\nt=0 0",
-        
-        _parseMessageInJSON = function(msg) {
-            // Strip SDP-prefix and parse it as JSON
-            return JSON.parse(msg.substring(SDP_PREFIX_LEN));
-        },
+
         _splitSdpMessage = function(msg) {
             return msg.split(LINE_BREAK);
         },
@@ -165,7 +261,7 @@ jingle.webrtc = (function(stanzas) {
         },
         _parseLine = function(description, state, line) {
             var keyAndParams = _splitLine(line);
-            
+
             switch(keyAndParams.key) {
                 case LINE_PREFIXES.ATTRIBUTES:
                     _parseAttributes(description[state], keyAndParams.params);
@@ -200,7 +296,6 @@ jingle.webrtc = (function(stanzas) {
                     attrs.ssrc = params.join(" ").substring(5);
                     break;
             }
-            
             return attrs;
         },
         _parseCandidates = function(candidates, key, params) {
@@ -236,49 +331,56 @@ jingle.webrtc = (function(stanzas) {
             });
         },
         _generateJingleFromDescription = function(description) {
-            return {
-                video: _generateMediaContent("video", description.video),
-                audio: _generateMediaContent("audio", description.audio)
-            };
+            var r = {};
+            for (var k in description) {
+                if (description[k].rtpmap.length) {
+                    r[k] = _generateMediaContent(k, description[k]);
+                }
+            }
+            return r;
         },
         _generateMediaContent = function(name, media) {
-            var content = stanzas.content.create({
+            var content = that.ContentElement.create({
                 creator: 'initiator',
                 name: name});
             var i = 0, len = 0;
-           
-            var description = stanzas.description.create({
+
+            var description = that.DescriptionElement.create({
                 media: name,
                 payloads: [],
                 candidates: []
-            }); 
+            });
             if (media.ssrc.length) {
                 description.ssrc = media.ssrc;
             }
-            _serializeProperties(stanzas.payload,
+            _serializeProperties(that.PayloadElement,
                                  media.rtpmap,
                                  description.payloads);
-            
+
             if (media.crypto.length) {
-                var encryption = stanzas.encryption.create({
+                var encryption = that.EncryptionElement.create({
                     required: '1',
                     crypto: []
                 });
-                _serializeProperties(stanzas.crypto,
+                _serializeProperties(that.CryptoElement,
                                      media['crypto'],
                                      encryption.crypto);
                 content.encryption = encryption;
             }
-          
-            var transport = stanzas.ice_transport.create({
+
+            var transport = that.IceTransportElement.create({
                 candidates: []
             });
-            _serializeProperties(stanzas.candidate,
+            _serializeProperties(that.CandidateElement,
                                  media.candidates,
                                  transport.candidates);
 
-            content.description = description;
-            content.transport = transport;
+            if (description.payloads.length) {
+                content.description = description;
+            }
+            if (transport.candidates.length) {
+                content.transport = transport;
+            }
             return content;
         },
         _serializeProperties = function(tag, properties, append_to) {
@@ -399,18 +501,15 @@ jingle.webrtc = (function(stanzas) {
 
             return m + "\\r\\n" + candidateStr + rtpmapStr + "\\r\\n" + ssrcStr;
         };
-    
     return {
         createJingleStanza: function(sdpMsg) {
-            sdpMsg = _parseMessageInJSON(sdpMsg);
-            
             var description = _generateEmptyDescription(),
                 state = null,
                 sdp = _splitSdpMessage(sdpMsg.sdp),
                 sessionId = sdpMsg.offererSessionId,
                 seq = sdpMsg.seq,
                 tieBreaker = sdpMsg.tieBreaker;
-            
+
             for(var i = 0, len = sdp.length; i < len; i++) {
                 state = _parseLine(description, state, sdp[i]);
             }
@@ -439,32 +538,8 @@ jingle.webrtc = (function(stanzas) {
             }
             return _generateSdpFromDescription(description);
         }
-    };
-}(jslix.jingle.stanzas));
-
-
-// XXX
-var localStream = null;
-var onUserMediaSuccess = function(stream) {
-    localStream = stream;
-};
-var onUserMediaError = function(error) {
-};
-var state = {};
-
-navigator.webkitGetUserMedia("audio", onUserMediaSuccess, onUserMediaError);
-
-var initiate = jslix.Element({
-    clean_action: function(value) {
-        if (value == 'session-initiate') return value;
-        throw new jslix.exceptions.WrongElement('Not a session initiate');
-    },
-    setHandler: function(stanza, top) {
-        console.log(jingle.webrtc.parseJingleStanza(stanza));
-        throw('feature-not-implemented');
-        pc = new webkitPeerConnection("STUN stun.l.google.com:19302",
-                                              onSignalingMessage);
     }
-}, [jingle.stanzas.jingle]);
-jslix.dispatcher.addHandler(initiate, state);
-})();
+}
+
+    return plugin;
+});

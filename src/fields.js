@@ -38,6 +38,14 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
 
     fields.Attr = Attr;
 
+    fields.BooleanAttr = Class(
+        fields.Attr,
+        function(name, required) {
+            fields.Attr.call(this, name, required);
+            this.type = types.BooleanType;
+        }
+    );
+
     fields.StringAttr = Class(
         fields.Attr,
         function(name, required) {
@@ -164,9 +172,12 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
                     var node = document.createElementNS(xmlns, this.name);
                 }
                 var text_node = document.createTextNode(value);
-                node.appendChild(text_node);
-                if (!this.self)
+                if (!this.self) {
+                    node.appendChild(text_node);
                     stanza.appendChild(node);
+                } else {
+                    stanza.appendChild(text_node);
+                }
             },
             get_from_el: function(el) {
                 var self = this;
@@ -223,7 +234,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
                 return values
             },
             put_to_el: function(stanza, values) {
-                if(!stanza.__definition__) {
+                if(!values.__definition__) {
                     values = this.definition.create(values);
                 }
                 var prepared = jslix.build(values, true);
