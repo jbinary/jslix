@@ -11,7 +11,7 @@ define(['jslix/stanzas', 'jslix/fields'], function(stanzas, fields){
             from: new fields.JIDAttr('from', false),
             stamp: new fields.DateTimeAttr('stamp', true),
             description: new fields.StringNode(null, false, false,
-                                                     undefined, self)
+                                               undefined, true)
         })
     };
 
