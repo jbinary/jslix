@@ -20,6 +20,12 @@ define(['jslix/exceptions'],
                     link.parent = this;
                 },
                 setParent: function(parent) {
+                    if (!parent.__definition__ &&
+                        this.__definition__.parent_element) {
+                        parent = this.__definition__.parent_element.create(
+                            parent
+                        );
+                    }
                     parent.link(this);
                 }
             };
@@ -30,7 +36,7 @@ define(['jslix/exceptions'],
 
             if (typeof(f) == 'function') {
                     retObj[key] = f;
-                }
+            }
         }
 
         return retObj;
