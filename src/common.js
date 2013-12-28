@@ -128,14 +128,16 @@ define(['jslix/exceptions'],
         return result;
     };
 
-    jslix.build = function(obj, element_needed) {
+    jslix.build = function(obj, element_needed, parent) {
         var element_name = obj.__definition__.element_name;
         if (element_name && element_name[0] == ':') {
             element_name = obj[element_name.slice(1)];
         }
         if (element_needed) {
-            var doc = document.createElementNS(obj.__definition__.xmlns,
-                                               element_name);
+            var doc = document.createElementNS(
+                obj.__definition__.xmlns || parent.namespaceURI,
+                element_name
+            );
             var stanza = doc;
         } else {
             var doc = document.implementation.createDocument(

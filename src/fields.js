@@ -237,7 +237,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
                 if(!values.__definition__) {
                     values = this.definition.create(values);
                 }
-                var prepared = jslix.build(values, true);
+                var prepared = jslix.build(values, true, stanza);
                 stanza.appendChild(prepared);
             }
         }
