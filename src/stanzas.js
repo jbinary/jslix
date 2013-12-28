@@ -152,8 +152,18 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
             return error;
         },
         makeResult : function(params) {
+            if (params === undefined) {
+                params = {};
+            }
             params.parent = this.getTop().makeReply();
-            return this.__definition__.result_class.create(params);
+            var result_class = this.__definition__.result_class,
+                result;
+            if (result_class) {
+                result = result_class.create(params);
+            } else {
+                result = params.parent;
+            }
+            return result;
         },
         toString: function(){
             return new XMLSerializer().serializeToString(jslix.build(this));
