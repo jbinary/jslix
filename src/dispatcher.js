@@ -155,8 +155,11 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
                 if (typeof failure == 'object' && 
                     'definition' in failure) self.send(failure)
                 else if (failure instanceof Error) {
-                    self.send(top.makeError('internal-server-error',
-                                            failure.toString()));
+                    var msg = failure.toString();
+                    if (failure.stack) {
+                        msg = failure.stack;
+                    }
+                    self.send(top.makeError('internal-server-error', msg));
                                 // XXX: remove failure information when not debug
                 } else if (typeof failure == 'object' &&
                            'condition' in failure) {
