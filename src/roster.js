@@ -4,8 +4,8 @@
  */
 
 "use strict";
-define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
-    function(fields, stanzas, signals){
+define(['jslix/fields', 'jslix/stanzas', 'libs/signals', 'jslix/errors'],
+    function(fields, stanzas, signals, errors){
 
     var Signal = signals.Signal,
         Element = stanzas.Element;
@@ -53,7 +53,7 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
             var myjid = this._dispatcher.myjid;
             if ([myjid.bare, myjid.toString(), myjid.domain].indexOf(
                     top.from) == -1) {
-                throw "not-authorized";
+                throw new errors.NotAuthorizedError();
             }
             return value;
         },

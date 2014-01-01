@@ -20,5 +20,4 @@ define(['jslix/class'], function(Class){
     });
 
     return exceptions;
-
 });

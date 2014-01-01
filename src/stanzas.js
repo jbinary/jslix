@@ -44,32 +44,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
         return s.join('');
     }
 
-    // Error conditions according to
-    // http://xmpp.org/rfcs/rfc6120.html#stanzas-error
-    var conditions = {
-        'bad-request': 'modify',
-        conflict: 'cancel',
-        'feature-not-implemented': 'cancel',
-        forbidden: 'auth',
-        gone: 'cancel',
-        'internal-server-error': 'cancel',
-        'item-not-found': 'cancel',
-        'jid-malformed': 'modify',
-        'not-acceptable': 'modify',
-        'not-allowed': 'cancel',
-        'not-authorized': 'auth',
-        'policy-violation': 'modify',
-        'recipient-unavailable': 'wait',
-        redirect: 'modify',
-        'registration-required': 'auth',
-        'remote-server-not-found': 'cancel',
-        'remote-server-timeout': 'wait',
-        'resource-constraint': 'wait',
-        'service-unavailable': 'cancel',
-        'subscription-required': 'auth',
-        'unexpected-request': 'wait'
-    }
-
     stanzas.SpecialStanza = function(){
         this.type_name = 'Special stanza';
         this.__definition__ = stanzas.SpecialStanza;
@@ -135,21 +109,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
             if ('parent' in params) result.setParent(params.parent)
             else if ('link' in params) result.link(params.link);
             return result;
-        },
-        makeError : function(params_or_condition, text, type) {
-            if (typeof params_or_condition == 'string') {
-                var params = {condition: params_or_condition,
-                              text: text,
-                              type: type};
-            } else {
-                var params = params_or_condition;
-            }
-            params.type = params.type || conditions[params.condition];
-            params.parent = this.getTop().makeReply('error');
-            var eclass = this.__definition__.error_class ||
-                            stanzas.ErrorStanza;
-            var error = eclass.create(params);
-            return error;
         },
         makeResult : function(params) {
             if (params === undefined) {
@@ -237,24 +196,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
         element_name: 'query',
         parent_element: stanzas.IQStanza,
         node: new fields.StringAttr('node', false)
-    });
-
-    stanzas.ErrorStanza = Element({
-        parent_element: stanzas.Stanza,
-        xmlns: stanzas.STANZAS_NS,
-        element_name: 'error',
-        type: new fields.StringAttr('type', true),
-        condition: new fields.ConditionNode('urn:ietf:params:xml:ns:xmpp-stanzas'),
-        text: new fields.StringNode('text', false, false,
-                                'urn:ietf:params:xml:ns:xmpp-stanzas'),
-        // Validators
-        clean_type: function(value) {
-            if (['cancel', 'continue', 'modify', 'auth', 'wait'].indexOf(value) == -1)
-                throw new exceptions.ElementParseError(
-                    'Wrong error type ' + value
-                );
-            return value;
-        }
     });
 
     stanzas.FeaturesStanza = Element({

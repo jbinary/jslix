@@ -1,6 +1,7 @@
 "use strict";
-define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
-    function(jslix, stanzas, exceptions, logging){
+define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
+        'jslix/errors'],
+    function(jslix, stanzas, exceptions, logging, errors){
 
     var Dispatcher = function(connection) {
         this.connection = connection;
@@ -123,15 +124,24 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
             } else if (!result_class && top.type == 'result') {
                 d.resolve(r_el);
             } else if (top.type == 'error') {
-                var exception;
-                try {
-                    exception = jslix.parse(el, r_el.error_class);
-                } catch(e) {
-                    exception = e;
+                var exception = new Error('Could not parse error'),
+                    error_class = r_el.error_class ? r_el.error_class:errors.ErrorStanza;
+                for (var i=0; i<el.childNodes.length; i++) {
+                    try {
+                        exception = jslix.parse(el.childNodes[i], error_class).get_exception(top);
+                        break;
+                    } catch(e) {
+                        if (!(e instanceof exceptions.WrongElement)) {
+                            exception = e;
+                            break;
+                        }
+                    }
                 }
                 d.reject(exception);
             }
             delete this.deferreds[top.id];
+            // don't need to check handlers if deferred has been fired
+            return;
         }
 
         var continue_loop = function() {
@@ -154,23 +164,20 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
             if (can_error) {
                 if (typeof failure == 'object' && 
                     'definition' in failure) self.send(failure)
-                else if (failure instanceof Error) {
+                else if (failure instanceof errors.XMPPError) {
+                    // nothing to do, we already have a good Error to go
+                } else if (failure instanceof Error) {
                     var msg = failure.toString();
                     if (failure.stack) {
                         msg = failure.stack;
                     }
-                    self.send(top.makeError('internal-server-error', msg));
+                    failure = new errors.InternalServerErrorError(msg);
                                 // XXX: remove failure information when not debug
-                } else if (typeof failure == 'object' &&
-                           'condition' in failure) {
-                    self.send(top.makeError(failure));
-                } else if (typeof failure == 'string') {
-                    self.send(top.makeError(failure));
                 } else {
-                    self.send(top.makeError('internal-server-error'));
+                    failure = new errors.InternalServerError();
                 }
             }
-            continue_loop();
+            loop_done(failure.get_xmpp_error(top));
         }
 
         var loop_done = function(result) {
@@ -189,7 +196,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
                     bad_request = true;
                     return continue_loop(); // TODO: pass an exception message?
                 }
-                throw (e); // TODO: internal-server-error?
+                return loop_fail(e);
             }
             var func = obj[top.type+'Handler'] || obj['anyHandler'];
             if (func === undefined) {
@@ -199,7 +206,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging'],
             try {
                 var deferred = func.call(host, obj, top);
             } catch (e) {
-                loop_fail(e);
+                return loop_fail(e);
             }
             if (deferred && '__definition__' in deferred) {
                 loop_done(deferred);

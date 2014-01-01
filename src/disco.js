@@ -1,6 +1,6 @@
 "use strict";
-define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
-    function(fields, stanzas, signals){
+define(['jslix/fields', 'jslix/stanzas', 'libs/signals', 'jslix/errors'],
+    function(fields, stanzas, signals, errors) {
 
     var plugin = function(dispatcher){
         this.identities = [];
@@ -179,7 +179,7 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals'],
                         return infoHandler.call(context, query);
                     }
                 }
-                return query.makeError('item-not-found');
+                throw new errors.ItemNotFoundError();
             }
             return this.create_response(query);
         },
