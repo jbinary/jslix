@@ -152,32 +152,37 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
                 if (results.length)
                     self.send(results);
                 else if (bad_request && can_error) {
-                    self.send(top.makeError('bad-request'));
+                    self.send(get_error(new BadRequestError()), top);
                 } else if (can_error && top.__definition__.element_name == 'iq') {
-                    self.send(top.makeError('feature-not-implemented'));
+                    self.send(get_error(new FeatureNotImplementedError(), top));
                 }
             }
+        }
+
+        var get_error = function(failure, top) {
+            if (typeof failure == 'object' && 
+                'definition' in failure) self.send(failure)
+            else if (failure instanceof errors.XMPPError) {
+                // nothing to do, we already have a good Error to go
+            } else if (failure instanceof Error) {
+                var msg = failure.toString();
+                if (failure.stack) {
+                    msg = failure.stack;
+                }
+                failure = new errors.InternalServerErrorError(msg);
+                            // XXX: remove failure information when not debug
+            } else {
+                failure = new errors.InternalServerError();
+            }
+            return failure.get_xmpp_error(top);
         }
 
         var loop_fail = function(failure) {
             self.logger.error(failure, failure.stack);
             if (can_error) {
-                if (typeof failure == 'object' && 
-                    'definition' in failure) self.send(failure)
-                else if (failure instanceof errors.XMPPError) {
-                    // nothing to do, we already have a good Error to go
-                } else if (failure instanceof Error) {
-                    var msg = failure.toString();
-                    if (failure.stack) {
-                        msg = failure.stack;
-                    }
-                    failure = new errors.InternalServerErrorError(msg);
-                                // XXX: remove failure information when not debug
-                } else {
-                    failure = new errors.InternalServerError();
-                }
+                return loop_done(get_error(failure, top));
             }
-            loop_done(failure.get_xmpp_error(top));
+            continue_loop();
         }
 
         var loop_done = function(result) {
@@ -218,7 +223,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
             }
         }
         if(!this.handlers.length && can_error){
-            this.send(top.makeError('feature-not-implemented'));
+            this.send(get_error(new errors.FeatureNotImplementedError()), top);
             return;
         } else if (this.handlers.length)
             loop();
