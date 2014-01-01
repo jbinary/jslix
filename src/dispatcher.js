@@ -172,7 +172,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
                 failure = new errors.InternalServerErrorError(msg);
                             // XXX: remove failure information when not debug
             } else {
-                failure = new errors.InternalServerError();
+                failure = new errors.InternalServerErrorError();
             }
             return failure.get_xmpp_error(top);
         }
