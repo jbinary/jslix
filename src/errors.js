@@ -58,7 +58,8 @@ define(['jslix/class', 'jslix/stanzas', 'jslix/exceptions', 'jslix/fields',
             return errors;
         },
         get_exception: function(top) {
-            var name = errors.condition_to_name(this.condition);
+            var name = errors.condition_to_name(this.app_condition || 
+                                                this.condition);
             return new (this.get_module()[name])(this.text, this.type, this.top);
         }
     });
@@ -66,8 +67,14 @@ define(['jslix/class', 'jslix/stanzas', 'jslix/exceptions', 'jslix/fields',
     errors.XMPPError = Class(exceptions.Error, function(reason, type, top) {
             exceptions.Error.call(this, reason);
             this.reason = reason;
+            if (this.parent && this.parent.prototype.condition) {
+                this._condition = this.parent.prototype.condition;
+                this._app_condition = this.condition;
+            } else {
+                this._condition = this.condition;
+            }
             if (type === undefined) {
-                type = errors.conditions[this.condition];
+                type = errors.conditions[this._condition];
             }
             this.type = type;
             this.top = top;
@@ -77,9 +84,11 @@ define(['jslix/class', 'jslix/stanzas', 'jslix/exceptions', 'jslix/fields',
             if (top) {
                 var parent = top.makeReply('error');
             }
-            var error = errors.ErrorStanza.create({
+            var condition, app_condition;
+            var error = this.stanza_class.create({
                 type: this.type,
-                condition: this.condition,
+                app_condition: this._app_condition,
+                condition: this._condition,
                 text: this.reason,
                 parent: parent
             });
@@ -87,15 +96,28 @@ define(['jslix/class', 'jslix/stanzas', 'jslix/exceptions', 'jslix/fields',
         }
     });
 
-    for (var condition in errors.conditions) {
-        var name = errors.condition_to_name(condition),
-            gen_exception = function(name) {
-            return Class(errors.XMPPError, function() {
-                errors.XMPPError.apply(this, arguments);
-                this.name = name;
-            }, {'condition': condition});
-        };
-        errors[name] = gen_exception(name);
+    errors.prepare_errors_classes = function(conditions, module,
+                                             stanza_class) {
+        for (var condition in conditions) {
+            var name = errors.condition_to_name(condition),
+                parent,
+                stanza_class = stanza_class || module.ErrorStanza ||
+                                errors.ErrorStanza,
+                gen_exception = function(name, parent) {
+                return Class(parent, function() {
+                    parent.apply(this, arguments);
+                    this.name = name;
+                }, {'condition': condition,
+                    'parent': parent,
+                    'stanza_class': stanza_class});
+            };
+            parent = conditions[condition] || errors.XMPPError;
+            if (typeof(parent) == 'string') {
+                parent = errors.XMPPError;
+            }
+            module[name] = gen_exception(name, parent);
+        }
     }
+    errors.prepare_errors_classes(errors.conditions, errors);
     return errors;
 });
