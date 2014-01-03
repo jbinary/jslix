@@ -134,28 +134,31 @@ define([], function() {
 
                 // XEP-0294
                 if (SDPUtil.find_line(this.media[i], 'a=extmap:')) {
-                    console.log('TODO WARNING!!!');
-                    /*lines = SDPUtil.find_lines(this.media[i], 'a=extmap:');
+                    var headers = [];
+                    lines = SDPUtil.find_lines(this.media[i], 'a=extmap:');
                     for (j = 0; j < lines.length; j++) {
                         tmp = SDPUtil.parse_extmap(lines[j]);
-                        elem.c('rtp-hdrext', { xmlns: 'urn:xmpp:jingle:apps:rtp:rtp-hdrext:0',
-                                        uri: tmp.uri,
-                                        id: tmp.value });
+                        var senders = undefined;
+                        var header = {
+                            uri: tmp.uri,
+                            id: tmp.value
+                        };
                         if (tmp.hasOwnProperty('direction')) {
                             switch (tmp.direction) {
                             case 'sendonly':
-                                elem.attrs({senders: 'responder'});
+                                senders = 'responder';
                             case 'recvonly':
-                                elem.attrs({senders: 'initiator'});
+                                senders = 'initiator';
                             case 'sendrecv':
-                                elem.attrs({senders: 'both'});
+                                senders = 'both';
                             case 'inactive':
-                                elem.attrs({senders: 'none'});
+                                senders = 'none';
                             }
                         }
-                        // TODO: handle params
-                        elem.up();
-                    }*/
+                        header.senders = senders;
+                        headers.push(header);
+                    }
+                    description['rtp-headers'] = headers;
                 }
             }
 
@@ -357,10 +360,9 @@ define([], function() {
         media += self.RtcpFbFromJingle(description, '*');
 
         // xep-0294
-        /*tmp = desc.find('>rtp-hdrext[xmlns="urn:xmpp:jingle:apps:rtp:rtp-hdrext:0"]');
-        tmp.each(function() {
-            media += 'a=extmap:' + $(this).attr('id') + ' ' + $(this).attr('uri') + '\r\n';
-        }); TODO */
+        $.each(description['rtp-headers'] || [], function() {
+            media += 'a=extmap:' + this.id + ' ' + this.uri + '\r\n';
+        });
 
         $.each(content.transport.candidates, function() {
             media += SDPUtil.candidateFromJingle(this);
