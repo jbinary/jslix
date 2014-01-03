@@ -153,9 +153,9 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
                 if (results.length)
                     self.send(results);
                 else if (bad_request && can_error) {
-                    self.send(get_error(new BadRequestError()), top);
+                    self.send(get_error(new errors.BadRequestError(), top));
                 } else if (can_error && top.__definition__.element_name == 'iq') {
-                    self.send(get_error(new FeatureNotImplementedError(), top));
+                    self.send(get_error(new errors.FeatureNotImplementedError(), top));
                 }
             }
         }
