@@ -57,10 +57,15 @@ define(['jslix/class', 'jslix/stanzas', 'jslix/exceptions', 'jslix/fields',
         get_module: function() {
             return errors;
         },
+        get_condition: function() {
+            return this.app_condition || this.condition;
+        },
+        get_exception_class: function() {
+            var name = errors.condition_to_name(this.get_condition());
+            return this.get_module()[name] || errors[name];
+        },
         get_exception: function(top) {
-            var name = errors.condition_to_name(this.app_condition || 
-                                                this.condition);
-            return new (this.get_module()[name])(this.text, this.type, this.top);
+            return new (this.get_exception_class())(this.text, this.type, this.top);
         }
     });
 
