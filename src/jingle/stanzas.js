@@ -105,7 +105,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
 
     jingle.ReasonElement = stanzas.Element({
         element_name: 'reason',
-        condition: new fields.ConditionNode(null, true),
+        condition: new fields.ConditionNode(undefined, true),
         text: new fields.StringNode('text'),
         rtp_condition: new fields.ConditionNode(
             'urn:xmpp:jingle:apps:rtp:errors:1')
