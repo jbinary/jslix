@@ -170,14 +170,15 @@ define([], function() {
             }
 
             // XEP-0176
-            if (SDPUtil.find_line(this.media[i], 'a=candidate:', this.session)) { // add any a=candidate lines
-                lines = SDPUtil.find_lines(this.media[i], 'a=candidate:') || SDPUtil.find_lines(this.session, 'a=candidate');
-                for (j = 0; j < lines.length; j++) {
-                    tmp = SDPUtil.candidateToJingle(lines[j]);
-                    content.transport.candidates.push(tmp);
+            if (content.transport.ufrag) {
+                if (SDPUtil.find_line(this.media[i], 'a=candidate:', this.session)) { // add any a=candidate lines
+                    lines = SDPUtil.find_lines(this.media[i], 'a=candidate:') || SDPUtil.find_lines(this.session, 'a=candidate');
+                    for (j = 0; j < lines.length; j++) {
+                        tmp = SDPUtil.candidateToJingle(lines[j]);
+                        content.transport.candidates.push(tmp);
+                    }
                 }
             }
-            // end of transport
             var senders = undefined;
             if (SDPUtil.find_line(this.media[i], 'a=sendrecv', this.session)) {
                 senders = 'both';
@@ -187,6 +188,10 @@ define([], function() {
                 senders = 'responder';
             } else if (SDPUtil.find_line(this.media[i], 'a=inactive', this.session)) {
                 senders = 'none';
+            }
+            if (mline.port == '0') {
+                // estos hack to reject an m-line
+                senders = 'rejected';
             }
             content.senders = senders;
         }
@@ -279,6 +284,10 @@ define([], function() {
 
         tmp = { media: content.name };
         tmp.port = '1';
+        if (content.senders == 'rejected') {
+            // estos hack to reject an m-line
+            tmp.port = '0';
+        }
         if (description.encryption || content.transport.fingerprint) {
             tmp.proto = 'RTP/SAVPF';
         } else {
@@ -378,8 +387,11 @@ define([], function() {
     var SDPUtil = {
         iceparams: function(mediadesc, sessiondesc) {
             var data = {};
-            data.ufrag = SDPUtil.parse_iceufrag(SDPUtil.find_line(mediadesc, 'a=ice-ufrag:', sessiondesc));
-            data.pwd = SDPUtil.parse_icepwd(SDPUtil.find_line(mediadesc, 'a=ice-pwd:', sessiondesc));
+            if (SDPUtil.find_line(mediadesc, 'a=ice-ufrag:', sessiondesc) &&
+                SDPUtil.find_line(mediadesc, 'a=ice-pwd:', sessiondesc)) {
+                data.ufrag = SDPUtil.parse_iceufrag(SDPUtil.find_line(mediadesc, 'a=ice-ufrag:', sessiondesc));
+                data.pwd = SDPUtil.parse_icepwd(SDPUtil.find_line(mediadesc, 'a=ice-pwd:', sessiondesc));
+            }
             return data;
         },
         parse_iceufrag: function(line) {
