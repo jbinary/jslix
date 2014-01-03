@@ -19,9 +19,6 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
             // MozDontOfferDataChannel = true when this is firefox
         };
         this.localStream = null;
-        this.MULTIPARTY = false;
-        this.AUTOACCEPT = true;
-        this.PRANSWER = false;
         this.dispatcher = dispatcher;
     }
 
@@ -40,39 +37,23 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
                 var sess = this.sessions[stanza.sid];
                 switch (stanza.action) {
                 case 'session-initiate':
-                    if (this.MULTIPARTY || Object.keys(this.sessions).length == 0) {
-                        sess = new JingleSession(top.to, stanza.sid, this.dispatcher);
-                        // configure session
-                        sess.localStream = this.localStream;
-                        sess.media_constraints = this.media_constraints;
-                        sess.pc_constraints = this.pc_constraints;
-                        sess.ice_config = this.ice_config;
+                    sess = new JingleSession(top.to, stanza.sid, this.dispatcher);
+                    // configure session
+                    sess.localStream = this.localStream;
+                    sess.media_constraints = this.media_constraints;
+                    sess.pc_constraints = this.pc_constraints;
+                    sess.ice_config = this.ice_config;
 
-                        sess.initiate(top.from, false);
-                        // FIXME: setRemoteDescription should only be done when this call is to be accepted
-                        sess.setRemoteDescription(stanza, 'offer');
+                    sess.initiate(top.from, false);
+                    // FIXME: setRemoteDescription should only be done when this call is to be accepted
+                    sess.setRemoteDescription(stanza, 'offer');
 
-                        this.sessions[sess.sid] = sess;
-                        this.jid2session[sess.peerjid] = sess;
+                    this.sessions[sess.sid] = sess;
+                    this.jid2session[sess.peerjid] = sess;
 
-                        signals.call.incoming.dispatch(sess.sid);
-
-                        // FIXME: this should be a callback based on the jid
-                        if (this.AUTOACCEPT) {
-                            sess.sendAnswer();
-                            sess.accept();
-                            // FIXME: watch for unavailable from this specific jid to terminate properly and remove handler later
-                            //  currently done by app + terminateByJid
-                            // hand = this.connection.addHandler(onPresenceUnavailable, null, 'presence', 'unavailable', null, roomjid, {matchBare: true});
-                        } else if (this.PRANSWER) {
-                            sess.sendAnswer(true);
-                        }
-                    } else {
-                        sess = new JingleSession(top.to, stanza.sid, this.dispatcher);
-                        sess.peerjid = top.from;
-                        sess.sendTerminate('busy');
-                        sess.terminate();
-                    }
+                    // the callback should either .sendAnswer and .accept
+                    // or .sendTerminate
+                    signals.call.incoming.dispatch(sess.sid);
                     break;
                 case 'session-accept':
                     sess.setRemoteDescription(stanza, 'answer');
