@@ -495,28 +495,20 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
 
     JingleSession.prototype.sendTerminate = function(reason, text) {
         var obj = this;
-            /*term = $iq({to: this.peerjid,
-                   type: 'set'})
-            .c('jingle', {xmlns: 'urn:xmpp:jingle:1',
-               action: 'session-terminate',
-               initiator: this.initiator,
-               sid: this.sid})
-            .c('reason')
-            .c(reason || 'success');*/
-        // TODO: reason
         var term = JingleQuery.create({
             action: 'session-terminate',
             initiator: this.initiator,
             sid: this.sid,
+            reason: {
+                condition: reason || 'success',
+                text: text
+            },
             parent: {
                 // TODO: from? think deeper about "from."
                 to: this.peerjid,
                 type: 'set'
             }
         });
-
-        /*if(text)
-            term.up().c('text').t(text);*/
 
         this.dispatcher.send(term).done(function() {
            console.log('terminate ack');

@@ -7,6 +7,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
 
     SDP = SDP.SDP;
     var plugin = function(dispatcher, options) {
+        // TODO: process options correctly
         this.connection = null;
         this.sessions = {};
         this.jid2session = {};
@@ -81,18 +82,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
                     console.log('terminating...');
                     sess.terminate();
                     this.terminate(sess.sid);
-                    // XXX: reason to be defined in stanzas
-                    if (stanza.reason) {
-                        signals.call.terminated.dispatch(
-                            sess.sid,
-                            'XXX put reason here',
-                            'XXX put reason text here'
-                            /*$(iq).find('>jingle>reason :first')[0].tagName,
-                            $(iq).find('>jingle>reason>text').text()*/
-                        );
-                    } else {
-                        signals.call.terminated.dispatch(sess.sid);
-                    }
+                    signals.call.terminated.dispatch(sess.sid, stanza.reason);
                     break;
                 case 'transport-info':
                     sess.addIceCandidate(stanza.contents);
