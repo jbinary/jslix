@@ -9,7 +9,8 @@ define(['jslix/errors', 'libs/jquery', 'jslix/stanzas', 'jslix/fields'],
         'unsupported-info': errors.FeatureNotImplementedError
     };
     module.ErrorStanza = stanzas.Element({
-        app_condition: new fields.ConditionNode('urn:xmpp:jingle:errors:1'),
+        app_condition: new fields.ConditionNode('urn:xmpp:jingle:errors:1',
+                                                false),
         get_module: function() {
             return module;
         }
