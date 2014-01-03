@@ -27,9 +27,11 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         this.media_constraints = null;
         this.pc_constraints = null;
         this.ice_config = {};
+        this.drip_container = [];
 
         this.usetrickle = true;
         this.usepranswer = false; // early transport warmup -- mind you, this might fail. depends on webrtc issue 1718
+        this.usedrip = true; // dripping is sending trickle candidates at once
 
         this.hadstuncandidate = false;
         this.hadturncandidate = false;
@@ -175,37 +177,61 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
             }
             console.log(event.candidate, jcand);
 
-            if (this.usetrickle) {
+            var send_info = function(candidates) {
                 // map to transport-info
-                ice.candidates = [jcand];
                 var cand = JingleQuery.create({
+                    parent: {
+                        to: ob.peerjid, type: 'set'
+                    },
                     action: 'transport-info',
-                    initiator: this.initiator,
-                    sid: this.sid,
-                    contents: [
-                        {
-                            creator: this.initiator == this.me ? 'initiator' : 'responder',
-                            name: candidate.sdpMid,
-                            transport: ice
-                        }
-                    ],
-                    parent: {to: this.peerjid, type: 'set'}
+                    initiator: ob.initiator,
+                    sid: ob.sid,
+                    contents: []
                 });
-                // add fingerprint
-                if (SDPUtil.find_line(this.localSDP.media[candidate.sdpMLineIndex], 'a=fingerprint:', this.localSDP.session)) {
-                    var tmp = SDPUtil.parse_fingerprint(SDPUtil.find_line(this.localSDP.media[candidate.sdpMLineIndex], 'a=fingerprint:', this.localSDP.session));
-                    tmp.required = true;
-                    cand.contents[0].transport.fingerprint = tmp;
+                for (var mid = 0; mid < ob.localSDP.media.length; mid++) {
+                    var cands = candidates.filter(function(el) { return el.sdpMLineIndex == mid; });
+                    if (cands.length) {
+                        var content = {
+                            creator: ob.initiator == ob.me ? 'initiator' : 'responder',
+                            name: cands[0].sdpMid,
+                            transport: SDPUtil.iceparams(ob.localSDP.media[mid], ob.localSDP.session)
+                        };
+                        cand.contents.push(content);
+                        content.transport.candidates = [];
+                        for (var i=0; i < cands.length; i++) {
+                            content.transport.candidates.push(
+                                SDPUtil.candidateToJingle(cands[i].candidate));
+                        }
+                        if (SDPUtil.find_line(ob.localSDP.media[mid], 'a=fingerprint:', ob.localSDP.session)) {
+                            var tmp = SDPUtil.parse_fingerprint(SDPUtil.find_line(ob.localSDP.media[mid], 'a=fingerprint:', ob.localSDP.session));
+                            tmp.required = true;
+                            content.transport.fingerprint = tmp;
+                        }
+                    }
                 }
-                this.dispatcher.send(cand).done(
-                   function() {
-                       console.log('transport info ack');
-                   }).fail(
-                   function(failure) {
-                        console.error('transport info error');
-                        signals.error.dispatch(ob.sid, failure, 'offer');
-                   }
-                )
+                ob.dispatcher.send(cand).done(function() {
+                    console.log('transport info ack');
+                }).fail(function(failure) {
+                    console.error('transport info error');
+                    signals.error.dispatch(ob.sid, failure, 'offer');
+                });
+            }
+
+            if (this.usetrickle) {
+                if (this.usedrip) {
+                    if (this.drip_container.length == 0) {
+                        console.warn(new Date().getTime(), 'start dripping');
+                        window.setTimeout(function() {
+                            console.warn('dripping');
+                            if (ob.drip_container.length == 0) return;
+                            send_info(ob.drip_container);
+                            ob.drip_container = [];
+                        }, 10);
+                    }
+                    this.drip_container.push(event.candidate);
+                    return;
+                }
+                send_info([event.candidate]);
             }
         } else {
             console.log('sendIceCandidate: last candidate.');
