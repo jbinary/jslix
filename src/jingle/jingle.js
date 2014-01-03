@@ -1,9 +1,9 @@
 "use strict";
 define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
         'jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/session',
-        'jslix/jingle/stanzas', 'jslix/jingle/errors'],
+        'jslix/jingle/stanzas', 'jslix/jingle/errors', 'jslix/errors'],
     function(fields, stanzas, exceptions, SDP, signals, JingleSession,
-             jingle_stanzas, errors) {
+             jingle_stanzas, errors, jslix_errors) {
 
     SDP = SDP.SDP;
     var plugin = function(dispatcher, options) {
@@ -101,8 +101,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
                     break;
                 default:
                     console.warn('jingle action not implemented', action);
-                    // TODO: send error back
-                    break;
+                    throw new jslix_errors.BadRequestError('unknown action');
                 }
                 // send ack
                 return stanza.makeResult();
