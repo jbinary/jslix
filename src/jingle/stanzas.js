@@ -64,6 +64,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         ssrc: new fields.StringAttr('ssrc', false),
         payloads: new fields.ElementNode(jingle.PayloadElement, true, true),
         encryption: new fields.ElementNode(jingle.EncryptionElement),
+        'rtcp-mux': new fields.FlagNode('rtcp-mux', false),
         'rtcp-fb': new fields.ElementNode(jingle.RTCPFBElement, false),
         'rtcp-fb-trr-int': new fields.ElementNode(jingle.RTCPFBTRRIntElement, false)
     });

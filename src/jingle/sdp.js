@@ -126,7 +126,7 @@ define([], function() {
                 }
 
                 if (SDPUtil.find_line(this.media[i], 'a=rtcp-mux')) {
-                    console.log('TODO WARNING!!!');
+                    description['rtcp-mux'] = true;
                 }
 
                 // XEP-0293 -- map a=rtcp-fb:*
@@ -323,9 +323,9 @@ define([], function() {
         // <description><rtcp-mux/></description>
         // see http://code.google.com/p/libjingle/issues/detail?id=309 -- no spec though
         // and http://mail.jabber.org/pipermail/jingle/2011-December/001761.html
-        /*if (desc.find('rtcp-mux').length) {
+        if (description['rtcp-mux']) {
             media += 'a=rtcp-mux\r\n';
-        }*/
+        }
 
         if (description.encryption) {
             tmp = description.encryption.crypto;
