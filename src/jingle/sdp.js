@@ -46,7 +46,9 @@ define([], function() {
         for (i = 0; i < this.media.length; i++) {
             this.raw += this.media[i];
         }
-        this.raw += '\r\n';
+        if (this.raw.substr(this.raw.length - 2) != '\r\n') {
+            this.raw += '\r\n';
+        }
     };
 
     // add content's to a jingle element
