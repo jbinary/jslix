@@ -7,15 +7,15 @@
 define([], function() {
     // SDP STUFF
     var SDP = function(sdp) {
-        if (sdp.substr(sdp.length - 2) == '\r\n') {
-            sdp = sdp.substr(0, sdp.length - 2);
-        }
         this.media = sdp.split('\r\nm=');
         for (var i = 1; i < this.media.length; i++) {
             this.media[i] = 'm=' + this.media[i];
+            if (i != this.media.length - 1) {
+                this.media[i] += '\r\n';
+            }
         }
-        this.session = this.media.shift();
-        this.raw = this.session + '\r\n' + this.media.join('\r\n'); // + '\r\n';
+        this.session = this.media.shift() + '\r\n';
+        this.raw = this.session + '\r\n' + this.media.join('');
     }
 
     // remove iSAC and CN from SDP
@@ -23,6 +23,7 @@ define([], function() {
         var i, j, mline, lines, rtpmap, newdesc;
         for (i = 0; i < this.media.length; i++) {
             lines = this.media[i].split('\r\n');
+            lines.pop(); // remove empty last element
             mline = SDPUtil.parse_mline(lines.shift());
             if (mline.media != 'audio')
                 continue;
@@ -42,13 +43,7 @@ define([], function() {
             this.media[i] = SDPUtil.build_mline(mline) + '\r\n';
             this.media[i] += newdesc;
         }
-        this.raw = this.session + '\r\n';
-        for (i = 0; i < this.media.length; i++) {
-            this.raw += this.media[i];
-        }
-        if (this.raw.substr(this.raw.length - 2) != '\r\n') {
-            this.raw += '\r\n';
-        }
+        this.raw = this.session + this.media.join('');
     };
 
     // add content's to a jingle element
@@ -260,7 +255,6 @@ define([], function() {
         for (var i = 0; i < stanza.contents.length; i++) {
             var m = obj.jingle2media(stanza.contents[i]);
             obj.media.push(m);
-            obj.raw += m;
         };
 
         // reconstruct msid-semantic -- apparently not necessary
@@ -271,10 +265,7 @@ define([], function() {
         }
         */
 
-        this.raw = this.session;
-        for (i = 0; i < this.media.length; i++) {
-            this.raw += this.media[i];
-        }
+        this.raw = this.session + this.media.join('');
     };
 
     // translate a jingle content element into an an SDP media part

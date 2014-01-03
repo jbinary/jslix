@@ -400,7 +400,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                     }
                 }
             });
-            this.remoteSDP.raw = this.remoteSDP.session + '\r\n' + this.remoteSDP.media.join(''); // + '\r\n';
+            this.remoteSDP.raw = this.remoteSDP.session + '\r\n' + this.remoteSDP.media.join('');
 
             // we need a complete SDP with ice-ufrag/ice-pwd in all parts
             // this makes the assumption that the PRANSWER is constructed such that the ice-ufrag is in all mediaparts
@@ -497,7 +497,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                 for (i = 0; i < this.localSDP.media.length; i++) {
                     this.localSDP.media[i] = this.localSDP.media[i].replace('a=sendrecv\r\n', 'a=inactive\r\n');
                 }
-                this.localSDP.raw = this.localSDP.session + '\r\n' + this.localSDP.media.join('') + '\r\n';
+                this.localSDP.raw = this.localSDP.session + '\r\n' + this.localSDP.media.join('');
             }
         }
         sdp.sdp = this.localSDP.raw;
