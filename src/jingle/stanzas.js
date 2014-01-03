@@ -103,6 +103,14 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         transport: new fields.ElementNode(jingle.IceTransportElement),
     });
 
+    jingle.ReasonElement = stanzas.Element({
+        element_name: 'reason',
+        condition: new fields.ConditionNode(null, true),
+        text: new fields.StringNode('text'),
+        rtp_condition: new fields.ConditionNode(
+            'urn:xmpp:jingle:apps:rtp:errors:1')
+    });
+
     // The main element
     jingle.JingleQuery = stanzas.Element({
         error_class: errors.ErrorStanza,
@@ -111,7 +119,8 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         action: new fields.StringAttr('action', true),
         initiator: new fields.JIDAttr('initiator'),
         sid: new fields.StringAttr('sid', true),
-        contents: new fields.ElementNode(jingle.ContentElement, true, true)
+        contents: new fields.ElementNode(jingle.ContentElement, false, true),
+        reason: new fields.ElementNode(jingle.ReasonElement)
     }, [stanzas.QueryStanza]);
     return jingle;
 });
