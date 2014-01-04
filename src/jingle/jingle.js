@@ -115,7 +115,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
     }
 
     jingle.terminate = function(sid, reason, text) {
-        if (sid == null) {
+        if (!sid) {
             for (sid in this.sessions) {
                 if(this.sessions[sid].state != 'ended'){
                     this.sessions[sid].sendTerminate(reason||(!this.sessions[sid].active())?'cancel':null, text);
