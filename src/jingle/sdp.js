@@ -91,12 +91,22 @@ define([], function() {
                 };
                 if (ssrc) {
                     description.ssrc = ssrc;
-                    var source = {parameters: [], ssrc: ssrc};
-                    description.sources = [source];
-                    // FIXME: group by ssrc and support multiple different ssrcs
+                    description.sources = [];
+                    var sources = {},
+                        get_source = function(ssrc) {
+                            if (!(ssrc in sources)) {
+                                sources[ssrc] = {parameters: [], ssrc: ssrc};
+                                description.sources.push(sources[ssrc]);
+                            }
+                            return sources[ssrc];
+                        };
+                    get_source(ssrc);
+                    // FIXME: group by ssrc
                     $.each(SDPUtil.find_lines(this.media[i], 'a=ssrc:'), function() {
-                        var idx = this.indexOf(' ');
-                        var kv = this.substr(idx+1);
+                        var idx = this.indexOf(' '),
+                            linessrc = this.substr(0, idx).substr(7),
+                            kv = this.substr(idx+1),
+                            source = get_source(linessrc);
                         if (kv.indexOf(':') == -1) {
                             source.parameters.push({ name: kv });
                         } else {
