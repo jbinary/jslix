@@ -1,9 +1,10 @@
 "use strict";
 define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
         'jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/session',
-        'jslix/jingle/stanzas', 'jslix/jingle/errors', 'jslix/errors'],
+        'jslix/jingle/stanzas', 'jslix/jingle/errors', 'jslix/errors',
+        'jslix/jid'],
     function(fields, stanzas, exceptions, SDP, signals, JingleSession,
-             jingle_stanzas, errors, jslix_errors) {
+             jingle_stanzas, errors, jslix_errors, JID) {
 
     SDP = SDP.SDP;
     var plugin = function(dispatcher, options) {
@@ -106,7 +107,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
         sess.pc_constraints = this.pc_constraints;
         sess.ice_config = this.ice_config;
 
-        sess.initiate(peerjid, true);
+        sess.initiate(new JID(peerjid), true);
         this.sessions[sess.sid] = sess;
         this.jid2session[sess.peerjid] = sess;
         sess.sendOffer();
