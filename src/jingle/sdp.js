@@ -467,9 +467,9 @@ define([], function() {
             return data;
         },
         build_rtpmap: function(el) {
-            var line = 'a=rtpmap:' + $(el).attr('id') + ' ' + $(el).attr('name') + '/' + $(el).attr('clockrate');
-            if ($(el).attr('channels') && $(el).attr('channels') != '1') {
-                line += '/' + $(el).attr('channels');
+            var line = 'a=rtpmap:' + el.id + ' ' + el.name + '/' + el.clockrate;
+            if (el.channels && el.channels != '1') {
+                line += '/' + el.channels;
             }
             return line;
         },
