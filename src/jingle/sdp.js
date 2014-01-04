@@ -91,6 +91,21 @@ define([], function() {
                 };
                 if (ssrc) {
                     description.ssrc = ssrc;
+                    var source = {parameters: [], ssrc: ssrc};
+                    description.sources = [source];
+                    // FIXME: group by ssrc and support multiple different ssrcs
+                    $.each(SDPUtil.find_lines(this.media[i], 'a=ssrc:'), function() {
+                        var idx = this.indexOf(' ');
+                        var kv = this.substr(idx+1);
+                        if (kv.indexOf(':') == -1) {
+                            source.parameters.push({ name: kv });
+                        } else {
+                            source.parameters.push({
+                                name: kv.split(':', 2)[0],
+                                value: kv.split(':', 2)[1]
+                            });
+                        }
+                    });
                 }
                 content.description = description;
                 for (j = 0; j < mline.fmt.length; j++) {
@@ -382,14 +397,15 @@ define([], function() {
             media += SDPUtil.candidateFromJingle(this);
         });
 
-        // proprietary mapping of a=ssrc lines
-        /*tmp = content.find('description>ssrc[xmlns="http://estos.de/ns/ssrc"]');
-        if (tmp.length) {
-            media += 'a=ssrc:' + ssrc + ' cname:' + tmp.attr('cname') + '\r\n';
-            media += 'a=ssrc:' + ssrc + ' msid:' + tmp.attr('msid') + '\r\n';
-            media += 'a=ssrc:' + ssrc + ' mslabel:' + tmp.attr('mslabel') + '\r\n';
-            media += 'a=ssrc:' + ssrc + ' label:' + tmp.attr('label') + '\r\n';
-        }*/
+        $.each(description.sources, function() {
+            var ssrc = this.ssrc;
+            $.each(this.parameters, function() {
+                media += 'a=ssrc:' + ssrc + ' ' + this.name;
+                if (this.value && this.value.length)
+                    media += ':' + this.value;
+                media += '\r\n';
+            });
+        });
         return media;
     };
 

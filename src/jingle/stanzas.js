@@ -66,6 +66,19 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         senders: new fields.StringAttr('senders')
     });
 
+    jingle.SourceParameterElement = stanzas.Element({
+        element_name: 'parameter',
+        name: new fields.StringAttr('name', true),
+        value: new fields.StringAttr('value')
+    });
+
+    jingle.SourceElement = stanzas.Element({
+        element_name: 'source',
+        xmlns: 'urn:xmpp:jingle:apps:rtp:ssma:0',
+        ssrc: new fields.StringAttr('ssrc', true),
+        parameters: new fields.ElementNode(jingle.SourceParameterElement, true, true)
+    });
+
     jingle.DescriptionElement = stanzas.Element({
         xmlns: 'urn:xmpp:jingle:apps:rtp:1',
         element_name: 'description',
@@ -76,7 +89,8 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         'rtcp-mux': new fields.FlagNode('rtcp-mux', false),
         'rtcp-fb': new fields.ElementNode(jingle.RTCPFBElement, false),
         'rtcp-fb-trr-int': new fields.ElementNode(jingle.RTCPFBTRRIntElement, false),
-        'rtp-headers': new fields.ElementNode(jingle.RTPHeaderExtElement, false, true)
+        'rtp-headers': new fields.ElementNode(jingle.RTPHeaderExtElement, false, true),
+        sources: new fields.ElementNode(jingle.SourceElement, false, true)
     });
 
     // Transport description stanzas
