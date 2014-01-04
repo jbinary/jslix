@@ -131,7 +131,7 @@ define([], function() {
                             parameters.push(tmp[k]);
                         }
                     }
-                    this.RtcpFbToJingle(this.media[i], payload, mline.fmt[j]); // XEP-0293 -- map a=rtcp-fb
+                    this.RtcpFbToJingle(i, payload, mline.fmt[j]); // XEP-0293 -- map a=rtcp-fb
                 }
                 if (SDPUtil.find_line(this.media[i], 'a=crypto:', this.session)) {
                     description.encryption = {
@@ -150,7 +150,7 @@ define([], function() {
                 }
 
                 // XEP-0293 -- map a=rtcp-fb:*
-                this.RtcpFbToJingle(this.media[i], description, '*');
+                this.RtcpFbToJingle(i, description, '*');
 
                 // XEP-0294
                 if (SDPUtil.find_line(this.media[i], 'a=extmap:')) {
@@ -182,32 +182,8 @@ define([], function() {
                 }
             }
 
-            content.transport = SDPUtil.iceparams(this.media[i], this.session);
-            content.transport.candidates = [];
-            content.transport.fingerprints = [];
+            this.TransportToJingle(i, content);
 
-            // XEP-0320
-            $.each(SDPUtil.find_lines(this.media[i], 'a=fingerprint:', this.session),
-            function() {
-                tmp = SDPUtil.parse_fingerprint(this);
-                tmp.required = true;
-                var setup = SDPUtil.find_line(ob.media[i], 'a=setup:', ob.session);
-                if (setup) {
-                    tmp.setup = setup.substr(8);
-                }
-                content.transport.fingerprints.push(tmp);
-            });
-
-            // XEP-0176
-            if (content.transport.ufrag) {
-                if (SDPUtil.find_line(this.media[i], 'a=candidate:', this.session)) { // add any a=candidate lines
-                    lines = SDPUtil.find_lines(this.media[i], 'a=candidate:') || SDPUtil.find_lines(this.session, 'a=candidate');
-                    for (j = 0; j < lines.length; j++) {
-                        tmp = SDPUtil.candidateToJingle(lines[j]);
-                        content.transport.candidates.push(tmp);
-                    }
-                }
-            }
             var senders = undefined;
             if (SDPUtil.find_line(this.media[i], 'a=sendrecv', this.session)) {
                 senders = 'both';
@@ -227,8 +203,37 @@ define([], function() {
         return query;
     };
 
-    SDP.prototype.RtcpFbToJingle = function(sdp, elem, payloadtype) { // XEP-0293
-        var lines = SDPUtil.find_lines(sdp, 'a=rtcp-fb:' + payloadtype);
+    SDP.prototype.TransportToJingle = function(mediaindex, content) {
+        var line = this.media[mediaindex], tmp, setup, ob=this;
+        content.transport = SDPUtil.iceparams(line, this.session);
+        content.transport.candidates = [];
+        content.transport.fingerprints = [];
+        // XEP-0320
+        $.each(SDPUtil.find_lines(line, 'a=fingerprint:', this.session),
+        function() {
+            tmp = SDPUtil.parse_fingerprint(this);
+            tmp.required = true;
+            setup = SDPUtil.find_line(line, 'a=setup:', ob.session);
+            if (setup) {
+                tmp.setup = setup.substr(8);
+            }
+            content.transport.fingerprints.push(tmp);
+        });
+
+        // XEP-0176
+        if (content.transport.ufrag) {
+            if (SDPUtil.find_line(line, 'a=candidate:', this.session)) { // add any a=candidate lines
+                lines = SDPUtil.find_lines(line, 'a=candidate:') || SDPUtil.find_lines(this.session, 'a=candidate');
+                for (j = 0; j < lines.length; j++) {
+                    tmp = SDPUtil.candidateToJingle(lines[j]);
+                    content.transport.candidates.push(tmp);
+                }
+            }
+        }
+    }
+
+    SDP.prototype.RtcpFbToJingle = function(mediaindex, elem, payloadtype) { // XEP-0293
+        var lines = SDPUtil.find_lines(this.media[mediaindex], 'a=rtcp-fb:' + payloadtype);
         for (var i = 0; i < lines.length; i++) {
             var tmp = SDPUtil.parse_rtcpfb(lines[i]);
             if (tmp.type == 'trr-int') {
