@@ -279,14 +279,6 @@ define([], function() {
             obj.media.push(m);
         };
 
-        // reconstruct msid-semantic -- apparently not necessary
-        /*
-        var msid = SDPUtil.parse_ssrc(this.raw);
-        if (msid.hasOwnProperty('mslabel')) {
-            this.session += "a=msid-semantic: WMS " + msid.mslabel + "\r\n";
-        }
-        */
-
         this.raw = this.session + this.media.join('');
     };
 
@@ -548,20 +540,6 @@ define([], function() {
             line += ' ';
             line += cand.hasOwnAttribute('generation') ? cand.generation : '0';
             return line;
-        },
-        parse_ssrc: function(desc) {
-            // proprietary mapping of a=ssrc lines
-            // TODO: see "Jingle RTP Source Description" by Juberti and P. Thatcher on google docs
-            // and parse according to that
-            var lines = desc.split('\r\n'),
-                data = {xmlns: 'http://estos.de/ns/ssrc'};
-            for (var i = 0; i < lines.length; i++) {
-                if (lines[i].substring(0, 7) == 'a=ssrc:') {
-                    var idx = lines[i].indexOf(' ');
-                    data[lines[i].substr(idx + 1).split(':', 2)[0]] = lines[i].substr(idx + 1).split(':', 2)[1];
-                }
-            }
-            return data;
         },
         parse_rtcpfb: function(line) {
             var parts = line.substr(10).split(' ');
