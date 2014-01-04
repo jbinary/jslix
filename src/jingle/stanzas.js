@@ -20,6 +20,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         element_name: 'fingerprint',
         xmlns: 'urn:xmpp:tmp:jingle:apps:dtls:0',
         hash: new fields.StringAttr('hash', true),
+        setup: new fields.StringAttr('setup', true),
         required: new fields.BooleanAttr('required'),
         fingerprint: new fields.StringNode(undefined, true, false, undefined, true)
     });

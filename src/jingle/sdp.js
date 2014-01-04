@@ -48,7 +48,7 @@ define([], function() {
 
     // add content's to a jingle element
     SDP.prototype.toJingle = function(thecreator) {
-        var i, j, k, mline, ssrc, rtpmap, tmp, lines,
+        var i, j, k, mline, ssrc, rtpmap, tmp, lines, ob=this,
             bundle = [],
             query = {
                 contents: []
@@ -170,6 +170,10 @@ define([], function() {
             function() {
                 tmp = SDPUtil.parse_fingerprint(this);
                 tmp.required = true;
+                var setup = SDPUtil.find_line(ob.media[i], 'a=setup:', ob.session);
+                if (setup) {
+                    tmp.setup = setup.substr(8);
+                }
                 content.transport.fingerprints.push(tmp);
             });
 
@@ -320,6 +324,9 @@ define([], function() {
                 media += 'a=fingerprint:' + this.hash;
                 media += ' ' + this.fingerprint;
                 media += '\r\n';
+                if (this.setup) {
+                    media += 'a=setup:' + this.setup + '\r\n';
+                }
             });
         }
         switch (content.senders) {
