@@ -29,12 +29,14 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
         // TODO: disco
         var handler = stanzas.Element({
             setHandler: function(stanza, top) {
-                if (stanza.action != 'session-initiate' &&
-                    !(stanza.sid in this.sessions)) {
-                    throw new errors.UnknownSessionError();
-                }
                 console.log('on jingle ' + stanza.action);
                 var sess = this.sessions[stanza.sid];
+                if (stanza.action != 'session-initiate' &&
+                    (!sess || (top.from.bare != sess.peerjid.bare))) {
+                    throw new errors.UnknownSessionError();
+                } else if (stanza.action == 'session-initiate' && sess) {
+                    throw new jslix_errors.ServiceUnavailableError();
+                }
                 switch (stanza.action) {
                 case 'session-initiate':
                     sess = new JingleSession(top.to, stanza.sid, this.dispatcher);
