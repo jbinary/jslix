@@ -117,7 +117,7 @@ define([], function() {
                        required: 1,
                        crypto: []
                     }
-                    $.each(SDPUtil.find_lines(this.media[i], 'a=crypto:', this.session), function() {
+                    $.each(SDPUtil.find_lines(this.media[i], 'a=crypto:'), function() {
                         description.encryption.crypto.push(
                             SDPUtil.parse_crypto(this)
                         );
@@ -166,7 +166,7 @@ define([], function() {
             content.transport.fingerprints = [];
 
             // XEP-0320
-            $.each(SDPUtil.find_lines(this.media[i], 'a=fingerprint:', this.session),
+            $.each(SDPUtil.find_lines(this.media[i], 'a=fingerprint:'),
             function() {
                 tmp = SDPUtil.parse_fingerprint(this);
                 tmp.required = true;
