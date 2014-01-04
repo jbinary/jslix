@@ -20,6 +20,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         element_name: 'fingerprint',
         xmlns: 'urn:xmpp:tmp:jingle:apps:dtls:0',
         hash: new fields.StringAttr('hash', true),
+        setup: new fields.StringAttr('setup', true),
         required: new fields.BooleanAttr('required'),
         fingerprint: new fields.StringNode(undefined, true, false, undefined, true)
     });
@@ -65,6 +66,19 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         senders: new fields.StringAttr('senders')
     });
 
+    jingle.SourceParameterElement = stanzas.Element({
+        element_name: 'parameter',
+        name: new fields.StringAttr('name', true),
+        value: new fields.StringAttr('value')
+    });
+
+    jingle.SourceElement = stanzas.Element({
+        element_name: 'source',
+        xmlns: 'urn:xmpp:jingle:apps:rtp:ssma:0',
+        ssrc: new fields.StringAttr('ssrc', true),
+        parameters: new fields.ElementNode(jingle.SourceParameterElement, true, true)
+    });
+
     jingle.DescriptionElement = stanzas.Element({
         xmlns: 'urn:xmpp:jingle:apps:rtp:1',
         element_name: 'description',
@@ -75,7 +89,8 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         'rtcp-mux': new fields.FlagNode('rtcp-mux', false),
         'rtcp-fb': new fields.ElementNode(jingle.RTCPFBElement, false),
         'rtcp-fb-trr-int': new fields.ElementNode(jingle.RTCPFBTRRIntElement, false),
-        'rtp-headers': new fields.ElementNode(jingle.RTPHeaderExtElement, false, true)
+        'rtp-headers': new fields.ElementNode(jingle.RTPHeaderExtElement, false, true),
+        sources: new fields.ElementNode(jingle.SourceElement, false, true)
     });
 
     // Transport description stanzas
@@ -100,7 +115,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         pwd: new fields.StringAttr('pwd', true),
         ufrag: new fields.StringAttr('ufrag', true),
         candidates: new fields.ElementNode(jingle.CandidateElement, false, true),
-        fingerprint: new fields.ElementNode(jingle.FingerprintElement)
+        fingerprints: new fields.ElementNode(jingle.FingerprintElement, false, true)
     });
 
     // Content description

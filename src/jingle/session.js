@@ -21,7 +21,9 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         this.remoteStream = null;
         this.localSDP = null;
         this.remoteSDP = null;
-        this.localStream = null;
+        this.localStreams = [];
+        this.remoteStreams = [];
+        this.relayedStreams = [];
         this.startTime = null;
         this.stopTime = null;
         this.media_constraints = null;
@@ -72,10 +74,12 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         };
         this.peerconnection.onaddstream = function(event) {
             obj.remoteStream = event.stream;
+            obj.remoteStreams.push(event.stream);
             signals.remote_stream.added.dispatch(event, obj.sid);
         };
         this.peerconnection.onremovestream = function(event) {
             obj.remoteStream = null;
+            // FIXME: remove from this.remoteStreams
             signals.remote_stream.removed.dispatch(event, obj.sid);
         };
         this.peerconnection.onsignalingstatechange = function(event) {
@@ -95,11 +99,13 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
             }
             signals.ice.state_change.dispatch(obj.sid, obj);
         };
-        if (this.localStream != null) {
-            this.peerconnection.addStream(this.localStream);
-        } else {
-            console.warn('attempting to initate a jingle session without a local stream');
-        }
+        // add any local and relayed stream
+        this.localStreams.forEach(function(stream) {
+            obj.peerconnection.addStream(stream);
+        });
+        this.relayedStreams.forEach(function(stream) {
+            obj.peerconnection.addStream(stream);
+        });
     };
 
     JingleSession.prototype.accept = function() {
@@ -280,14 +286,9 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         console.log('createdOffer', sdp);
         var ob = this;
         this.localSDP = new SDP(sdp.sdp);
-        //this.localSDP.mangle();
+        this.localSDP.mangle();
         if (this.usetrickle) {
-            var init = this.localSDP.toJingle(this.initiator == this.me ? 'initiator' : 'responder');
-            init.action = 'session-initiate';
-            init.sid = this.sid;
-            init.initiator = this.initiator;
-            init.parent = {to: this.peerjid, type: 'set'};
-            init = JingleQuery.create(init);
+            var init = this._genSession('session-initiate');
             this.dispatcher.send(init).done(function() {
                 console.log('offer initiate ack');
             }).fail(function(failure) {
@@ -297,6 +298,22 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                 signals.error.dispatch(ob.sid, failure, 'offer');
             });
         }
+        this._setLocalDescription(sdp);
+    }
+
+    JingleSession.prototype._genSession = function(action) {
+        var stanza = this.localSDP.toJingle(
+            this.initiator == this.me ? 'initiator' : 'responder');
+        stanza.sid = this.sid;
+        stanza.initiator = this.initiator;
+        stanza.action = action;
+        // TODO: think about from 
+        stanza.parent = {to: this.peerjid, type: 'set'};
+        stanza = JingleQuery.create(stanza);
+        return stanza;
+    }
+
+    JingleSession.prototype._setLocalDescription = function(sdp) {
         sdp.sdp = this.localSDP.raw;
         this.peerconnection.setLocalDescription(sdp, function() {
             console.log('setLocalDescription success');
@@ -305,7 +322,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         });
         var cands = SDPUtil.find_lines(this.localSDP.raw, 'a=candidate:');
         for (var i = 0; i < cands.length; i++) {
-            var cand = SDPUtil.parse_icecandidate(cands[i]);
+            var cand = SDPUtil.candidateToJingle(cands[i]);
             if (cand.type == 'srflx') {
                 this.hadstuncandidate = true;
             } else if (cand.type == 'relay') {
@@ -476,18 +493,12 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         console.log('createAnswer callback');
         console.log(sdp);
         this.localSDP = new SDP(sdp.sdp);
-        //this.localSDP.mangle();
+        // FIXME: why exactly do we need this? doesn't work without it
+        this.localSDP.mangle();
         this.usepranswer = provisional == true;
         if (this.usetrickle) {
             if (!this.usepranswer) {
-                var accept = this.localSDP.toJingle(accept,
-                        this.initiator == this.me ? 'initiator' : 'responder');
-                accept.action = 'session-accept';
-                accept.initiator = this.initiator;
-                accept.responder = this.responder;
-                accept.sid = this.sid;
-                accept.parent = {to: this.peerjid, type: 'set'};
-                var accept = JingleQuery.create(accept);
+                var accept = this._genSession('session-accept');
                 this.dispatcher.send(accept).done(function() {
                    console.log('session accept ack'); }).fail(function() {
                    console.error('session accept error'); })
@@ -499,21 +510,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                 this.localSDP.raw = this.localSDP.session + '\r\n' + this.localSDP.media.join('');
             }
         }
-        sdp.sdp = this.localSDP.raw;
-        this.peerconnection.setLocalDescription(sdp, function() {
-            console.log('setLocalDescription success');
-        }, function(e) {
-            console.error('setLocalDescription failed', e);
-        });
-        var cands = SDPUtil.find_lines(this.localSDP.raw, 'a=candidate:');
-        for (var i = 0; i < cands.length; i++) {
-            var cand = SDPUtil.parse_icecandidate(cands[i]);
-            if (cand.type == 'srflx') {
-                this.hadstuncandidate = true;
-            } else if (cand.type == 'relay') {
-                this.hadturncandidate = true;
-            }
-        }
+        this._setLocalDescription(sdp);
     };
 
     JingleSession.prototype.sendTerminate = function(reason, text) {
