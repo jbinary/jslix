@@ -181,7 +181,6 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
             } else if (jcand.type === 'relay') {
                 this.hadturncandidate = true;
             }
-            console.log(event.candidate, jcand);
 
             var send_info = function(candidates) {
                 // map to transport-info
