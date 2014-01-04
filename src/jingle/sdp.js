@@ -115,13 +115,13 @@ define([], function() {
                 if (SDPUtil.find_line(this.media[i], 'a=crypto:', this.session)) {
                     description.encryption = {
                        required: 1,
-                       crypto: [
-                        SDPUtil.parse_crypto(SDPUtil.find_line(
-                                                this.media[i],
-                                                'a=crypto:',
-                                                this.session))
-                        ]
+                       crypto: []
                     }
+                    $.each(SDPUtil.find_lines(this.media[i], 'a=crypto:', this.session), function() {
+                        description.encryption.crypto.push(
+                            SDPUtil.parse_crypto(this)
+                        );
+                    });
                 }
 
                 if (SDPUtil.find_line(this.media[i], 'a=rtcp-mux')) {
@@ -348,16 +348,15 @@ define([], function() {
 
         if (description.encryption) {
             tmp = description.encryption.crypto;
-            if (tmp.length) {
-                tmp = tmp[0];
-                media += 'a=crypto:' + tmp.tag;
-                media += ' ' + tmp['crypto-suite'];
-                media += ' ' + tmp['key-params'];
-                if (tmp['session-params']) {
-                    media += ' ' + tmp['session-params'];
+            $.each(tmp, function() {
+                media += 'a=crypto:' + this.tag;
+                media += ' ' + this['crypto-suite'];
+                media += ' ' + this['key-params'];
+                if (this['session-params']) {
+                    media += ' ' + this['session-params'];
                 }
                 media += '\r\n';
-            }
+            });
         }
         $.each(description.payloads, function() {
             media += SDPUtil.build_rtpmap(this) + '\r\n';
