@@ -8,26 +8,38 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
 
     SDP = SDP.SDP;
     var plugin = function(dispatcher, options) {
-        // TODO: process options correctly
         this.connection = null;
         this.sessions = {};
         this.jid2session = {};
-        this.ice_config = {iceServers: []};
-        this.pc_constraints = {};
-        this.media_constraints = {'mandatory': {
+        this.ice_config = options.ice_config || {iceServers: []};
+        this.pc_constraints = options.pc_constraints || {};
+        this.media_constraints = options.media_constraints || {'mandatory': {
             'OfferToReceiveAudio': true,
             'OfferToReceiveVideo': true }
             // MozDontOfferDataChannel = true when this is firefox
         };
         this.localStream = null;
         this.dispatcher = dispatcher;
+        this.disco = options.disco_plugin;
     }
 
     var jingle = plugin.prototype;
     jingle._name = 'jslix.Jingle';
 
     jingle.init = function() {
-        // TODO: disco
+        if (this.disco) {
+            var features = [
+                'urn:xmpp:jingle:1',
+                'urn:xmpp:jingle:apps:rtp:1',
+                'urn:xmpp:jingle:transports:ice-udp:1',
+                'urn:xmpp:jingle:apps:rtp:audio',
+                'urn:xmpp:jingle:apps:rtp:video',
+                'urn:ietf:rfc:5761'
+            ], self=this;
+            $.each(features, function() {
+                self.disco.registerFeature(this);
+            });
+        }
         var handler = stanzas.Element({
             setHandler: function(stanza, top) {
                 console.log('on jingle ' + stanza.action);
