@@ -68,7 +68,6 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
                     console.log('terminating...');
                     sess.terminate();
                     this.terminate(sess.sid);
-                    signals.call.terminated.dispatch(sess.sid, stanza.reason);
                     break;
                 case 'transport-info':
                     sess.addIceCandidate(stanza.contents);
@@ -118,23 +117,22 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
         return sess;
     }
 
+    jingle._terminate_session = function(sid, reason, text) {
+        if(this.sessions[sid].state != 'ended'){
+            this.sessions[sid].sendTerminate(reason||(!this.sessions[sid].active())?'cancel':null, text);
+            this.sessions[sid].terminate();
+        }
+        delete this.jid2session[this.sessions[sid].peerjid];
+        delete this.sessions[sid];
+    }
+
     jingle.terminate = function(sid, reason, text) {
         if (!sid) {
             for (sid in this.sessions) {
-                if(this.sessions[sid].state != 'ended'){
-                    this.sessions[sid].sendTerminate(reason||(!this.sessions[sid].active())?'cancel':null, text);
-                    this.sessions[sid].terminate();
-                }
-                delete this.jid2session[this.sessions[sid].peerjid];
-                delete this.sessions[sid];
+                this._terminate_session(sid, reason, text);
             }
         } else if (this.sessions.hasOwnProperty(sid)) {
-            if(this.sessions[sid].state != 'ended'){
-                this.sessions[sid].sendTerminate(reason||(!this.sessions[sid].active())?'cancel':null, text);
-                this.sessions[sid].terminate();
-            }
-            delete this.jid2session[this.sessions[sid].peerjid];
-            delete this.sessions[sid];
+            this._terminate_session(sid, reason, text);
         }
     }
 

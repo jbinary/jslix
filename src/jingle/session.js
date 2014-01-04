@@ -160,6 +160,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         this.state = 'ended';
         this.reason = reason;
         this.peerconnection.close();
+        signals.call.terminated.dispatch(this.sid, reason);
     };
 
     JingleSession.prototype.active = function() {
@@ -531,9 +532,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
 
         this.dispatcher.send(term).done(function() {
            console.log('terminate ack');
-           self.peerconnection.close();
            self.peerconnection = null;
-           self.terminate();
         }).fail(function() {
            console.log('terminate error');
         });
