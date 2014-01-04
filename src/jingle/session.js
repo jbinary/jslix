@@ -43,7 +43,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
     }
 
     JingleSession.prototype.initiate = function(peerjid, isInitiator) {
-        var obj = this;
+        var self = this;
         if (this.state != null) {
             // TODO: use jslix logging (everywhere :))
             console.error('attempt to initiate on session ' + this.sid +
@@ -70,26 +70,26 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         this.hadturncandidate = false;
         this.lasticecandidate = false;
         this.peerconnection.onicecandidate = function(event) {
-            obj.sendIceCandidate(event.candidate);
+            self.sendIceCandidate(event.candidate);
         };
         this.peerconnection.onaddstream = function(event) {
-            obj.remoteStream = event.stream;
-            obj.remoteStreams.push(event.stream);
-            signals.remote_stream.added.dispatch(event, obj.sid);
+            self.remoteStream = event.stream;
+            self.remoteStreams.push(event.stream);
+            signals.remote_stream.added.dispatch(event, self.sid);
         };
         this.peerconnection.onremovestream = function(event) {
-            obj.remoteStream = null;
+            self.remoteStream = null;
             // FIXME: remove from this.remoteStreams
-            signals.remote_stream.removed.dispatch(event, obj.sid);
+            signals.remote_stream.removed.dispatch(event, self.sid);
         };
         this.peerconnection.onsignalingstatechange = function(event) {
-            if (!(obj && obj.peerconnection)) return;
-            console.log('signallingstate ', obj.peerconnection.signalingState, event);
+            if (!(self && self.peerconnection)) return;
+            console.log('signallingstate ', self.peerconnection.signalingState, event);
         };
         this.peerconnection.oniceconnectionstatechange = function(event) {
-            if (!(obj && obj.peerconnection)) return;
-            console.log('iceconnectionstatechange', obj.peerconnection.iceConnectionState, event);
-            switch (obj.peerconnection.iceConnectionState) {
+            if (!(self && self.peerconnection)) return;
+            console.log('iceconnectionstatechange', self.peerconnection.iceConnectionState, event);
+            switch (self.peerconnection.iceConnectionState) {
             case 'connected':
                 this.startTime = new Date();
                 break;
@@ -97,14 +97,14 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                 this.stopTime = new Date();
                 break;
             }
-            signals.ice.state_change.dispatch(obj.sid, obj);
+            signals.ice.state_change.dispatch(self.sid, self);
         };
         // add any local and relayed stream
         this.localStreams.forEach(function(stream) {
-            obj.peerconnection.addStream(stream);
+            self.peerconnection.addStream(stream);
         });
         this.relayedStreams.forEach(function(stream) {
-            obj.peerconnection.addStream(stream);
+            self.peerconnection.addStream(stream);
         });
     };
 
@@ -167,7 +167,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
     };
 
     JingleSession.prototype.sendIceCandidate = function(candidate) {
-        var ob = this;
+        var self = this;
         if (candidate && !this.lasticecandidate) {
             var ice = SDPUtil.iceparams(this.localSDP.media[candidate.sdpMLineIndex], this.localSDP.session),
                 jcand = SDPUtil.candidateToJingle(candidate.candidate);
@@ -186,20 +186,20 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                 // map to transport-info
                 var cand = JingleQuery.create({
                     parent: {
-                        to: ob.peerjid, type: 'set'
+                        to: self.peerjid, type: 'set'
                     },
                     action: 'transport-info',
-                    initiator: ob.initiator,
-                    sid: ob.sid,
+                    initiator: self.initiator,
+                    sid: self.sid,
                     contents: []
                 });
-                for (var mid = 0; mid < ob.localSDP.media.length; mid++) {
+                for (var mid = 0; mid < self.localSDP.media.length; mid++) {
                     var cands = candidates.filter(function(el) { return el.sdpMLineIndex == mid; });
                     if (cands.length) {
                         var content = {
-                            creator: ob.initiator == ob.me ? 'initiator' : 'responder',
+                            creator: self.initiator == self.me ? 'initiator' : 'responder',
                             name: cands[0].sdpMid,
-                            transport: SDPUtil.iceparams(ob.localSDP.media[mid], ob.localSDP.session)
+                            transport: SDPUtil.iceparams(self.localSDP.media[mid], self.localSDP.session)
                         };
                         cand.contents.push(content);
                         content.transport.candidates = [];
@@ -207,18 +207,18 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                             content.transport.candidates.push(
                                 SDPUtil.candidateToJingle(cands[i].candidate));
                         }
-                        if (SDPUtil.find_line(ob.localSDP.media[mid], 'a=fingerprint:', ob.localSDP.session)) {
-                            var tmp = SDPUtil.parse_fingerprint(SDPUtil.find_line(ob.localSDP.media[mid], 'a=fingerprint:', ob.localSDP.session));
+                        if (SDPUtil.find_line(self.localSDP.media[mid], 'a=fingerprint:', self.localSDP.session)) {
+                            var tmp = SDPUtil.parse_fingerprint(SDPUtil.find_line(self.localSDP.media[mid], 'a=fingerprint:', self.localSDP.session));
                             tmp.required = true;
                             content.transport.fingerprint = tmp;
                         }
                     }
                 }
-                ob.dispatcher.send(cand).done(function() {
+                self.dispatcher.send(cand).done(function() {
                     console.log('transport info ack');
                 }).fail(function(failure) {
                     console.error('transport info error');
-                    signals.error.dispatch(ob.sid, failure, 'offer');
+                    signals.error.dispatch(self.sid, failure, 'offer');
                 });
             }
 
@@ -228,9 +228,9 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                         console.warn(new Date().getTime(), 'start dripping');
                         window.setTimeout(function() {
                             console.warn('dripping');
-                            if (ob.drip_container.length == 0) return;
-                            send_info(ob.drip_container);
-                            ob.drip_container = [];
+                            if (self.drip_container.length == 0) return;
+                            send_info(self.drip_container);
+                            self.drip_container = [];
                         }, 10);
                     }
                     this.drip_container.push(event.candidate);
@@ -253,9 +253,9 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                     console.log('session initiate ack');
                 }).fail(function(failure) {
                     console.error('session initiate error');
-                    ob.state = 'error';
-                    ob.peerconnection.close();
-                    signals.error.dispatch(ob.sid, failure, 'offer');
+                    self.state = 'error';
+                    self.peerconnection.close();
+                    signals.error.dispatch(self.sid, failure, 'offer');
                 });
             }
             this.lasticecandidate = true;
@@ -270,9 +270,9 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
 
     JingleSession.prototype.sendOffer = function() {
         console.log('sendOffer...');
-        var ob = this;
+        var self = this;
         this.peerconnection.createOffer(function(sdp) {
-                ob.createdOffer(sdp);
+                self.createdOffer(sdp);
             },
             function(e) {
                 console.error('createOffer failed', e);
@@ -283,7 +283,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
 
     JingleSession.prototype.createdOffer = function(sdp) {
         console.log('createdOffer', sdp);
-        var ob = this;
+        var self = this;
         this.localSDP = new SDP(sdp.sdp);
         this.localSDP.mangle();
         if (this.usetrickle) {
@@ -291,10 +291,10 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
             this.dispatcher.send(init).done(function() {
                 console.log('offer initiate ack');
             }).fail(function(failure) {
-                ob.state = 'error';
-                ob.peerconnection.close();
+                self.state = 'error';
+                self.peerconnection.close();
                 console.error('offer initiate error');
-                signals.error.dispatch(ob.sid, failure, 'offer');
+                signals.error.dispatch(self.sid, failure, 'offer');
             });
         }
         this._setLocalDescription(sdp);
@@ -371,7 +371,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
     };
 
     JingleSession.prototype.addIceCandidate = function(contents) {
-        var obj = this;
+        var self = this;
         if (this.peerconnection.signalingState == 'closed') {
             return;
         }
@@ -396,19 +396,19 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
             }
             // then add things like ice and dtls from remote candidate
             $.each(contents, function() {
-                for (var i = 0; i < obj.remoteSDP.media.length; i++) {
-                    if (SDPUtil.find_line(obj.remoteSDP.media[i], 'a=mid:' + this.name) ||
-                            obj.remoteSDP.media[i].indexOf('m=' + this.name) == 0) {
-                        if (!SDPUtil.find_line(obj.remoteSDP.media[i], 'a=ice-ufrag:')) {
+                for (var i = 0; i < self.remoteSDP.media.length; i++) {
+                    if (SDPUtil.find_line(self.remoteSDP.media[i], 'a=mid:' + this.name) ||
+                            self.remoteSDP.media[i].indexOf('m=' + this.name) == 0) {
+                        if (!SDPUtil.find_line(self.remoteSDP.media[i], 'a=ice-ufrag:')) {
                             var tmp = this.transport;
-                            obj.remoteSDP.media[i] += 'a=ice-ufrag:' + tmp.ufrag + '\r\n';
-                            obj.remoteSDP.media[i] += 'a=ice-pwd:' + tmp.pwd + '\r\n';
+                            self.remoteSDP.media[i] += 'a=ice-ufrag:' + tmp.ufrag + '\r\n';
+                            self.remoteSDP.media[i] += 'a=ice-pwd:' + tmp.pwd + '\r\n';
                             tmp = tmp.fingerprint;
                             if (tmp) {
-                                obj.remoteSDP.media[i] += 'a=fingerprint:' + tmp.hash + ' ' + tmp.fingerprint + '\r\n';
+                                self.remoteSDP.media[i] += 'a=fingerprint:' + tmp.hash + ' ' + tmp.fingerprint + '\r\n';
                             } else {
                                 console.log('no dtls fingerprint (webrtc issue #1718?)');
-                                obj.remoteSDP.media[i] += 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:BAADBAADBAADBAADBAADBAADBAADBAADBAADBAAD\r\n';
+                                self.remoteSDP.media[i] += 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:BAADBAADBAADBAADBAADBAADBAADBAADBAADBAAD\r\n';
                             }
                             break;
                         }
@@ -440,17 +440,17 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
             // would love to deactivate this, but firefox still requires it
             var idx = -1;
             var i;
-            for (i = 0; i < obj.remoteSDP.media.length; i++) {
-                if (SDPUtil.find_line(obj.remoteSDP.media[i], 'a=mid:' + this.name) ||
-                    obj.remoteSDP.media[i].indexOf('m=' + this.name) == 0) {
+            for (i = 0; i < self.remoteSDP.media.length; i++) {
+                if (SDPUtil.find_line(self.remoteSDP.media[i], 'a=mid:' + this.name) ||
+                    self.remoteSDP.media[i].indexOf('m=' + this.name) == 0) {
                     idx = i;
                     break;
                 }
             }
             if (idx == -1) { // fall back to localdescription
-                for (i = 0; i < obj.localSDP.media.length; i++) {
-                    if (SDPUtil.find_line(obj.localSDP.media[i], 'a=mid:' + this.name) ||
-                        obj.localSDP.media[i].indexOf('m=' + this.name) == 0) {
+                for (i = 0; i < self.localSDP.media.length; i++) {
+                    if (SDPUtil.find_line(self.localSDP.media[i], 'a=mid:' + this.name) ||
+                        self.localSDP.media[i].indexOf('m=' + this.name) == 0) {
                         idx = i;
                         break;
                     }
@@ -466,7 +466,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                                                 candidate: line});
                 console.log(candidate);
                 try {
-                    obj.peerconnection.addIceCandidate(candidate);
+                    self.peerconnection.addIceCandidate(candidate);
                 } catch (e) {
                     console.error('addIceCandidate failed', e.toString(), line);
                 }
@@ -476,10 +476,10 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
 
     JingleSession.prototype.sendAnswer = function(provisional) {
         console.log('createAnswer', provisional);
-        var ob = this;
+        var self = this;
         this.peerconnection.createAnswer(
             function(sdp) {
-                ob.createdAnswer(sdp, provisional);
+                self.createdAnswer(sdp, provisional);
             },
             function(e) {
                 console.error('createAnswer failed', e);
@@ -513,7 +513,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
     };
 
     JingleSession.prototype.sendTerminate = function(reason, text) {
-        var obj = this;
+        var self = this;
         var term = JingleQuery.create({
             action: 'session-terminate',
             initiator: this.initiator,
@@ -531,9 +531,9 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
 
         this.dispatcher.send(term).done(function() {
            console.log('terminate ack');
-           obj.peerconnection.close();
-           obj.peerconnection = null;
-           obj.terminate();
+           self.peerconnection.close();
+           self.peerconnection = null;
+           self.terminate();
         }).fail(function() {
            console.log('terminate error');
         });

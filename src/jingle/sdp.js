@@ -48,7 +48,7 @@ define([], function() {
 
     // add content's to a jingle element
     SDP.prototype.toJingle = function(thecreator) {
-        var i, j, k, mline, ssrc, rtpmap, tmp, lines, ob=this,
+        var i, j, k, mline, ssrc, rtpmap, tmp, lines,
             bundle = [],
             query = {
                 contents: []
@@ -204,7 +204,7 @@ define([], function() {
     };
 
     SDP.prototype.TransportToJingle = function(mediaindex, content) {
-        var line = this.media[mediaindex], tmp, setup, ob=this;
+        var line = this.media[mediaindex], tmp, setup, self=this;
         content.transport = SDPUtil.iceparams(line, this.session);
         content.transport.candidates = [];
         content.transport.fingerprints = [];
@@ -213,7 +213,7 @@ define([], function() {
         function() {
             tmp = SDPUtil.parse_fingerprint(this);
             tmp.required = true;
-            setup = SDPUtil.find_line(line, 'a=setup:', ob.session);
+            setup = SDPUtil.find_line(line, 'a=setup:', self.session);
             if (setup) {
                 tmp.setup = setup.substr(8);
             }
@@ -272,7 +272,7 @@ define([], function() {
 
     // construct an SDP from a jingle stanza
     SDP.prototype.fromJingle = function(stanza) {
-        var obj = this;
+        var self = this;
         this.raw = 'v=0\r\n' +
             'o=- ' + '1923518516' + ' 2 IN IP4 0.0.0.0\r\n' +// FIXME
             's=-\r\n' +
@@ -295,14 +295,14 @@ define([], function() {
                 return content.name;
             });
             if (this.semantics && contents.length) {
-                obj.raw += 'a=group:' + this.semantics + ' ' + contents.join(' ') + '\r\n';
+                self.raw += 'a=group:' + this.semantics + ' ' + contents.join(' ') + '\r\n';
             }
         });
 
         this.session = this.raw;
         for (var i = 0; i < stanza.contents.length; i++) {
-            var m = obj.jingle2media(stanza.contents[i]);
-            obj.media.push(m);
+            var m = self.jingle2media(stanza.contents[i]);
+            self.media.push(m);
         };
 
         this.raw = this.session + this.media.join('');
