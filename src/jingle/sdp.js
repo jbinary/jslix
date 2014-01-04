@@ -251,10 +251,12 @@ define([], function() {
         } else {
             // for backward compability, to be removed soon
             // assume all contents are in the same bundle group, can be improved upon later
-            var groups = {
-                type: 'BUNDLE',
-                contents: stanza.contents.map(function() {return this.name})
-            };
+            var groups = [{
+                semantics: 'BUNDLE',
+                contents: stanza.contents.map(function(content) {
+                    return {name: content.name}
+                })
+            }];
         }
         $.each(groups, function() {
             var contents = this.contents.map(function(content) {
