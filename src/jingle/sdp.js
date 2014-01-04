@@ -291,7 +291,6 @@ define([], function() {
         var media = '',
             description = content.description,
             ssrc = description.ssrc,
-            mlineparts = { media: content.name },
             self = this,
             tmp;
 
