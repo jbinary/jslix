@@ -4,9 +4,13 @@
  * adapted from https://github.com/ESTOS/strophe.jingle
  *
  */
-define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], function(SDP, signals, stanzas) {
-    var JingleQuery = stanzas.JingleQuery;
-    var SDPUtil = SDP.SDPUtil;
+define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas',
+        'jslix/jingle/adapter'],
+    function(SDP, signals, stanzas, adapter) {
+    var JingleQuery = stanzas.JingleQuery,
+        SDPUtil = SDP.SDPUtil,
+        RTC = adapter.setupRTC(),
+        RTCPeerconnection = RTC.peerconnection;
     SDP = SDP.SDP;
     function JingleSession(me, sid, dispatcher) {
         this.me = me;
