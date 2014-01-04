@@ -21,7 +21,9 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         this.remoteStream = null;
         this.localSDP = null;
         this.remoteSDP = null;
-        this.localStream = null;
+        this.localStreams = [];
+        this.remoteStreams = [];
+        this.relayedStreams = [];
         this.startTime = null;
         this.stopTime = null;
         this.media_constraints = null;
@@ -72,10 +74,12 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         };
         this.peerconnection.onaddstream = function(event) {
             obj.remoteStream = event.stream;
+            obj.remoteStreams.push(event.stream);
             signals.remote_stream.added.dispatch(event, obj.sid);
         };
         this.peerconnection.onremovestream = function(event) {
             obj.remoteStream = null;
+            // FIXME: remove from this.remoteStreams
             signals.remote_stream.removed.dispatch(event, obj.sid);
         };
         this.peerconnection.onsignalingstatechange = function(event) {
@@ -95,11 +99,13 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
             }
             signals.ice.state_change.dispatch(obj.sid, obj);
         };
-        if (this.localStream != null) {
-            this.peerconnection.addStream(this.localStream);
-        } else {
-            console.warn('attempting to initate a jingle session without a local stream');
-        }
+        // add any local and relayed stream
+        this.localStreams.forEach(function(stream) {
+            obj.peerconnection.addStream(stream);
+        });
+        this.relayedStreams.forEach(function(stream) {
+            obj.peerconnection.addStream(stream);
+        });
     };
 
     JingleSession.prototype.accept = function() {
