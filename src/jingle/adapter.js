@@ -35,8 +35,8 @@ define(['jslix/jingle/signals'], function(signals) {
                 attachMediaStream: function(element, stream) {
                     element.attr('src', webkitURL.createObjectURL(stream));
                 },
-    //            pc_constraints: {} // FIVE-182
-                pc_constraints: {'optional': [{'DtlsSrtpKeyAgreement': 'true'}]} // enable dtls support in canary
+                // DTLS should now be enabled by default but..
+                pc_constraints: {'optional': [{'DtlsSrtpKeyAgreement': 'true'}]}
             };
             if (navigator.userAgent.indexOf('Android') != -1) {
                 RTC.pc_constraints = {}; // disable DTLS on Android
