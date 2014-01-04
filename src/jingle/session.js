@@ -384,7 +384,6 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                     if (SDPUtil.find_line(obj.remoteSDP.media[i], 'a=mid:' + this.name) ||
                             obj.remoteSDP.media[i].indexOf('m=' + this.name) == 0) {
                         if (!SDPUtil.find_line(obj.remoteSDP.media[i], 'a=ice-ufrag:')) {
-                            obj.remoteSDP.media[i] += '\r\n';
                             var tmp = this.transport;
                             obj.remoteSDP.media[i] += 'a=ice-ufrag:' + tmp.ufrag + '\r\n';
                             obj.remoteSDP.media[i] += 'a=ice-pwd:' + tmp.pwd + '\r\n';
@@ -400,7 +399,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
                     }
                 }
             });
-            this.remoteSDP.raw = this.remoteSDP.session + '\r\n' + this.remoteSDP.media.join('');
+            this.remoteSDP.raw = this.remoteSDP.session + this.remoteSDP.media.join('');
 
             // we need a complete SDP with ice-ufrag/ice-pwd in all parts
             // this makes the assumption that the PRANSWER is constructed such that the ice-ufrag is in all mediaparts
