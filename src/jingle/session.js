@@ -311,7 +311,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         });
         var cands = SDPUtil.find_lines(this.localSDP.raw, 'a=candidate:');
         for (var i = 0; i < cands.length; i++) {
-            var cand = SDPUtil.parse_icecandidate(cands[i]);
+            var cand = SDPUtil.candidateToJingle(cands[i]);
             if (cand.type == 'srflx') {
                 this.hadstuncandidate = true;
             } else if (cand.type == 'relay') {
@@ -514,7 +514,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas'], fun
         });
         var cands = SDPUtil.find_lines(this.localSDP.raw, 'a=candidate:');
         for (var i = 0; i < cands.length; i++) {
-            var cand = SDPUtil.parse_icecandidate(cands[i]);
+            var cand = SDPUtil.candidateToJingle(cands[i]);
             if (cand.type == 'srflx') {
                 this.hadstuncandidate = true;
             } else if (cand.type == 'relay') {

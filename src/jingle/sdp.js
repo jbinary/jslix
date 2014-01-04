@@ -513,60 +513,6 @@ define([], function() {
             }
             return data;
         },
-        parse_icecandidate: function(line) {
-            var candidate = {},
-                elems = line.split(' ');
-            candidate.foundation = elems[0].substring(12);
-            candidate.component = elems[1];
-            candidate.protocol = elems[2].toLowerCase();
-            candidate.priority = elems[3];
-            candidate.ip = elems[4];
-            candidate.port = elems[5];
-            // elems[6] => "typ"
-            candidate.type = elems[7];
-            for (var i = 8; i < elems.length; i += 2) {
-                switch (elems[i]) {
-                case 'raddr':
-                    candidate['rel-addr'] = elems[i + 1];
-                    break;
-                case 'rport':
-                    candidate['rel-port'] = elems[i + 1];
-                    break;
-                case 'generation':
-                    candidate.generation = elems[i + 1];
-                    break;
-                default: // TODO
-                    console.log('parse_icecandidate not translating "' + elems[i] + '" = "' + elems[i + 1] + '"');
-                }
-            }
-            candidate.network = '1';
-            candidate.id = Math.random().toString(36).substr(2, 10); // not applicable to SDP -- FIXME: should be unique, not just random
-            return candidate;
-        },
-        build_icecandidate: function(cand) {
-            var line = ['a=candidate:' + cand.foundation, cand.component, cand.protocol, cand.priority, cand.ip, cand.port, 'typ', cand.type].join(' ');
-            line += ' ';
-            switch (cand.type) {
-            case 'srflx':
-            case 'prflx':
-            case 'relay':
-                if (cand.hasOwnAttribute('rel-addr') && cand.hasOwnAttribute('rel-port')) {
-                    line += 'raddr';
-                    line += ' ';
-                    line += cand['rel-addr'];
-                    line += ' ';
-                    line += 'rport';
-                    line += ' ';
-                    line += cand['rel-port'];
-                    line += ' ';
-                }
-                break;
-            }
-            line += 'generation';
-            line += ' ';
-            line += cand.hasOwnAttribute('generation') ? cand.generation : '0';
-            return line;
-        },
         parse_rtcpfb: function(line) {
             var parts = line.substr(10).split(' ');
             var data = {};
@@ -637,6 +583,7 @@ define([], function() {
             candidate.port = elems[5];
             // elems[6] => "typ"
             candidate.type = elems[7];
+            candidate.generation = '0'; // for default
             for (i = 8; i < elems.length; i += 2) {
                 switch (elems[i]) {
                 case 'raddr':
