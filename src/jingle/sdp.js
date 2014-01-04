@@ -163,13 +163,15 @@ define([], function() {
 
             content.transport = SDPUtil.iceparams(this.media[i], this.session);
             content.transport.candidates = [];
+            content.transport.fingerprints = [];
 
             // XEP-0320
-            if (SDPUtil.find_line(this.media[i], 'a=fingerprint:', this.session)) {
-                tmp = SDPUtil.parse_fingerprint(SDPUtil.find_line(this.media[i], 'a=fingerprint:', this.session));
+            $.each(SDPUtil.find_lines(this.media[i], 'a=fingerprint:', this.session),
+            function() {
+                tmp = SDPUtil.parse_fingerprint(this);
                 tmp.required = true;
-                content.transport.fingerprint = tmp;
-            }
+                content.transport.fingerprints.push(tmp);
+            });
 
             // XEP-0176
             if (content.transport.ufrag) {
@@ -299,7 +301,7 @@ define([], function() {
             // estos hack to reject an m-line
             tmp.port = '0';
         }
-        if (description.encryption || content.transport.fingerprint) {
+        if (description.encryption || content.transport.fingerprints.length) {
             tmp.proto = 'RTP/SAVPF';
         } else {
             tmp.proto = 'RTP/AVPF';
@@ -315,12 +317,11 @@ define([], function() {
             if (content.transport.pwd) {
                 media += 'a=ice-pwd:' + content.transport.pwd + '\r\n';
             }
-            tmp = content.transport.fingerprint;
-            if (tmp) {
-                media += 'a=fingerprint:' + tmp.hash;
-                media += ' ' + tmp.fingerprint;
+            $.each(content.transport.fingerprints, function() {
+                media += 'a=fingerprint:' + this.hash;
+                media += ' ' + this.fingerprint;
                 media += '\r\n';
-            }
+            });
         }
         switch (content.senders) {
         case 'initiator':

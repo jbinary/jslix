@@ -100,7 +100,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         pwd: new fields.StringAttr('pwd', true),
         ufrag: new fields.StringAttr('ufrag', true),
         candidates: new fields.ElementNode(jingle.CandidateElement, false, true),
-        fingerprint: new fields.ElementNode(jingle.FingerprintElement)
+        fingerprints: new fields.ElementNode(jingle.FingerprintElement, false, true)
     });
 
     // Content description
