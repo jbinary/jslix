@@ -117,7 +117,7 @@ define([], function() {
                        required: 1,
                        crypto: []
                     }
-                    $.each(SDPUtil.find_lines(this.media[i], 'a=crypto:'), function() {
+                    $.each(SDPUtil.find_lines(this.media[i], 'a=crypto:', this.session), function() {
                         description.encryption.crypto.push(
                             SDPUtil.parse_crypto(this)
                         );
@@ -166,7 +166,7 @@ define([], function() {
             content.transport.fingerprints = [];
 
             // XEP-0320
-            $.each(SDPUtil.find_lines(this.media[i], 'a=fingerprint:'),
+            $.each(SDPUtil.find_lines(this.media[i], 'a=fingerprint:', this.session),
             function() {
                 tmp = SDPUtil.parse_fingerprint(this);
                 tmp.required = true;
@@ -578,31 +578,25 @@ define([], function() {
             data.params = parts;
             return data;
         },
-        find_line: function(haystack, needle, sessionpart) {
-            var lines = haystack.split('\r\n');
-            for (var i = 0; i < lines.length; i++) {
-                if (lines[i].substring(0, needle.length) == needle) {
-                    return lines[i];
-                }
-            }
-            if (!sessionpart) {
-                return false;
-            }
-            // search session part
-            lines = sessionpart.split('\r\n');
-            for (var i = 0; i < lines.length; i++) {
-                if (lines[i].substring(0, needle.length) == needle) {
-                    return lines[i];
-                }
-            }
-            return false;
+        find_line: function() {
+            return SDPUtil.find_lines.apply(undefined, arguments)[0] || false;
         },
-        find_lines: function(haystack, needle) {
+        find_lines: function(haystack, needle, sessionpart) {
             var lines = haystack.split('\r\n'),
                 needles = new Array();
             for (var i = 0; i < lines.length; i++) {
                 if (lines[i].substring(0, needle.length) == needle)
                     needles.push(lines[i]);
+            }
+            if (needles.length || !sessionpart) {
+                return needles;
+            }
+            // search session part
+            lines = sessionpart.split('\r\n');
+            for (var i = 0; i < lines.length; i++) {
+                if (lines[i].substring(0, needle.length) == needle) {
+                    needles.push(lines[i]);
+                }
             }
             return needles;
         },
