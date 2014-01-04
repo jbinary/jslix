@@ -131,11 +131,7 @@ define([], function() {
                             parameters.push(tmp[k]);
                         }
                     }
-                    try{
-                        this.RtcpFbToJingle(this.media[i], payload, mline.fmt[j]); // XEP-0293 -- map a=rtcp-fb
-                    }catch(e){
-                        debugger;
-                    }
+                    this.RtcpFbToJingle(this.media[i], payload, mline.fmt[j]); // XEP-0293 -- map a=rtcp-fb
                 }
                 if (SDPUtil.find_line(this.media[i], 'a=crypto:', this.session)) {
                     description.encryption = {
