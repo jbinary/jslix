@@ -48,14 +48,22 @@ define([], function() {
 
     // add content's to a jingle element
     SDP.prototype.toJingle = function(thecreator) {
-        var i, j, k, mline, ssrc, rtpmap, tmp, lines;
-        var bundle = [];
-        var query = {
-            contents: []
-        };
-        if (SDPUtil.find_line(this.session, 'a=group:BUNDLE ')) {
-            bundle = SDPUtil.find_line(this.session, 'a=group:BUNDLE ').split(' ');
-            bundle.shift();
+        var i, j, k, mline, ssrc, rtpmap, tmp, lines,
+            bundle = [],
+            query = {
+                contents: []
+            };
+        if (SDPUtil.find_line(this.session, 'a=group:')) {
+            lines = SDPUtil.find_lines(this.session, 'a=group:');
+            query.groups = [];
+            for (i = 0; i < lines.length; i++) {
+                tmp = lines[i].split(' ');
+                var group = {semantics: tmp.shift().substr(8), contents: []};
+                for (j = 0; j < tmp.length; j++) {
+                    group.contents.push({name: tmp[j]});
+                }
+                query.groups.push(group);
+            }
         }
         for (i = 0; i < this.media.length; i++) {
             mline = SDPUtil.parse_mline(this.media[i].split('\r\n')[0]);
@@ -75,12 +83,6 @@ define([], function() {
                 // prefer identifier from a=mid if present
                 var mid = SDPUtil.parse_mid(SDPUtil.find_line(this.media[i], 'a=mid:'));
                 content.name = mid;
-
-                // preliminary bundle mapping
-                /*if (bundle.indexOf(mid) != -1) {
-                    elem.c('bundle', {xmlns:'http://estos.de/ns/bundle'}).up();
-                    bundle.splice(bundle.indexOf(mid), 1);
-                }*/
             }
             if (SDPUtil.find_line(this.media[i], 'a=rtpmap:').length) {
                 var description = {
@@ -244,17 +246,24 @@ define([], function() {
             's=-\r\n' +
             't=0 0\r\n';
         // http://tools.ietf.org/html/draft-ietf-mmusic-sdp-bundle-negotiation-04#section-8
-        // assume all contents are in the same bundle group, can be improved upon later
-        // TODO: replace by proper mapping
-        /*var bundle = $(stanza).filter(function(idx, content) {
-            //elem.c('bundle', {xmlns:'http://estos.de/ns/bundle'});
-            return $(content).find('>bundle').length > 0;
-        }).map(function(idx, content) {
-            return $(content).attr('name');
-        }).get();
-        if (bundle.length) {
-            this.raw += 'a=group:BUNDLE ' + bundle.join(' ') + '\r\n';
-        }*/
+        if (stanza.groups && stanza.groups.length) {
+            var groups = stanza.groups;
+        } else {
+            // for backward compability, to be removed soon
+            // assume all contents are in the same bundle group, can be improved upon later
+            var groups = {
+                type: 'BUNDLE',
+                contents: stanza.contents.map(function() {return this.name})
+            };
+        }
+        $.each(groups, function() {
+            var contents = this.contents.map(function(content) {
+                return content.name;
+            });
+            if (this.semantics && contents.length) {
+                obj.raw += 'a=group:' + this.semantics + ' ' + contents.join(' ') + '\r\n';
+            }
+        });
 
         this.session = this.raw;
         for (var i = 0; i < stanza.contents.length; i++) {

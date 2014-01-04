@@ -121,6 +121,18 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
             'urn:xmpp:jingle:apps:rtp:errors:1')
     });
 
+    jingle.GroupContentElement = stanzas.Element({
+        element_name: 'content',
+        name: new fields.StringAttr('name', true)
+    });
+
+    jingle.GroupElement = stanzas.Element({
+        element_name: 'group',
+        xmlns: 'urn:xmpp:jingle:apps:grouping:0',
+        semantics: new fields.StringAttr('semantics', true),
+        contents: new fields.ElementNode(jingle.GroupContentElement, true, true)
+    });
+
     // The main element
     jingle.JingleQuery = stanzas.Element({
         error_class: errors.ErrorStanza,
@@ -130,7 +142,8 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         initiator: new fields.JIDAttr('initiator'),
         sid: new fields.StringAttr('sid', true),
         contents: new fields.ElementNode(jingle.ContentElement, false, true),
-        reason: new fields.ElementNode(jingle.ReasonElement)
+        reason: new fields.ElementNode(jingle.ReasonElement),
+        groups: new fields.ElementNode(jingle.GroupElement, false, true)
     }, [stanzas.QueryStanza]);
     return jingle;
 });
