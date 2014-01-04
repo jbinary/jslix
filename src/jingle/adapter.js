@@ -2,9 +2,12 @@
 // mozilla chrome compat layer -- very similar to adapter.js
 // adapted from https://github.com/ESTOS/strophe.jingle
 define(['jslix/jingle/signals'], function(signals) {
-    var adapter = {};
+    var adapter = {},
+        RTC = null;
     adapter.setupRTC = function() {
-        var RTC = null;
+        if (RTC) {
+            return RTC;
+        }
         if (navigator.mozGetUserMedia && mozRTCPeerConnection) {
             console.log('This appears to be Firefox');
             var version = parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1]);
