@@ -20,14 +20,14 @@ define(['jslix/jingle/signals'], function(signals) {
                         element[0].mozSrcObject = stream;
                         element[0].play();
                     },
-                    pc_constraints: {}
+                    pc_constraints: {},
+                    RTCSessionDescription: mozRTCSessionDescription,
+                    RTCIceCandidate: mozRTCIceCandidate
                 };
                 if (!MediaStream.prototype.getVideoTracks)
                     MediaStream.prototype.getVideoTracks = function() { return []; };
                 if (!MediaStream.prototype.getAudioTracks)
                     MediaStream.prototype.getAudioTracks = function() { return []; };
-                var RTCSessionDescription = mozRTCSessionDescription;
-                var RTCIceCandidate = mozRTCIceCandidate;
             }
         } else if (navigator.webkitGetUserMedia) {
             console.log('This appears to be Chrome');
@@ -39,7 +39,9 @@ define(['jslix/jingle/signals'], function(signals) {
                     element.attr('src', webkitURL.createObjectURL(stream));
                 },
                 // DTLS should now be enabled by default but..
-                pc_constraints: {'optional': [{'DtlsSrtpKeyAgreement': 'true'}]}
+                pc_constraints: {'optional': [{'DtlsSrtpKeyAgreement': 'true'}]},
+                RTCSessionDescription: RTCSessionDescription,
+                RTCIceCandidate: RTCIceCandidate
             };
             if (navigator.userAgent.indexOf('Android') != -1) {
                 RTC.pc_constraints = {}; // disable DTLS on Android

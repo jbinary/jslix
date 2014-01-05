@@ -152,7 +152,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas',
             // FIXME: change any inactive to sendrecv or whatever they were originally
             sdp = sdp.replace('a=inactive', 'a=sendrecv');
         }
-        this.peerconnection.setLocalDescription(new RTCSessionDescription({type: 'answer', sdp: sdp}),
+        this.peerconnection.setLocalDescription(new RTC.RTCSessionDescription({type: 'answer', sdp: sdp}),
             function() {
                 console.log('setLocalDescription success');
             }, function(e) {
@@ -366,8 +366,8 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas',
                 this.remoteSDP.raw = this.remoteSDP.session + this.remoteSDP.media.join('');
             }
         }
-        var remotedesc = new RTCSessionDescription({type: desctype, sdp: this.remoteSDP.raw});
-        
+        var remotedesc = new RTC.RTCSessionDescription({type: desctype, sdp: this.remoteSDP.raw});
+
         this.peerconnection.setRemoteDescription(remotedesc, function(){
             console.log('setRemoteDescription success');
         }, function(e){
@@ -466,7 +466,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas',
             $.each(this.transport.candidates, function() {
                 var line, candidate;
                 line = SDPUtil.candidateFromJingle(this);
-                candidate = new RTCIceCandidate({sdpMLineIndex: idx,
+                candidate = new RTC.RTCIceCandidate({sdpMLineIndex: idx,
                                                 sdpMid: name,
                                                 candidate: line});
                 console.log(candidate);

@@ -204,7 +204,7 @@ define([], function() {
     };
 
     SDP.prototype.TransportToJingle = function(mediaindex, content) {
-        var line = this.media[mediaindex], tmp, setup, self=this;
+        var line = this.media[mediaindex], tmp, setup, self=this, lines;
         content.transport = SDPUtil.iceparams(line, this.session);
         content.transport.candidates = [];
         content.transport.fingerprints = [];
@@ -224,7 +224,7 @@ define([], function() {
         if (content.transport.ufrag) {
             if (SDPUtil.find_line(line, 'a=candidate:', this.session)) { // add any a=candidate lines
                 lines = SDPUtil.find_lines(line, 'a=candidate:') || SDPUtil.find_lines(this.session, 'a=candidate');
-                for (j = 0; j < lines.length; j++) {
+                for (var j = 0; j < lines.length; j++) {
                     tmp = SDPUtil.candidateToJingle(lines[j]);
                     content.transport.candidates.push(tmp);
                 }
