@@ -285,10 +285,17 @@ define([], function() {
             // assume all contents are in the same bundle group, can be improved upon later
             var groups = [{
                 semantics: 'BUNDLE',
-                contents: stanza.contents.map(function(content) {
-                    return {name: content.name}
+                contents: stanza.contents.filter(function(content) {
+                    // Do not include contents without rtcp-mux in the bundle
+                    return !!content.description.rtcp_mux;
+                }).map(function(content) {
+                    return {name: content.name};
                 })
             }];
+            // remove empty groups
+            groups = groups.filter(function(group) {
+                return group.contents.length;
+            });
         }
         $.each(groups, function() {
             var contents = this.contents.map(function(content) {
