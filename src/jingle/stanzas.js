@@ -6,7 +6,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/jingle/errors'],
         element_name: 'rtcp-fb',
         xmlns: 'urn:xmpp:jingle:apps:rtp:rtcp-fb:0',
         type: new fields.StringAttr('type', true), // TODO: validate
-        subtype: new fields.StringAttr('subtype', true) // TODO: validate
+        subtype: new fields.StringAttr('subtype', false) // TODO: validate
     });
 
     jingle.RTCPFBTRRIntElement = stanzas.Element({

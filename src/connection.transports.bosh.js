@@ -50,13 +50,18 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     bosh.EmptyStanza = Element({
         rid: new fields.IntegerAttr('rid', true),
-        sid: new fields.StringAttr('sid', true)
+        sid: new fields.StringAttr('sid', false)
     }, [bosh.BodyStanza]);
 
     bosh.BaseStanza = Element({
-        ver: new fields.StringAttr('ver', true),
-        wait: new fields.IntegerAttr('wait', true),
-        ack: new fields.IntegerAttr('ack', false)
+        ver: new fields.StringAttr('ver', false),
+        wait: new fields.IntegerAttr('wait', false),
+        ack: new fields.IntegerAttr('ack', false),
+        clean_wait: function(value) {
+            if (!value)
+                throw new exceptions.WrongElement();
+            return value;
+        }
     }, [bosh.BodyStanza]);
 
     bosh.RequestStanza = Element({
@@ -72,8 +77,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }, [bosh.BaseStanza]);
 
     bosh.ResponseStanza = Element({
-        from: new fields.JIDAttr('from', true),
-        sid: new fields.StringAttr('sid', true),
+        from: new fields.JIDAttr('from', false),
+        sid: new fields.StringAttr('sid', false),
         polling: new fields.IntegerAttr('polling', true),
         inactivity: new fields.IntegerAttr('inactivity', true),
         requests: new fields.IntegerAttr('requests', true),

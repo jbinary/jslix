@@ -29,6 +29,10 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
     };
 
     Attr.prototype.clean = function(value) {
+        if (value === undefined && this.required) {
+            throw new exceptions.ElementParseError(
+                this.name + ' is required field');
+        }
         return value;
     };
 
@@ -123,6 +127,10 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
     };
 
     Node.prototype.clean = function(value) {
+        if (value === undefined && this.required) {
+            throw new exceptions.ElementParseError(
+                this.name + ' is required field');
+        }
         return value;
     };
 
