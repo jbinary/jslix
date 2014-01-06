@@ -15,7 +15,7 @@ define([], function() {
             }
         }
         this.session = this.media.shift() + '\r\n';
-        this.raw = this.session + '\r\n' + this.media.join('');
+        this.raw = this.session + this.media.join('');
     }
 
     // remove iSAC and CN from SDP

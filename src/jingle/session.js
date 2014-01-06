@@ -290,7 +290,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas',
         console.log('createdOffer', sdp);
         var self = this;
         this.localSDP = new SDP(sdp.sdp);
-        this.localSDP.mangle();
+        //this.localSDP.mangle();
         if (this.usetrickle) {
             var init = this._genSession('session-initiate');
             this.dispatcher.send(init).done(function() {
@@ -498,7 +498,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas',
         console.log(sdp);
         this.localSDP = new SDP(sdp.sdp);
         // FIXME: why exactly do we need this? doesn't work without it
-        this.localSDP.mangle();
+        //this.localSDP.mangle();
         this.usepranswer = provisional == true;
         if (this.usetrickle) {
             if (!this.usepranswer) {
