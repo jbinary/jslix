@@ -86,7 +86,7 @@ define([], function() {
             }
             if (SDPUtil.find_line(this.media[i], 'a=rtpmap:').length) {
                 var description = {
-                    medit: mline.media,
+                    media: mline.media,
                     payloads: []
                 };
                 if (ssrc) {
@@ -323,7 +323,7 @@ define([], function() {
             self = this,
             tmp;
 
-        tmp = { media: content.name };
+        tmp = { media: description.media };
         tmp.port = '1';
         if (content.senders == 'rejected') {
             // estos hack to reject an m-line
