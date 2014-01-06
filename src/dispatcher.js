@@ -179,7 +179,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
         }
 
         var loop_fail = function(failure) {
-            self.logger.error(failure, failure.stack);
+            self.logger.debug(failure, failure.stack);
             if (can_error) {
                 return loop_done(get_error(failure, top));
             }
@@ -224,7 +224,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
             }
         }
         if(!this.handlers.length && can_error){
-            this.send(get_error(new errors.FeatureNotImplementedError()), top);
+            this.send(get_error(new errors.FeatureNotImplementedError(), top));
             return;
         } else if (this.handlers.length)
             loop();
@@ -267,9 +267,9 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
                     var host = hook[1];
                 } catch (e) {
                     if (e instanceof exceptions.ElementParseError) {
-                        this.logger.warning(e, e.stack);
+                        this.logger.debug(e, e.stack);
                     } else if (!(e instanceof exceptions.WrongElement)) {
-                        this.logger.error(e, e.stack);
+                        this.logger.debug(e, e.stack);
                     }
                     obj = null;
                 }
