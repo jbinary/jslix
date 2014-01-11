@@ -11,6 +11,7 @@ define(['libs/signals'], function(signals) {
         },
         call: {
             incoming: new Signal(),
+            accepted: new Signal(),
             /* Args: sid, ReasonElement object */
             terminated: new Signal(),
         },

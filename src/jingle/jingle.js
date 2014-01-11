@@ -75,6 +75,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
                 case 'session-accept':
                     sess.setRemoteDescription(stanza, 'answer');
                     sess.accept();
+                    signals.call.accepted.dispatch(sess.sid);
                     break;
                 case 'session-terminate':
                     console.log('terminating...');
