@@ -1,5 +1,6 @@
-define(['jslix/common', 'jslix/stanzas', 'jslix/dispatcher', 'jslix/disco'],
-    function(jslix, stanzas, Dispatcher, Disco){
+define(['jslix/common', 'jslix/stanzas', 'jslix/dispatcher', 'jslix/disco',
+        'jslix/errors'],
+    function(jslix, stanzas, Dispatcher, Disco, errors){
     buster.testCase('DiscoTest', {
         setUp: function(){
             var fake_connection = {
@@ -28,9 +29,12 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/dispatcher', 'jslix/disco'],
                 })
             );
             this.dispatcher.dispatch(jslix.build(request));
+            var IQErrorStanza = stanzas.Element({
+                parent_element: stanzas.IQStanza
+            }, [errors.ErrorStanza]);
             refute.exception(function(){
                 result = jslix.parse(test.dispatcher.connection.last_stanza,
-                    stanzas.ErrorStanza);
+                    IQErrorStanza);
             });
             assert(result.condition == 'item-not-found');
         },

@@ -23,17 +23,17 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
         },
         testParseIQStanza:  function(){
             var iqStanza = stanzas.IQStanza.create({id:'123', type:'get', from:'abc', to:'qwe'});
-            
+
             var iqStanzaDocument = jslix.build(iqStanza);
-            
-            
+
+
             refute.exception(function(){jslix.parse(iqStanzaDocument, stanzas.IQStanza);});
-            
-            
+
+
             assert.exception(function(){
                 jslix.parse(iqStanzaDocument, stanzas.QueryStanza);
             }, 'WrongElement');
-            
+
             var parsedStanza = jslix.parse(iqStanzaDocument, stanzas.IQStanza);
 
             assert(parsedStanza.id == '123' && parsedStanza.type == 'get');
@@ -43,15 +43,15 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
             var myDefinition = stanzas.Element({node: new fields.StringNode('my_node', false, true), 
                                               xmlns:'my_xmlns'}, 
                                               [stanzas.QueryStanza]);
-            
+
             var myStanza = myDefinition.create({node: ['1', '2', '3']});
-            
+
             var iqParent = stanzas.IQStanza.create({to:'abc', from:'qwe', id:'123', type:'get'});
-            
+
             iqParent.link(myStanza);
-            
+
             var myDocument = jslix.build(myStanza.getTop());
-            
+
             refute.exception(function(){jslix.parse(myDocument, myDefinition);});
 
             var parsedObject = jslix.parse(myDocument, myDefinition),
@@ -65,15 +65,15 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
             var myDefinition = stanzas.Element({node: new fields.StringNode('my_node', true), 
                                               xmlns:'my_xmlns'}, 
                                               [stanzas.QueryStanza]);
-            
+
             var myStanza = myDefinition.create({node: 123});
-            
+
             var iqParent = stanzas.IQStanza.create({id:'123', type:'get', to: 'abc', from: 'qwe'});
-            
+
             iqParent.link(myStanza);
-            
+
             var myDocument = jslix.build(myStanza.getTop());
-            
+
             refute.exception(function(){jslix.parse(myDocument, myDefinition);}); 
 
             var parsedObject = jslix.parse(myDocument, myDefinition),
@@ -90,11 +90,11 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
                 node: new fields.StringNode('my_node', true, true), 
                 xmlns:'my_xmlns'
             }, [stanzas.QueryStanza]);
-            
+
             var iqParent = stanzas.IQStanza.create({
                 link: myDefinition.create()
             });
-            
+
             var myDocument = jslix.build(iqParent);
 
             assert.exception(function(){
@@ -106,12 +106,12 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
                                               int_attr: new fields.IntegerAttr('int_attr', false),
                                               xmlns:'int_xmlns'},
                                               [stanzas.QueryStanza]);
-            
+
             var myStanza = myDefinition.create({node: 123, int_attr: 100500});
-            
+
             var iqParentIntegerNode = stanzas.IQStanza.create({
                 id:'123', type:'get', to: 'abc', from: 'qwe'});
-            
+
             iqParentIntegerNode.link(myStanza);
 
             var myDocument = jslix.build(myStanza.getTop());    
@@ -131,16 +131,16 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
             var myDefinition = stanzas.Element({node: new fields.JIDNode('jid_node', false), 
                                               xmlns:'jid_xmlns'},
                                               [stanzas.QueryStanza]);
-            
+
             var myStanza = myDefinition.create({node: 123});
-            
+
             var iqParentIntegerNode = stanzas.IQStanza.create({
                 id:'123', type:'get', to: 'abcd', from: 'qwe'});
-            
+
             iqParentIntegerNode.link(myStanza);
-            
+
             var myDocument = jslix.build(myStanza.getTop());
-            
+
             refute.exception(function(){jslix.parse(myDocument, myDefinition);});
 
             var parsedObject = jslix.parse(myDocument, myDefinition),
@@ -154,16 +154,16 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
             var definitionElementNode = new stanzas.Element({node: new fields.StringNode('string_node', false), 
                                                        xmlns:'string_xmlns', 
                                                        element_name:'myName'});
-            
+
             var myDefinition = new stanzas.Element({node: new fields.ElementNode(definitionElementNode, false), 
                                               xmlns:'element_xmlns', 
                                               element_name:'qwer'});
-            
+
             var myStanza = myDefinition.create({node: {
                                                     node: 'test'
                                                       }
                                                 });
-            
+
             var myDocument = jslix.build(myStanza);
 
             assert(myStanza.toString() == '<qwer xmlns="element_xmlns">' +
@@ -181,39 +181,20 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
         testCreateStanza: function(){
             var stanza = jslix.createStanza(stanzas.IQStanza);
 
-            assert(typeof stanza.makeError == 'function');
-
             assert(typeof stanza.makeResult == 'function');
 
             assert(typeof stanza.makeReply == 'function');
         },
         testParseStanza: function(){
             var iqStanza = stanzas.IQStanza.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
-            
-            var iqStanzaDocument = jslix.build(iqStanza);
-            
-            var parsedObject = jslix.parse(iqStanzaDocument, stanzas.IQStanza);
 
-            assert(typeof iqStanza.makeError == 'function');
+            var iqStanzaDocument = jslix.build(iqStanza);
+
+            var parsedObject = jslix.parse(iqStanzaDocument, stanzas.IQStanza);
 
             assert(typeof iqStanza.makeResult == 'function');
 
             assert(typeof iqStanza.makeReply == 'function');
-        },
-        testMakeError: function(){
-            var iqStanza = stanzas.IQStanza.create({element_name:'iq', id:'123', from:'isaak', to:'abram', type:'get'});
-
-            var errorStanza = iqStanza.makeError('bad-request', 'bad-request', 'error'),
-                parent = errorStanza.parent;
-
-            assert(errorStanza.text == 'bad-request');
-
-            assert(errorStanza.type == 'error');
-
-            assert(parent && parent.id == '123' && parent.type == 'error');
-            assert(parent.from == 'abram');
-            assert(parent.to == 'isaak');
-
         },
         testPresenceStanza: function(){
             var presenceStanza = stanzas.PresenceStanza.create({from:'abc', to:'qwe', id:1, type:'get',
@@ -381,16 +362,6 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
             this.dispatcher.addHandler(test_def, this);
             this.dispatcher.dispatch(jslix.build(test_def.create()));
             assert(this.dispatcher.connection.count == 0);
-        },
-        testErrorStanza: function(){
-            var error_stanza = stanzas.ErrorStanza.create({type: 'some_wrong_type'});
-            assert(error_stanza.type == 'some_wrong_type');
-            error_stanza = jslix.build(stanzas.MessageStanza.create({
-                link: error_stanza
-            }));
-            assert.exception(function(){
-                jslix.parse(error_stanza, stanzas.ErrorStanza);
-            }, 'ElementParseError');
         },
         testMultiChildStringNode: function(){
             var definition = new stanzas.Element({

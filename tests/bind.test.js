@@ -8,7 +8,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/dispatcher', 'jslix/bind', 'jsli
                 send: function(doc){
                     this.lst_stnz = doc;
                 },
-                jid: new JID('test@server.com')
+                jid: new JID('test@server.com/resource')
             }
             this.bind = new Bind(this.dispatcher);
         },

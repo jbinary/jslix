@@ -1,6 +1,6 @@
 define(['jslix/common', 'jslix/stanzas', 'jslix/jid', 'jslix/dispatcher',
-        'jslix/disco', 'jslix/version', 'libs/jquery'],
-    function(jslix, stanzas, JID, Dispatcher, Disco, Version, $){
+        'jslix/disco', 'jslix/version', 'libs/jquery', 'jslix/errors'],
+    function(jslix, stanzas, JID, Dispatcher, Disco, Version, $, errors){
     buster.testCase('VersionTest', {
         setUp: function(){
             this.connection = {
@@ -52,7 +52,6 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/jid', 'jslix/dispatcher',
                 test = this,
                 stanza;
             version.init();
-
             refute.exception(function(){
                 version.get(jid);
             });
@@ -60,7 +59,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/jid', 'jslix/dispatcher',
             refute(this.connection.lst_stnz == null);
 
             refute.exception(function(){
-                stanza = jslix.parse(test.connection.lst_stnz, version.ResponseStanza);
+                stanza = jslix.parse(test.connection.lst_stnz, version.RequestStanza);
             });
 
             refute(stanza.parent == undefined);
@@ -88,8 +87,11 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/jid', 'jslix/dispatcher',
             assert.exception(function(){
                 jslix.parse(test.connection.lst_stnz, version.ResponseStanza);
             });
+            var IQErrorStanza = stanzas.Element({
+                parent_element: stanzas.IQStanza
+            }, [errors.ErrorStanza]);
             refute.exception(function(){
-                stanza = jslix.parse(test.connection.lst_stnz, stanzas.ErrorStanza);
+                stanza = jslix.parse(test.connection.lst_stnz, IQErrorStanza);
             });
             assert(stanza.type == 'cancel' && stanza.condition == 'feature-not-implemented');
             version.init();
