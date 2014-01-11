@@ -143,7 +143,7 @@ define(['jslix/jingle/sdp', 'jslix/jingle/signals', 'jslix/jingle/stanzas',
         var iq = IQStanza.create({to: this.peerjid,
                  type: 'set'});
         iq.link(accept);
-        this.dispether.send(accept).done(
+        this.dispatcher.send(accept).done(
            function() { console.log('session accept ack'); }).fail(
            function() { console.error('session accept error'); })
 
