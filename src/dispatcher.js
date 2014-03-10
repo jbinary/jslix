@@ -260,11 +260,11 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
         var hooks = this.hooks['send'];
         if(hooks instanceof Array){
             for (var i=0; i<hooks.length; i++) {
-                var doc = jslix.build(el);
-                var hook = hooks[i];
+                var doc = jslix.build(top),
+                hook = hooks[i];
                 try {
-                    var obj = jslix.parse(doc, hook[0]);
-                    var host = hook[1];
+                    var obj = jslix.parse(doc, hook[0]),
+                    host = hook[1];
                 } catch (e) {
                     if (e instanceof exceptions.ElementParseError) {
                         this.logger.debug(e, e.stack);
