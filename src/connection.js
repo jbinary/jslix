@@ -7,8 +7,6 @@ define(['jslix/connection.transports.bosh', 'jslix/jid', 'libs/signals'],
         this.http_base = http_base;
         this.jid = new JID(jid);
         this.password = password;
-        if(!this.jid.resource)
-            this.jid.resource = 'default';
     }
 
     plugin.transports = {};
