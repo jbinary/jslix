@@ -119,7 +119,11 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
                     self.logger.error('Got exception while parsing',
                         new XMLSerializer().serializeToString(el), 'Wrong result_class?');
                     self.logger.error(e, e.stack);
-                    d.reject(e);
+                    if (e instanceof exceptions.WrongElement) {
+                        d.resolve(new stanzas.EmptyStanza());
+                    } else {
+                        d.reject(e);
+                    }
                 }
             } else if (!result_class && top.type == 'result') {
                 d.resolve(r_el);
