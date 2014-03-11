@@ -37,13 +37,19 @@ function(fields, stanzas, forwarded, jslix) {
     var mam = plugin.prototype;
     mam._name = 'jslix.MAM';
     mam.NS = 'urn:xmpp:mam:tmp';
-    mam.QueryStanza = Element({
+    stanzas.MAMStanza = Element({
         xmlns: mam.NS,
+    }, [stanzas.QueryStanza]);
+
+    mam.ResultStanza = Element({}, [stanzas.MAMStanza]);
+
+    mam.QueryStanza = Element({
+        result_class: mam.ResultStanza,
         query_id: new fields.StringAttr('queryid'),
         with_filter: new fields.JIDNode('with'),
         start: new fields.DateTimeNode('start'),
         end: new fields.DateTimeNode('end')
-    }, [stanzas.QueryStanza]);
+    }, [stanzas.MAMStanza]);
 
     mam.ResultStanza = Element({
         parent_element: stanzas.MessageStanza,
