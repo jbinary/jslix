@@ -39,8 +39,8 @@ function(fields, stanzas, forwarded, jslix) {
                 if (handler) {
                     stanza.link(handler);
                     handler.carbonsHandler(handler);
-                    return new stanzas.EmptyStanza();
                 }
+                return new stanzas.EmptyStanza();
             }
         }
     }, [forwarded.prototype.ForwardedStanza]);
