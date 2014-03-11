@@ -16,7 +16,7 @@ function(fields, stanzas, forwarded, jslix) {
                         $.each(this.handlers[qid], function() {
                             var handler = undefined;
                             try {
-                                var handler = jslix._parse(stanza.node, this);
+                                handler = jslix._parse(stanza.node, this);
                             } catch(e) {}
                             if (handler) {
                                 stanza.link(handler);
@@ -58,25 +58,20 @@ function(fields, stanzas, forwarded, jslix) {
         this._dispatcher.addHandler(this.ForwardedMessage, this, this._name);
     }
 
-    mam.get = function(handlers, with_filter, start, end, query_id) {
+    mam.get = function(handlers, params) {
         // TODO: RSM
-        if (handlers && !query_id) {
-            query_id = Math.random().toString();
+        if (handlers && !params.query_id) {
+            params.query_id = Math.random().toString();
         }
-        var query = this.QueryStanza.create({
-            query_id: query_id,
-            with_filter: with_filter,
-            start: start,
-            end: end,
-            parent: {
-                type: 'get'
-            }
-        });
+        params.parent = {
+            type: 'get'
+        }
+        var query = this.QueryStanza.create(params);
         if (handlers) {
             if (!(handlers instanceof Array)) {
                 handlers = [handlers];
             }
-            this.handlers[query_id] = handlers;
+            this.handlers[params.query_id] = handlers;
         }
         return this._dispatcher.send(query);
     }
