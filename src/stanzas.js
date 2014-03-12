@@ -159,11 +159,22 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
         }
     });
 
+    stanzas.AutoIdStanzaMixin = Element({
+        create: function(params) {
+            params.id = params.id || stanzas.randomUUID();
+
+            return stanzas.Stanza.create.call(this, params);
+        }
+    });
+
     stanzas.MessageStanza = Element({
         element_name: 'message',
         body: new fields.StringNode('body', false),
         thread: new fields.StringNode('thread', false)
     }, [stanzas.Stanza]);
+
+    stanzas.MessageAutoIdStanza = Element({
+    }, [stanzas.MessageStanza, stanzas.AutoIdStanzaMixin]);
 
     stanzas.PresenceStanza = Element({
         element_name: 'presence',
@@ -183,14 +194,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
     stanzas.IQStanza = Element({
         element_name: 'iq',
         id: new fields.StringAttr('id', true),
-        type: new fields.StringAttr('type', true), // TODO: validate types everywhere
-
-        create: function(params) {
-            params.id = params.id || stanzas.randomUUID();
-
-            return stanzas.Stanza.create.call(this, params);
-        }
-    }, [stanzas.Stanza]);
+        type: new fields.StringAttr('type', true) // TODO: validate types everywhere
+    }, [stanzas.Stanza, stanzas.AutoIdStanzaMixin]);
 
     stanzas.QueryStanza = Element({
         element_name: 'query',
