@@ -7,7 +7,7 @@
         <script>
             require(['jslix/client', 'jslix/disco', 'jslix/caps', 'jslix/version',
                      'jslix/stanzas', 'libs/jquery', 'jslix/sasl.mechanisms.plain',
-                     'jslix/sasl.mechanisms.digest_md5'],
+                     'jslix/sasl.mechanisms.digest_md5', 'jslix/connection.transports.bosh'],
                 function(Client, Disco, Caps, Version, stanzas, $){
                     $(function(){
                         $(document).on('submit', '#loginForm', function(evt){

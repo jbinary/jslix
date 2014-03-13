@@ -1,7 +1,8 @@
 "use strict";
 define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
-        'jslix/session', 'jslix/bind', 'jslix/exceptions', 'libs/signals'],
-    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, signals){
+        'jslix/session', 'jslix/bind', 'jslix/exceptions', 'libs/signals',
+        'jslix/connection'],
+    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, signals, connection){
 
     var plugin = function(dispatcher, jid, password, http_base){
         this.queue_check_interval = 250;
@@ -30,6 +31,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         });
         this._connection_deferred = null;
     }
+
+    connection.transports.push(plugin);
 
     var bosh = plugin.prototype,
         Element = stanzas.Element;
@@ -190,7 +193,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         }
         var connection = this;
         if(this._queue.length || this._slots.length || this.established){
-            this._interval = setTimeout(function(){
+            setTimeout(function(){
                 connection.process_queue(timestamp);
             }, this.queue_check_interval);
         }
