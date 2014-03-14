@@ -18,20 +18,17 @@ define(['jslix/jid', 'libs/signals', 'libs/jquery'],
         disconnect: new signals.Signal()
     };
 
-    connection.connect = function(dispatcher){
-        var selected_transport = -1;
-        if(this._connection){
-            selected_transport = plugin.transports.indexOf(this._connection.constructor);
-        }
-        if(selected_transport >= plugin.transports.length){
+    connection.connect = function(dispatcher, index){
+        var index = index || -1;
+        if(index >= plugin.transports.length){
             // XXX: Can't find working transport
             this._connection = null;
             this._connection_deferred.reject();
             return this._connection_deferred;
         }
-        var plugin_instance = this;
         if(!this._connection){
-            var transport_plugin = plugin.transports[++selected_transport];
+            var transport_plugin = plugin.transports[++index],
+                plugin_instance = this;
             this._connection = new transport_plugin(dispatcher,
                 this.jid, this.password, this.http_base);
             var deferred = this._connection.connect();
@@ -39,12 +36,11 @@ define(['jslix/jid', 'libs/signals', 'libs/jquery'],
                 plugin_instance._connection_deferred.resolve();
             });
             deferred.fail(function(){
+                var index = plugin.transports.indexOf(plugin_instance._connection.constructor);
                 plugin_instance._connection = null;
+                plugin_instance.connect(dispatcher, index);
             });
         }
-        this._timeout = setTimeout(function(){
-            plugin_instance.connect(dispatcher);
-        }, 250);
         return this._connection_deferred;
     }
 
