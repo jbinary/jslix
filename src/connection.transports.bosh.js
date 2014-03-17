@@ -235,7 +235,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 result = true;
             }else{
                 this.established = false;
-                this.signals.fail.dispatch(response.status);
+                this.signals.fail.dispatch(response.status, this.suspend());
             }
             response.closed = true;
         }
