@@ -57,6 +57,22 @@ define(['jslix/jid', 'libs/signals', 'libs/jquery'],
         return this._connection ? this._connection.disconnect() : false;
     }
 
+    connection.suspend = function(){
+        if(this._connection && this._connection['suspend']){
+            return this._connection.suspend();
+        }else{
+            throw new Error('Method not implemented.');
+        }
+    }
+
+    connection.resume = function(settings){
+        if(this._connection && this._connection['resume']){
+            return this._connection.resume(settings);
+        }else{
+            throw new Error('Method not implemented.');
+        }
+    }
+
     return plugin;
 
 });
