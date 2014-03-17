@@ -257,9 +257,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     bosh.suspend = function(){
-        if(!this.established){
-            return false;
-        }
         this.established = false;
         return {
             jid: this.jid.toString(),
