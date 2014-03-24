@@ -9,9 +9,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this.password = password;
         this.http_base = http_base;
         this.established = false;
+        this.fix = true;
         this.socket = null;
-        this.queue = [];
-        this.queue_check_interval = 250;
         this._connection_deferred = null;
         this._serializer = new XMLSerializer();
         this._parser = new DOMParser();
@@ -128,12 +127,18 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 })
             )
         );
-        this.process_queue(true);
     }
 
     websocket._onmessage = function(evt){
         console.log('onmessage:', evt.data);
-        this.queue.push(evt.data);
+        var str = evt.data;
+        if(this.fix){
+            str += '</stream:stream>'
+            this.fix = false;
+        }
+        var doc = this._parser.parseFromString(str, 'text/xml');
+        // TODO: Handler parse errors
+        this._dispatcher.dispatch(doc);
     }
 
     websocket._onerror = function(evt){
@@ -143,27 +148,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     websocket._onclose = function(evt){
         this.established = false;
         console.log('onclose');
-    }
-
-    websocket.process_queue = function(fix_first){
-        console.log('process_queue');
-        var fix_on_next_run = Boolean(fix_first) && !Boolean(this.queue.length);
-        while(this.queue.length){
-            var str = this.queue.shift();
-            if(fix_first){
-                str += '</stream:stream>'
-                fix_first = false;
-            }
-            var doc = this._parser.parseFromString(str, 'text/xml');
-            // TODO: Handler parse errors
-            this._dispatcher.dispatch(doc);
-        }
-        var connection = this;
-        if(this.socket.readyState==1){
-            setTimeout(function(){
-                connection.process_queue(fix_on_next_run);
-            }, connection.queue_check_interval);
-        }
     }
 
     return plugin;
