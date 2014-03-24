@@ -7,10 +7,12 @@
         <script>
             require(['jslix/client', 'jslix/disco', 'jslix/caps', 'jslix/version',
                      'jslix/stanzas', 'libs/jquery', 'jslix/sasl.mechanisms.plain',
-                     'jslix/sasl.mechanisms.digest_md5', 'jslix/connection.transports.bosh'],
+                     'jslix/sasl.mechanisms.digest_md5', 'jslix/connection.transports.websocket',
+                     'jslix/connection.transports.bosh'],
                 function(Client, Disco, Caps, Version, stanzas, $){
                     $(function(){
                         $(document).on('submit', '#loginForm', function(evt){
+                            evt.preventDefault();
                             var options = {
                                     http_base: this.http_base.value,
                                     jid: this.jid.value,
@@ -33,7 +35,6 @@
                                 client.send(stanzas.PresenceStanza.create());
                             });
                             window.client = client;
-                            return false;
                         });
                     });
             });
@@ -45,17 +46,17 @@
                 <table>
                     <tr>
                         <th><label for="http_base">HTTP Base</label></th><td>
-                        <input type="text" name="http_base" id="http_base" tabindex="1" value="/bosh/"/>
+                        <input type="text" name="http_base" id="http_base" tabindex="1" value=""/>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="jid">JID</label></th><td>
-                        <input type="text" name="jid" id="jid" tabindex="2" value="user@server.local"/>
+                        <input type="text" name="jid" id="jid" tabindex="2" value=""/>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="password">Password</label></th><td>
-                        <input type="password" name="password" id="password" tabindex="3" value="ghjcnjgfhjkm"/>
+                        <input type="password" name="password" id="password" tabindex="3" value=""/>
                         </td>
                     </tr>
                     <tr>
