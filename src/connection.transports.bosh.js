@@ -117,7 +117,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 session.deferred.done(function() {
                     that._connection_deferred.resolve();
                 }).fail(function(reason) {
-                    that.disconnect();
+                    that._dispatcher(that.disconnect());
                     that._connection_deferred.reject(reason); // TODO: abstract exception
                 });
             }
