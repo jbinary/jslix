@@ -1,8 +1,8 @@
 "use strict";
 define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
-        'jslix/session', 'jslix/bind', 'jslix/exceptions', 'libs/signals',
-        'jslix/connection'],
-    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, signals, connection){
+        'jslix/session', 'jslix/bind', 'jslix/exceptions', 'jslix/connection',
+        'libs/signals', 'libs/jquery'],
+    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, connection, signals, $){
 
     var plugin = function(dispatcher, jid, password, http_base){
         this.queue_check_interval = 250;
