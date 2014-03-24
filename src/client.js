@@ -5,9 +5,7 @@ define(['jslix/dispatcher', 'jslix/connection', 'jslix/base_client'],
     var Client = function(options){
         if (!options) return;
         BaseClient.call(this, options);
-        this.options['http_base'] = this.options['http_base'] || '/http-base/';
-        this.connection = new Connection(this.options['jid'],
-           this.options['password'], this.options['http_base']);
+        this.connection = new Connection(this.options);
         this.dispatcher = new Dispatcher(this.connection);
     }
 

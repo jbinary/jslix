@@ -203,6 +203,16 @@ define(['jslix/common', 'jslix/fields', 'jslix/exceptions'],
         node: new fields.StringAttr('node', false)
     });
 
+    stanzas.StreamStanza = Element({
+        element_name: 'stream',
+        xmlns: stanzas.STREAMS_NS,
+        xml_lang: new fields.StringAttr('xml:lang', false),
+        from: new fields.JIDAttr('from', false),
+        to: new fields.JIDAttr('to', false),
+        id: new fields.StringAttr('id', false),
+        version: new fields.StringAttr('version', false)
+    });
+
     stanzas.FeaturesStanza = Element({
         xmlns: stanzas.STREAMS_NS,
         element_name: 'features'
