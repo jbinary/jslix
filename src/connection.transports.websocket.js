@@ -110,7 +110,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     websocket.send = function(doc){
         var str = this._serializer.serializeToString(doc);
-        console.log('send:', str);
         this.socket.send(str);
     }
 
@@ -125,7 +124,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket._onopen = function(evt){
-        console.log('onopen');
         this._dispatcher.addHandler(this.StreamStanza, this, this._name);
         this.send(
             jslix.build(
@@ -137,7 +135,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket._onmessage = function(evt){
-        console.log('onmessage:', evt.data);
         var str = evt.data;
         if(this.fix){
             str += '</stream:stream>'
@@ -149,12 +146,10 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket._onerror = function(evt){
-        console.log('onerror');
     }
 
     websocket._onclose = function(evt){
         this.established = false;
-        console.log('onclose');
     }
 
     return plugin;
