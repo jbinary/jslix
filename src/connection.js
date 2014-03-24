@@ -29,9 +29,14 @@ define(['jslix/jid', 'libs/signals', 'libs/jquery'],
         if(!this._connection){
             var transport_plugin = plugin.transports[++index],
                 plugin_instance = this;
-            this._connection = new transport_plugin(dispatcher,
-                this.jid, this.password, this.http_base);
-            var deferred = this._connection.connect();
+            if(transport_plugin.is_supported){
+                this._connection = new transport_plugin(dispatcher,
+                    this.jid, this.password, this.http_base);
+                var deferred = this._connection.connect();
+            }else{
+                var deferred = $.Deferred();
+                deferred.reject();
+            }
             deferred.done(function(){
                 plugin_instance._connection_deferred.resolve();
             });

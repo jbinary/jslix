@@ -25,6 +25,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         });
     }
 
+    plugin.is_supported = 'WebSocket' in window ? true : false;
+
     connection.transports.push(plugin);
 
     var websocket = plugin.prototype,

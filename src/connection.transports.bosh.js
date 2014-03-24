@@ -32,6 +32,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this._connection_deferred = null;
     }
 
+    plugin.is_supported = true;
+
     connection.transports.push(plugin);
 
     var bosh = plugin.prototype,
