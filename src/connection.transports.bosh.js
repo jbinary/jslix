@@ -26,7 +26,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this.sasl.deferred.done(function() {
             dispatcher.send(that.restart());
         }).fail(function(reason) {
-            that.disconnect();
+            dispatcher.send(that.disconnect());
             that._connection_deferred.reject(reason); // TODO: abstract exception
         });
         this._connection_deferred = null;
@@ -36,6 +36,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     var bosh = plugin.prototype,
         Element = stanzas.Element;
+
+    bosh._name = 'jslix.connection.transports.Bosh';
 
     bosh.signals = {
         fail: new signals.Signal()
