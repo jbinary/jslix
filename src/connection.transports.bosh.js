@@ -1,10 +1,11 @@
 "use strict";
 define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         'jslix/session', 'jslix/bind', 'jslix/exceptions', 'jslix/connection',
+        'jslix/jid',
         'libs/signals', 'libs/jquery'],
-    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, connection, signals, $){
+    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, connection, JID, signals, $){
 
-    var plugin = function(dispatcher, jid, password, http_base){
+    var plugin = function(dispatcher, options){
         this.queue_check_interval = 250;
         this.established = false;
         this.requests = 1; // TODO: it should be possible to tune these; 2 is more suitable to be default here?
@@ -16,9 +17,9 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this._queue = [];
         this._rid = Math.round(
             100000.5 + (((900000.49999)-(100000.5))*Math.random()));
-        this.jid = jid;
-        this.password = password;
-        this.http_base = http_base;
+        this.jid = new JID(options['jid']);
+        this.password = options['password'];
+        this.uri = options['bosh_uri'];
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.FeaturesStanza, this, this._name);
         this.sasl = this._dispatcher.registerPlugin(SASL);
@@ -251,7 +252,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
             return null;
         var req = new XMLHttpRequest(),
             connection = this;
-        req.open('POST', this.http_base, true);
+        req.open('POST', this.uri, true);
         req.setRequestHeader('Content-Type', 'text/xml; charset=utf-8');
         req.closed = false;
         req.onreadystatechange = function(){

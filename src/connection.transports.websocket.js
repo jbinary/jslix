@@ -1,14 +1,14 @@
 "use strict";
 define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
-        'jslix/session', 'jslix/bind', 'jslix/connection',
+        'jslix/session', 'jslix/bind', 'jslix/connection', 'jslix/jid',
         'libs/signals', 'libs/jquery'],
-    function(jslix, fields, stanzas, SASL, Session, Bind, connection, signals, $){
+    function(jslix, fields, stanzas, SASL, Session, Bind, connection, JID, signals, $){
 
-    var plugin = function(dispatcher, jid, password, http_base){
+    var plugin = function(dispatcher, options){
         this._dispatcher = dispatcher;
-        this.jid = jid;
-        this.password = password;
-        this.http_base = http_base;
+        this.jid = new JID(options['jid']);
+        this.password = options['password'];
+        this.uri = options['websocket_uri'];
         this.established = false;
         this.fix = true;
         this.socket = null;
@@ -91,7 +91,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     websocket.connect = function(){
         if(this._connection_deferred) return this._connection_deferred;
         this._connection_deferred = $.Deferred();
-        this.socket = new WebSocket(this.http_base, 'xmpp');
+        this.socket = new WebSocket(this.uri, 'xmpp');
         var connection = this;
         this.socket.onopen = function(evt){
             connection._onopen(evt);

@@ -1,12 +1,10 @@
 "use strict";
-define(['jslix/jid', 'libs/signals', 'libs/jquery'],
-    function(JID, signals, $){
+define(['libs/signals', 'libs/jquery'],
+    function(signals, $){
 
-    var plugin = function(jid, password, http_base){
+    var plugin = function(options){
         this._connection = null;
-        this.http_base = http_base;
-        this.jid = new JID(jid);
-        this.password = password;
+        this.options = options
         this._connection_deferred = $.Deferred();
     }
 
@@ -30,8 +28,7 @@ define(['jslix/jid', 'libs/signals', 'libs/jquery'],
             var transport_plugin = plugin.transports[++index],
                 plugin_instance = this;
             if(transport_plugin.is_supported){
-                this._connection = new transport_plugin(dispatcher,
-                    this.jid, this.password, this.http_base);
+                this._connection = new transport_plugin(dispatcher, this.options);
                 var deferred = this._connection.connect();
             }else{
                 var deferred = $.Deferred();

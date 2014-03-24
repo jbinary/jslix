@@ -14,7 +14,8 @@
                         $(document).on('submit', '#loginForm', function(evt){
                             evt.preventDefault();
                             var options = {
-                                    http_base: this.http_base.value,
+                                    bosh_uri: this.bosh_uri.value,
+                                    websocket_uri: this.websocket_uri.value,
                                     jid: this.jid.value,
                                     password: this.password.value,
                                     register: this.register.checked
@@ -45,28 +46,32 @@
             <form id="loginForm" action="" method="post">
                 <table>
                     <tr>
-                        <th><label for="http_base">HTTP Base</label></th><td>
-                        <input type="text" name="http_base" id="http_base" tabindex="1" value=""/>
+                        <th><label for="bosh_uri">BOSH URI</label></th><td>
+                        <input type="text" name="bosh_uri" id="bosh_uri" tabindex="1" value=""/>
                         </td>
                     </tr>
                     <tr>
+                        <th><label for="websocket_uri">WebSocket URI</label></th><td>
+                        <input type="text" name="websocket_uri" id="websocket_uri" tabindex="2" value=""/>
+                        </td>
+                    <tr>
                         <th><label for="jid">JID</label></th><td>
-                        <input type="text" name="jid" id="jid" tabindex="2" value=""/>
+                        <input type="text" name="jid" id="jid" tabindex="3" value=""/>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="password">Password</label></th><td>
-                        <input type="password" name="password" id="password" tabindex="3" value=""/>
+                        <input type="password" name="password" id="password" tabindex="4" value=""/>
                         </td>
                     </tr>
                     <tr>
                         <th></th><td>
-                        <input type="checkbox" name="register" id="register_checkbox" />
+                        <input type="checkbox" name="register" id="register_checkbox" tabindex="5"/>
                         <label for="register_checkbox">Register new account</label></td>
                     </tr>
                     <tr>
                         <td>&nbsp;</td><td>
-                        <input type="submit" value="Login" tabindex="4">
+                        <input type="submit" value="Login" tabindex="6">
                         </td>
                     </tr>
                 </table>
