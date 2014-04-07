@@ -1,10 +1,12 @@
 "use strict";
-define(['libs/signals', 'libs/jquery'],
-    function(signals, $){
+define(['jslix/jid', 'libs/signals', 'libs/jquery'],
+    function(JID, signals, $){
 
     var plugin = function(options){
         this._connection = null;
-        this.options = options
+        this.options = options;
+        this.jid = new JID(options['jid']);
+        this.password = options['password'];
         this._connection_deferred = $.Deferred();
     }
 
