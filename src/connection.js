@@ -19,8 +19,8 @@ define(['jslix/jid', 'libs/signals', 'libs/jquery'],
     };
 
     connection.connect = function(dispatcher, index){
-        var index = index || -1;
-        if(index >= plugin.transports.length){
+        var index = index === undefined ? -1 : index;
+        if(index+1 >= plugin.transports.length){
             // XXX: Can't find working transport
             this._connection = null;
             this._connection_deferred.reject();
