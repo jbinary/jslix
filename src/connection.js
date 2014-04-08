@@ -40,7 +40,9 @@ define(['jslix/jid', 'libs/signals', 'libs/jquery'],
                 plugin_instance._connection_deferred.resolve();
             });
             deferred.fail(function(){
-                var index = plugin.transports.indexOf(plugin_instance._connection.constructor);
+                var constr = plugin_instance._connection.constructor,
+                    index = plugin.transports.indexOf(constr);
+                dispatcher.unregisterPlugin(constr);
                 plugin_instance._connection = null;
                 plugin_instance.connect(dispatcher, index);
             });
