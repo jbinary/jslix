@@ -239,6 +239,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 }
                 result = true;
             }else{
+                // TODO: Right behaviour?
+                this._connection_deferred.reject();
                 this.established = false;
                 this.signals.fail.dispatch(response.status, this.suspend());
             }
