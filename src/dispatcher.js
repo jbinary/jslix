@@ -111,6 +111,9 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
             var d = this.deferreds[top.id][0];
             var r_el = this.deferreds[top.id][1];
             var result_class = r_el.__definition__.result_class;
+            if (result_class === 'self') {
+                result_class = r_el.__definition__;
+            }
             if (result_class && top.type == 'result') {
                 try {
                     var result = jslix.parse(el, result_class);
