@@ -1,6 +1,6 @@
 "use strict";
-define(['jslix/jid', 'libs/signals', 'libs/jquery'],
-    function(JID, signals, $){
+define(['jslix/jid', 'jslix/sasl', 'libs/signals', 'libs/jquery'],
+    function(JID, SASL, signals, $){
 
     var plugin = function(options){
         this._connection = null;
@@ -43,6 +43,7 @@ define(['jslix/jid', 'libs/signals', 'libs/jquery'],
                 var constr = plugin_instance._connection.constructor,
                     index = plugin.transports.indexOf(constr);
                 dispatcher.unregisterPlugin(constr);
+                dispatcher.unregisterPlugin(SASL);
                 plugin_instance._connection = null;
                 plugin_instance.connect(dispatcher, index);
             });
