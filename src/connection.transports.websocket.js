@@ -150,6 +150,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     websocket._onclose = function(evt){
         this.established = false;
+        this._connection_deferred.reject();
     }
 
     return plugin;
