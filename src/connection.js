@@ -40,12 +40,17 @@ define(['jslix/jid', 'jslix/sasl', 'libs/signals', 'libs/jquery'],
                 plugin_instance._connection_deferred.resolve();
             });
             deferred.fail(function(){
-                var constr = plugin_instance._connection.constructor,
-                    index = plugin.transports.indexOf(constr);
-                dispatcher.unregisterPlugin(constr);
-                dispatcher.unregisterPlugin(SASL);
-                plugin_instance._connection = null;
-                plugin_instance.connect(dispatcher, index);
+                var connection = plugin_instance._connection;
+                if(connection){
+                    var constr = connection.constructor,
+                        _index = plugin.transports.indexOf(constr);
+                        dispatcher.unregisterPlugin(constr);
+                        dispatcher.unregisterPlugin(SASL);
+                        plugin_instance._connection = null;
+                        plugin_instance.connect(dispatcher, _index);
+                }else{
+                    plugin_instance.connect(dispatcher, index);
+                }
             });
         }
         return this._connection_deferred;
