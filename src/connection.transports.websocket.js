@@ -114,6 +114,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket.restart = function(){
+        this.fix = true;
         return websocket.OpenStanza.create({
             to: this.jid.domain
         });
