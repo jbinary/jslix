@@ -6,11 +6,21 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
 
     // Attr fields
 
-    var Attr = function(name, required){
+    var Attr = function(name, required, xmlns){
+        this.prefix = '';
+        var idx = name ? name.indexOf(':') : -1;
+        if (idx > 0) {
+            this.prefix = name.substr(0, idx + 1);
+            name = name.substr(idx + 1);
+        }
+        if (this.prefix == 'xml:') {
+            this.namespace = 'http://www.w3.org/XML/1998/namespace';
+        }
         this.name = name;
         this.required = required;
         this.type = null;
         this.field = true;
+        this.xmlns = xmlns;
     };
 
     Attr.prototype.get_from_el = function(el) {
@@ -23,9 +33,13 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
     };
 
     Attr.prototype.put_to_el = function(el, value) {
-        var attr = document.createAttribute(this.name);
-        attr.nodeValue = value;
-        el.attributes.setNamedItem(attr);
+        if (this.xmlns)
+            el.setAttributeNS(this.xmlns, this.prefix + this.name, value);
+        else {
+            var attr = document.createAttribute(this.name);
+            attr.nodeValue = value;
+            el.attributes.setNamedItem(attr);
+        }
     };
 
     Attr.prototype.clean = function(value) {
@@ -52,8 +66,8 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
 
     fields.StringAttr = Class(
         fields.Attr,
-        function(name, required) {
-            fields.Attr.call(this, name, required);
+        function(name, required, xmlns) {
+            fields.Attr.call(this, name, required, xmlns);
             //objAttr.prototype = this.prototype;
 
             this.type = types.StringType;
