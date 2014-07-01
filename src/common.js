@@ -79,9 +79,11 @@ define(['jslix/exceptions'],
     
     jslix._parse = function(el, definition) {
         if (el.nodeName == '#document') el = el.childNodes[0];
+        /* This shit needed for IE9 */
+        var localName = el.localName ? el.localName : el.nodeName.substr(el.nodeName.indexOf(':')+1);
         if ((definition.element_name &&
              definition.element_name[0] !== ':' &&
-             el.localName != definition.element_name) || 
+             localName != definition.element_name) || 
             definition.xmlns != el.namespaceURI) {
             throw new exceptions.WrongElement();
         }
@@ -93,7 +95,7 @@ define(['jslix/exceptions'],
         }
         var result = jslix.createStanza(definition);
         if (definition.element_name && definition.element_name[0] == ':') {
-            result[definition.element_name.slice(1)] = el.localName;
+            result[definition.element_name.slice(1)] = localName;
         }
         for (var key in definition) {
             var f = definition[key];
