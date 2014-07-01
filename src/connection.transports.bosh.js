@@ -80,8 +80,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         xml_lang: new fields.StringAttr('xml:lang', true),
         content: new fields.StringAttr('content', false),
         route: new fields.StringAttr('route', false),
-        xmpp_version: new fields.StringAttr('xmpp:version', true),
-        xmlns_xmpp: new fields.StringAttr('xmlns:xmpp', true)
+        xmpp_version: new fields.StringAttr('xmpp:version', true,
+            bosh.XBOSH_NS)
     }, [bosh.BaseStanza]);
 
     bosh.ResponseStanza = Element({
@@ -104,8 +104,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     bosh.RestartStanza = Element({
         to: new fields.JIDAttr('to', true),
         xml_lang: new fields.StringAttr('xml:lang', true),
-        xmpp_restart: new fields.StringAttr('xmpp:restart', true),
-        xmlns_xmpp: new fields.StringAttr('xmlns:xmpp', true)
+        xmpp_restart: new fields.StringAttr('xmpp:restart', true,
+            bosh.XBOSH_NS)
     }, [bosh.EmptyStanza]);
 
     bosh.FeaturesStanza = Element({
@@ -138,8 +138,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 wait: this.wait,
                 hold: this.requests,
                 xml_lang: 'en',
-                xmpp_version: '1.0',
-                xmlns_xmpp: this.XBOSH_NS
+                xmpp_version: '1.0'
             })
         ));
 
@@ -167,8 +166,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
             sid: this._sid,
             rid: this._rid,
             xml_lang: 'en',
-            xmpp_restart: 'true',
-            xmlns_xmpp: this.XBOSH_NS
+            xmpp_restart: 'true'
         });
     }
 
