@@ -232,7 +232,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                             this._connection_deferred.reject(top.condition); // TODO: abstract exception here
                     }
                 }
-                while(doc.firstChild.childNodes.length) {
+                for(var i=0; i < doc.firstChild.childNodes.length; i++){
                     this._dispatcher.dispatch(doc.firstChild.childNodes[0]);
                 }
                 result = true;
