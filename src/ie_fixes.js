@@ -20,17 +20,17 @@
                 var newNode = document.createElement(node.nodeName);
                 /* does the node have any attributes to add? */
                 if (node.attributes && node.attributes.length > 0)
-                    for (var i = 0; il = node.attributes.length; i < il)
+                    for (var i = 0; i < node.attributes.length; i++)
                         newNode.setAttribute(
                             node.attributes[i].nodeName, 
-                            node.getAttribute(node.attributes[i++].nodeName)
+                            node.getAttribute(node.attributes[i].nodeName)
                         );
-                        /* are we going after children too, and does the node have any? */
-                        if (deep && node.childNodes && node.childNodes.length > 0)
-                            for (var i = 0; il = node.childNodes.length; i < il)
-                                newNode.appendChild(document.importNode(node.childNodes[i++], deep));
-                        return newNode;
-                        break;
+                /* are we going after children too, and does the node have any? */
+                if (deep && node.childNodes && node.childNodes.length > 0)
+                    for (var i = 0; i < node.childNodes.length; i++)
+                        newNode.appendChild(document.importNode(node.childNodes[i], deep));
+                return newNode;
+                break;
             case document.TEXT_NODE:
             case document.CDATA_SECTION_NODE:
             case document.COMMENT_NODE:
