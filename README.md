@@ -25,3 +25,5 @@ Run tests:
 To build docs you need have yuidoc.
 
 You can build docs with `yuidoc` command in root directory of repository.
+
+For IE support you should add ie_fixes.js load before any jslix code.
