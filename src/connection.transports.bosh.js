@@ -233,7 +233,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                     }
                 }
                 for(var i=0; i < doc.firstChild.childNodes.length; i++){
-                    this._dispatcher.dispatch(doc.firstChild.childNodes[0]);
+                    this._dispatcher.dispatch(doc.firstChild.childNodes[i]);
                 }
                 result = true;
             }else{
