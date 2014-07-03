@@ -17,7 +17,9 @@
         var deep = deep || false;
         switch (node.nodeType) {
             case document.ELEMENT_NODE:
-                var newNode = document.createElement(node.nodeName);
+                var name = node.nodeName,
+                    ns = node.namespaceURI,
+                    newNode = ns ? document.createElementNS(ns, name) : document.createElement(name);
                 /* does the node have any attributes to add? */
                 if (node.attributes && node.attributes.length > 0)
                     for (var i = 0; i < node.attributes.length; i++)
