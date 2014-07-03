@@ -79,7 +79,7 @@ define(['jslix/exceptions'],
     
     jslix._parse = function(el, definition) {
         if (el.nodeName == '#document') el = el.childNodes[0];
-        /* This shit needed for IE8 and IE9 */
+        // IEFIX: This shit needed for IE8 and IE9
         var localName = el.localName && el.localName.indexOf(':') == -1 ? el.localName : el.nodeName.substr(el.nodeName.indexOf(':')+1);
         if ((definition.element_name &&
              definition.element_name[0] !== ':' &&
