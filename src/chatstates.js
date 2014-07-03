@@ -52,7 +52,7 @@ define(['jslix/stanzas', 'libs/signals'],
     }
 
     chatstates.update_my_activity = function(state, jid) {
-        var activity = this.my_activity[jid.bare] || {'state': state};
+        var activity = this.my_activity[jid.bare()] || {'state': state};
         var old_activity = activity['state'];
         activity['state'] = state;
         var that = this, timer;
@@ -95,18 +95,18 @@ define(['jslix/stanzas', 'libs/signals'],
                 that._dispatcher.send(message);
             }, this.options['send_timeout'] * 1000);
         }
-        this.my_activity[jid.bare] = activity;
+        this.my_activity[jid.bare()] = activity;
     }
 
     chatstates.get_support_flag = function(jid) {
         var flag = this.support_map[jid.toString()] ||
-                   this.support_map_bare[jid.bare];
+                   this.support_map_bare[jid.bare()];
         return flag;
     }
 
     chatstates.set_support_flag = function(jid, flag) {
         this.support_map[jid.toString()] = flag;
-        this.support_map_bare[jid.bare] = flag;
+        this.support_map_bare[jid.bare()] = flag;
     }
 
     chatstates.StateStanza = Element({
@@ -147,7 +147,7 @@ define(['jslix/stanzas', 'libs/signals'],
             return value;
         },
         clean_to: function(value) {
-            var bare = value.bare;
+            var bare = value.bare();
             if (!value || !my_activity[bare]) {
                 throw new WrongElement();
             }
@@ -160,7 +160,7 @@ define(['jslix/stanzas', 'libs/signals'],
             }
             var flag = this.get_support_flag(el.to);
             if (flag === undefined || flag) {
-                var activity = my_activity[el.to.bare];
+                var activity = my_activity[el.to.bare()];
                 if (activity.send_timeout) {
                     clearTimeout(activity.send_timeout);
                     delete activity.send_timeout;
