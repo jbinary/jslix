@@ -190,7 +190,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 this._queue = [doc].concat(this._queue);
                 break;
             }
-            req.send(doc);
+            req.send(new XMLSerializer().serializeToString(doc));
             timestamp = new Date().getTime();
             this._slots.push(req);
         }
