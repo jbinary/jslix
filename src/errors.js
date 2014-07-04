@@ -33,7 +33,8 @@ define(['jslix/class', 'jslix/stanzas', 'jslix/exceptions', 'jslix/fields',
     errors.condition_to_name = function(condition) {
         var words = condition.split('-');
         $.each(words, function(i) {
-            words[i] = this[0].toUpperCase() + this.slice(1);
+            // IEFIX: IE8 don't allow use access to chars in strings like arrays
+            words[i] = this.charAt(0).toUpperCase() + this.slice(1);
         });
         words[words.length] = 'Error';
         return words.join('');

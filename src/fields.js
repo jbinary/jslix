@@ -36,9 +36,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
         if (this.xmlns)
             el.setAttributeNS(this.xmlns, this.prefix + this.name, value);
         else {
-            var attr = document.createAttribute(this.name);
-            attr.nodeValue = value;
-            el.attributes.setNamedItem(attr);
+            el.setAttribute(this.prefix + this.name, value);
         }
     };
 
@@ -121,8 +119,9 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
         }
         var value = [];
         for (var i=0; i<el.childNodes.length; i++) {
-            var node = el.childNodes[i];
-            if ((this.name === undefined || node.localName == this.name) && 
+            var node = el.childNodes[i],
+                localName = jslix.get_local_name(node);
+            if ((this.name === undefined || localName == this.name) && 
                  xmlns == node.namespaceURI) value[value.length] = node;
         }
         if (!this.listed) return value[0] || undefined;
@@ -158,18 +157,20 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
         },
         {
             put_to_el: function(stanza, value){
+                var doc = stanza.ownerDocument || stanza.firstChild.ownerDocument;
                 if(!value)
                     return;
                 var xmlns = this.xmlns || stanza.namespaceURI,
-                    node = document.createElementNS(xmlns, this.name);
+                    node = doc.createElementNS(xmlns, this.name);
                 stanza.appendChild(node);
             },
             get_from_el: function(el){
                 var xmlns = this.xmlns || el.namespaceURI,
                     value = false;
                 for(var i=0; i<el.childNodes.length; i++){
-                    var node = el.childNodes[i];
-                    if(this.name == node.localName && xmlns == node.namespaceURI){
+                    var node = el.childNodes[i],
+                        localName = jslix.get_local_name(node);
+                    if(this.name == localName && xmlns == node.namespaceURI){
                         value = true;
                         break;
                     }
@@ -187,13 +188,14 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
         },
         {
             put_to_el: function(stanza, value) {
-                var xmlns = this.xmlns || stanza.namespaceURI;
+                var xmlns = this.xmlns || stanza.namespaceURI,
+                    doc = stanza.ownerDocument || stanza.firstChild.ownerDocument;
                 if (this.self) {
                     var node = stanza;
                 } else {
-                    var node = document.createElementNS(xmlns, this.name);
+                    var node = doc.createElementNS(xmlns, this.name);
                 }
-                var text_node = document.createTextNode(value);
+                var text_node = doc.createTextNode(value);
                 if (!this.self) {
                     node.appendChild(text_node);
                     stanza.appendChild(node);
@@ -301,12 +303,13 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
                 if (!value && this.required) {
                     throw new exceptions.ElementParseError();
                 } else if (value) {
-                    return value.localName;
+                    return jslix.get_local_name(value);
                 }
             },
             'put_to_el': function(el, value) {
-                var xmlns = this.xmlns || el.namespaceURI;
-                value = document.createElementNS(xmlns, value);
+                var xmlns = this.xmlns || el.namespaceURI,
+                    doc = el.ownerDocument;
+                value = doc.createElementNS(xmlns, value);
                 fields.Node.prototype.put_to_el.call(this, el, value);
             }
         }

@@ -190,7 +190,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 this._queue = [doc].concat(this._queue);
                 break;
             }
-            req.send(doc);
+            req.send(new XMLSerializer().serializeToString(doc));
             timestamp = new Date().getTime();
             this._slots.push(req);
         }
@@ -232,8 +232,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                             this._connection_deferred.reject(top.condition); // TODO: abstract exception here
                     }
                 }
-                while(doc.firstChild.childNodes.length) {
-                    this._dispatcher.dispatch(doc.firstChild.childNodes[0]);
+                for(var i=0; i < doc.firstChild.childNodes.length; i++){
+                    this._dispatcher.dispatch(doc.firstChild.childNodes[i]);
                 }
                 result = true;
             }else{

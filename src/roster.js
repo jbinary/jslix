@@ -51,7 +51,7 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/signals', 'jslix/errors'],
     roster.UpdateRequestStanza = Element({
         clean_from: function(value, top) {
             var myjid = this._dispatcher.myjid;
-            if ([myjid.bare, myjid.toString(), myjid.domain].indexOf(
+            if ([myjid.bare(), myjid.toString(), myjid.domain].indexOf(
                     top.from) == -1) {
                 throw new errors.NotAuthorizedError();
             }

@@ -47,35 +47,12 @@ define(['jslix/class', 'jslix/exceptions'], function(Class, exceptions){
 
     var JIDInvalidException = JID.exceptions.JIDInvalidException;
 
-    JID.prototype = {
-        get node(){
-            return this._node;
-        },
-        set node(new_node){
-            this._node = JID._checkNodeName(new_node);
-        },
-        get domain(){
-            return this._domain;
-        },
-        set domain(new_domain){
-            if(!new_domain){
-                throw new JIDInvalidException('Domain name missing');
-            }
-            this._domain = JID._checkNodeName(new_domain);
-        },
-        get resource(){
-            return this._resource;
-        },
-        set resource(new_resource){
-            this._resource = new_resource;
-        },
-        get bare(){
-            if(this.node){
-                return this.node + '@' + this.domain;
-            }
-            return this.domain;
+    JID.prototype.bare = function(){
+        if(this.node){
+            return this.node + '@' + this.domain;
         }
-    }
+        return this.domain;
+    };
 
     JID.prototype.toString = function(){
         var jid = '';
@@ -98,8 +75,8 @@ define(['jslix/class', 'jslix/exceptions'], function(Class, exceptions){
     };
 
     JID.prototype.isEntity = function(jid){
-        var bare_jid = jid instanceof JID ? jid.bare : new JID(jid).bare;
-        return this.bare === bare_jid;
+        var bare_jid = jid instanceof JID ? jid.bare() : new JID(jid).bare();
+        return this.bare() === bare_jid;
     };
 
     JID.prototype.escape = function(node, domain, resource){

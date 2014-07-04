@@ -45,7 +45,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/exceptions',
                 console.log('on jingle ' + stanza.action);
                 var sess = this.sessions[stanza.sid];
                 if (stanza.action != 'session-initiate' &&
-                    (!sess || (top.from.bare != sess.peerjid.bare))) {
+                    (!sess || (top.from.bare() != sess.peerjid.bare()))) {
                     throw new errors.UnknownSessionError();
                 } else if (stanza.action == 'session-initiate' && sess) {
                     throw new jslix_errors.ServiceUnavailableError();

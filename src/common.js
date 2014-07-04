@@ -42,6 +42,15 @@ define(['jslix/exceptions'],
         return retObj;
     };
 
+    // IEFIX: This shit needed for IE8 and IE9
+    jslix.get_local_name = function(node){
+        if(node.localName && node.localName.indexOf(':') == -1){
+            return node.localName;
+        }else{
+            return node.nodeName.substr(node.nodeName.indexOf(':')+1);
+        }
+    };
+
     jslix.parse = function(el, definition, path) {
         var path = path || [];
         path[path.length] = definition;
@@ -79,9 +88,10 @@ define(['jslix/exceptions'],
     
     jslix._parse = function(el, definition) {
         if (el.nodeName == '#document') el = el.childNodes[0];
+        var localName = jslix.get_local_name(el);
         if ((definition.element_name &&
              definition.element_name[0] !== ':' &&
-             el.localName != definition.element_name) || 
+             localName != definition.element_name) || 
             definition.xmlns != el.namespaceURI) {
             throw new exceptions.WrongElement();
         }
@@ -93,7 +103,7 @@ define(['jslix/exceptions'],
         }
         var result = jslix.createStanza(definition);
         if (definition.element_name && definition.element_name[0] == ':') {
-            result[definition.element_name.slice(1)] = el.localName;
+            result[definition.element_name.slice(1)] = localName;
         }
         for (var key in definition) {
             var f = definition[key];
@@ -133,17 +143,9 @@ define(['jslix/exceptions'],
         if (element_name && element_name[0] == ':') {
             element_name = obj[element_name.slice(1)];
         }
-        if (element_needed) {
-            var doc = document.createElementNS(
-                obj.__definition__.xmlns || parent.namespaceURI,
-                element_name
-            );
-            var stanza = doc;
-        } else {
-            var doc = document.implementation.createDocument(
-                obj.__definition__.xmlns, element_name, null);
-            var stanza = doc.childNodes[0];
-        }
+        var doc = document.implementation.createDocument(
+            obj.__definition__.xmlns || parent.namespaceURI, element_name, null);
+        var stanza = doc.firstChild;
         function put(value) {
             if (f.type)
                 value = f.type.from_js(value);
@@ -164,7 +166,7 @@ define(['jslix/exceptions'],
         for (var i=0; i<obj.__links__.length; i++) {
             stanza.appendChild(jslix.build(obj.__links__[i], true));
         }
-        return doc;
+        return element_needed ? doc.firstChild : doc;
     }
 
   return jslix;

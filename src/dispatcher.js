@@ -67,8 +67,9 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
 
     dispatcher.dispatch = function(el) {
         if(el.nodeName != '#document'){
-            var doc = document.implementation.createDocument(null, null, null);
-            doc.appendChild(el);
+            var doc = document.implementation.createDocument(null, null, null),
+                new_el = doc.importNode(el, true);
+            doc.appendChild(new_el);
             el = doc;
         }
         for (var i=0; i<this.top_handlers.length; i++) {
