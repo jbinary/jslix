@@ -135,17 +135,9 @@ define(['jslix/exceptions'],
         if (element_name && element_name[0] == ':') {
             element_name = obj[element_name.slice(1)];
         }
-        if (element_needed) {
-            var doc = document.createElementNS(
-                obj.__definition__.xmlns || parent.namespaceURI,
-                element_name
-            );
-            var stanza = doc;
-        } else {
-            var doc = document.implementation.createDocument(
-                obj.__definition__.xmlns, element_name, null);
-            var stanza = doc.childNodes[0];
-        }
+        var doc = document.implementation.createDocument(
+            obj.__definition__.xmlns || parent.namespaceURI, element_name, null);
+        var stanza = doc.firstChild;
         function put(value) {
             if (f.type)
                 value = f.type.from_js(value);
@@ -166,7 +158,7 @@ define(['jslix/exceptions'],
         for (var i=0; i<obj.__links__.length; i++) {
             stanza.appendChild(jslix.build(obj.__links__[i], true));
         }
-        return doc;
+        return element_needed ? doc.firstChild : doc;
     }
 
   return jslix;
