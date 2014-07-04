@@ -120,7 +120,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
         var value = [];
         for (var i=0; i<el.childNodes.length; i++) {
             var node = el.childNodes[i],
-                localName = node.localName && node.localName.indexOf(':') == -1 ? node.localName : node.nodeName.substr(node.nodeName.indexOf(':'));
+                localName = jslix.get_local_name(node);
             if ((this.name === undefined || localName == this.name) && 
                  xmlns == node.namespaceURI) value[value.length] = node;
         }
@@ -169,7 +169,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
                     value = false;
                 for(var i=0; i<el.childNodes.length; i++){
                     var node = el.childNodes[i],
-                        localName = node.localName && node.localName.indexOf(':') == -1 ? node.localName : node.nodeName.substr(node.nodeName.indexOf(':'));
+                        localName = jslix.get_local_name(node);
                     if(this.name == localName && xmlns == node.namespaceURI){
                         value = true;
                         break;
@@ -303,7 +303,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
                 if (!value && this.required) {
                     throw new exceptions.ElementParseError();
                 } else if (value) {
-                    return node.localName && node.localName.indexOf(':') == -1 ? node.localName : node.nodeName.substr(node.nodeName.indexOf(':'));
+                    return jslix.get_local_name(value);
                 }
             },
             'put_to_el': function(el, value) {

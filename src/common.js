@@ -42,6 +42,15 @@ define(['jslix/exceptions'],
         return retObj;
     };
 
+    // IEFIX: This shit needed for IE8 and IE9
+    jslix.get_local_name = function(node){
+        if(node.localName && node.localName.indexOf(':') == -1){
+            return node.localName;
+        }else{
+            return node.nodeName.substr(node.nodeName.indexOf(':')+1);
+        }
+    };
+
     jslix.parse = function(el, definition, path) {
         var path = path || [];
         path[path.length] = definition;
@@ -79,8 +88,7 @@ define(['jslix/exceptions'],
     
     jslix._parse = function(el, definition) {
         if (el.nodeName == '#document') el = el.childNodes[0];
-        // IEFIX: This shit needed for IE8 and IE9
-        var localName = el.localName && el.localName.indexOf(':') == -1 ? el.localName : el.nodeName.substr(el.nodeName.indexOf(':')+1);
+        var localName = jslix.get_local_name(el);
         if ((definition.element_name &&
              definition.element_name[0] !== ':' &&
              localName != definition.element_name) || 
