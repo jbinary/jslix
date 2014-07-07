@@ -14,7 +14,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
             name = name.substr(idx + 1);
         }
         if (this.prefix == 'xml:') {
-            this.namespace = 'http://www.w3.org/XML/1998/namespace';
+            xmlns = 'http://www.w3.org/XML/1998/namespace';
         }
         this.name = name;
         this.required = required;
