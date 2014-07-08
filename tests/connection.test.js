@@ -5,6 +5,8 @@ define(['jslix/connection', 'jslix/dispatcher', 'jslix/jid'],
     function(Connection, Dispatcher, JID){
     buster.testCase('ConnectionTest', {
         setUp: function(){
+            this.transports = Connection.transports;
+            Connection.transports = [];
             this.options = {
                 'jid': 'jid',
                 'password': 'password'
@@ -16,11 +18,10 @@ define(['jslix/connection', 'jslix/dispatcher', 'jslix/jid'],
             assert(this.connection.password == this.options['password']);
             //this.server = sinon.fakeServer.create();
         },
-        /*
         tearDown: function(){
-            this.server.restore();
+            //this.server.restore();
+            Connection.transports = this.transports;
         },
-        */
         testConnect: function(){
             var result = this.connection.connect(this.dispatcher);
             assert(result.state() == 'rejected');
