@@ -282,7 +282,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
                                                 result_class: resultDefinition},
                                 [stanzas.IQStanza]);
 
-            this.dispatcher.addHandler(definitionIq, testHost);
+            this.dispatcher.addHandler(definitionIq, testHost, 'somename');
 
             var iqStanza = definitionIq.create({id:'123', type:'get', from:'abc', to:'qwe'});
 
@@ -359,7 +359,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
             assert(break_stanza instanceof stanzas.BreakStanza);
             assert(break_stanza.toString() == '<Break stanza>');
             assert(this.dispatcher.connection.count == 0);
-            this.dispatcher.addHandler(test_def, this);
+            this.dispatcher.addHandler(test_def, this, 'somename');
             this.dispatcher.dispatch(jslix.build(test_def.create()));
             assert(this.dispatcher.connection.count == 0);
         },
