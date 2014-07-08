@@ -80,7 +80,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/dispatcher', 'jslix/sasl', 'libs
                 }
             }];
             this.dispatcher.dispatch(jslix.build(stanzas.IQStanza.create(iq_settings)));
-            assert(deferred.state() == 'rejected');
+            assert(deferred.state() == 'resolved');
             assert.equals(this.dispatcher.deferreds, {})
             deferred = $.Deferred();
             this.dispatcher.deferreds[iq_settings.id] = [deferred, {
