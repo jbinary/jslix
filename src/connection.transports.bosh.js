@@ -179,8 +179,8 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     bosh.process_queue = function(timestamp){
         this.clean_slots();
         if(this.established && 
-            !(this._slots.length || this._queue.length) && 
-            (this.requests > 1 || new Date().getTime() > timestamp + this.polling * 1000))
+                !(this._slots.length || this._queue.length) && 
+                (this.requests > 1 || new Date().getTime() > timestamp + this.polling * 1000))
             this.send();
         while(this._queue.length){
             this.clean_slots();
@@ -227,6 +227,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 }else{
                     if(top.type == 'terminate') {
                         if (this.established)
+                            this._connection_deferred = null;
                             this.established = false;
                         else
                             this._connection_deferred.reject(top.condition); // TODO: abstract exception here
@@ -239,6 +240,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
             }else{
                 // TODO: Right behaviour?
                 this._connection_deferred.reject();
+                this._connection_deferred = null;
                 this.established = false;
                 this.signals.fail.dispatch(response.status, this.suspend());
             }
