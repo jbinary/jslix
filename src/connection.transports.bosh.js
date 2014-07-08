@@ -226,10 +226,10 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                     this.established = true;
                 }else{
                     if(top.type == 'terminate') {
-                        if (this.established)
+                        if (this.established){
                             this._connection_deferred = null;
                             this.established = false;
-                        else
+                        }else
                             this._connection_deferred.reject(top.condition); // TODO: abstract exception here
                     }
                 }
