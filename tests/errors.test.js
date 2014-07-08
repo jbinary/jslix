@@ -9,7 +9,7 @@ define(['jslix/common', 'jslix/errors', 'jslix/stanzas'],
             }));
             assert.exception(function(){
                 jslix.parse(error_stanza, errors.ErrorStanza);
-            }, 'ElementParseError');
+            }, 'WrongElement');
         }
     });
 });
