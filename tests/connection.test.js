@@ -5,15 +5,15 @@ define(['jslix/connection', 'jslix/dispatcher', 'jslix/jid'],
     function(Connection, Dispatcher, JID){
     buster.testCase('ConnectionTest', {
         setUp: function(){
-            var options = {
+            this.options = {
                 'jid': 'jid',
                 'password': 'password'
             };
-            this.connection = new Connection(options);
+            this.connection = new Connection(this.options);
             this.dispatcher = new Dispatcher(this.connection);
             assert(this.connection._connection == null);
             assert(this.connection.jid instanceof JID);
-            assert(this.connection.password == 'password');
+            assert(this.connection.password == this.options['password']);
             //this.server = sinon.fakeServer.create();
         },
         /*
