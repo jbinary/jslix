@@ -24,7 +24,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
     };
 
     Attr.prototype.get_from_el = function(el) {
-        var attr = el.attributes.getNamedItem(this.name);
+        var attr = el.getAttribute(this.name);
         if (attr == null) {
             return undefined;
         } else {
