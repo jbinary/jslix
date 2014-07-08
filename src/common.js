@@ -74,7 +74,7 @@ define(['jslix/exceptions'],
             el = eel;
             if (!link){
                 throw new exceptions.WrongElement(
-                    'Can\'t find "' + eel.xmlns + ':' + eel.element_name + '" child'
+                    'Can\'t find "' + link_def.xmlns + ':' + link_def.element_name + '" child'
                 );
             }
             if (parent) {
