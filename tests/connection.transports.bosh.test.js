@@ -144,7 +144,6 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/connection.transports.bosh',
             req.respond(200,this.headers, this.responses['terminate']);
             this.connection.process_response(req);
             assert(!this.connection.established);
-            this.connection._connection_deferred = null
             this.connection.connect();
             req = this.server.requests[this.server.requests.length-1];
             req.respond(200, this.headers, this.responses['connect']);
