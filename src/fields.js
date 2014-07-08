@@ -28,7 +28,7 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
         if (attr == null) {
             return undefined;
         } else {
-            return attr.value;
+            return attr;
         }
     };
 
