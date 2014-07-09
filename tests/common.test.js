@@ -380,6 +380,24 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
         },
         testToStringMethod: function(){
             assert(stanzas.PresenceStanza.create() == '<presence xmlns="jabber:client"/>');
+        },
+        testDifferentNSForElementsWithOneName: function(){
+            var definition = new stanzas.Element({
+                    element_name: 'element_name',
+                    first_some: new fields.StringAttr('some', true, 'first'),
+                    second_some: new fields.StringAttr('some', true, 'second')
+                }),
+                stanza = definition.create({
+                    first_some: 'first',
+                    second_some: 'second'
+                }),
+                doc = jslix.build(stanza),
+                test = this;
+            refute.exception(function(){
+                var result = jslix.parse(doc, definition);
+                assert(result.first_some == stanza.first_some);
+                assert(result.second_some == stanza.second_some);
+            });
         }
     });
 });
