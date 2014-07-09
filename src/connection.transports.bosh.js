@@ -21,7 +21,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this.password = options['password'];
         this.uri = options['bosh_uri'];
         this._dispatcher = dispatcher;
-        this._dispatcher.addHandler(this.FeaturesStanza, this, this._name);
+        this._dispatcher.addHandler(this.ResponseStanza, this, this._name);
         this.sasl = this._dispatcher.registerPlugin(SASL);
         var that = this;
         this.sasl.deferred.done(function() {
@@ -53,7 +53,23 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         xmlns: bosh.BOSH_NS,
         element_name: 'body',
         type: new fields.StringAttr('type', false),
-        condition: new fields.StringAttr('condition', false)
+        condition: new fields.StringAttr('condition', false),
+        childs: new fields.Node(undefined, null, undefined, true),
+        handler: function(top){
+            if(top.type == 'terminate'){
+                if(this.established){
+                    this.established = false;
+                }else{
+                    // TODO: Abstract exception here
+                    this._connection_deferred.reject(top.condition);
+                }
+                this._connection_deferred = null;
+                return stanzas.BreakStanza.create()
+            }
+            for(var i=0; i<top.childs.length; i++){
+                this._dispatcher.dispatch(top.childs[i]);
+            }
+        }
     });
 
     bosh.EmptyStanza = Element({
@@ -98,6 +114,19 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
             if(!value)
                 throw new exceptions.WrongElement();
             return value;
+        },
+        handler: function(top){
+            if(!this.established && top.type != 'terminate' && top.sid){
+                this.requests = top.requests;
+                this.wait = top.wait;
+                this.polling = top.polling;
+                this._sid = top.sid;
+                this.established = true;
+                this._dispatcher.addHandler(this.BodyStanza, this, this._name);
+                this._dispatcher.addHandler(this.FeaturesStanza, this, this._name);
+                // TODO: Maybe just pass el to handler?
+                this._dispatcher.dispatch(jslix.build(top));
+            }
         }
     }, [bosh.BaseStanza]);
 
@@ -205,37 +234,9 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     bosh.process_response = function(response){
         var result = false;
         if(response.readyState == 4){
-            if(response.status == 200 && response.responseXML){ // TODO: handle other statuses as well (404 at least)
-                var doc = response.responseXML;
-                var definitions = [this.BodyStanza, this.ResponseStanza];
-                var top = undefined;
-                for (var i=0; i<definitions.length; i++) {
-                    try{
-                        var top = jslix.parse(doc, definitions[i]);
-                    } catch(e){
-                        if (!e instanceof exceptions.WrongElement)
-                            return result;
-                    }
-                }
-                if(!top) return result;
-                if(!this.established && top.type != 'terminate' && top.sid){
-                    this.requests = top.requests;
-                    this.wait = top.wait;
-                    this.polling = top.polling;
-                    this._sid = top.sid;
-                    this.established = true;
-                }else{
-                    if(top.type == 'terminate') {
-                        if (this.established){
-                            this._connection_deferred = null;
-                            this.established = false;
-                        }else
-                            this._connection_deferred.reject(top.condition); // TODO: abstract exception here
-                    }
-                }
-                for(var i=0; i < doc.firstChild.childNodes.length; i++){
-                    this._dispatcher.dispatch(doc.firstChild.childNodes[i]);
-                }
+            // TODO: handle other statuses as well (404 at least)
+            if(response.status == 200 && response.responseXML){
+                this._dispatcher.dispatch(response.responseXML.firstChild);
                 result = true;
             }else{
                 // TODO: Right behaviour?
