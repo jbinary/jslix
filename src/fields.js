@@ -122,14 +122,14 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
             var node = el.childNodes[i],
                 localName = jslix.get_local_name(node);
             if ((this.name === undefined || localName == this.name) && 
-                 xmlns == node.namespaceURI) value[value.length] = node;
+                 ((xmlns == node.namespaceURI) || xmlns === null)) value[value.length] = node;
         }
         if (!this.listed) return value[0] || undefined;
         return value;
     };
 
     Node.prototype.put_to_el = function(el, values) {
-        if (! this.listed) values = [values];
+        if (!this.listed) values = [values];
         for (var i=0; i<values.length; i++) {
             el.appendChild(values[i]);
         }
