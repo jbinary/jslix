@@ -282,7 +282,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
                                                 result_class: resultDefinition},
                                 [stanzas.IQStanza]);
 
-            this.dispatcher.addHandler(definitionIq, testHost);
+            this.dispatcher.addHandler(definitionIq, testHost, 'somename');
 
             var iqStanza = definitionIq.create({id:'123', type:'get', from:'abc', to:'qwe'});
 
@@ -359,7 +359,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
             assert(break_stanza instanceof stanzas.BreakStanza);
             assert(break_stanza.toString() == '<Break stanza>');
             assert(this.dispatcher.connection.count == 0);
-            this.dispatcher.addHandler(test_def, this);
+            this.dispatcher.addHandler(test_def, this, 'somename');
             this.dispatcher.dispatch(jslix.build(test_def.create()));
             assert(this.dispatcher.connection.count == 0);
         },
@@ -380,6 +380,24 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/jid',
         },
         testToStringMethod: function(){
             assert(stanzas.PresenceStanza.create() == '<presence xmlns="jabber:client"/>');
+        },
+        testDifferentNSForElementsWithOneName: function(){
+            var definition = new stanzas.Element({
+                    element_name: 'element_name',
+                    first_some: new fields.StringAttr('some', true, 'first'),
+                    second_some: new fields.StringAttr('some', true, 'second')
+                }),
+                stanza = definition.create({
+                    first_some: 'first',
+                    second_some: 'second'
+                }),
+                doc = jslix.build(stanza),
+                test = this;
+            refute.exception(function(){
+                var result = jslix.parse(doc, definition);
+                assert(result.first_some == stanza.first_some);
+                assert(result.second_some == stanza.second_some);
+            });
         }
     });
 });

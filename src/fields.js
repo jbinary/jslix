@@ -24,11 +24,11 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
     };
 
     Attr.prototype.get_from_el = function(el) {
-        var attr = el.attributes.getNamedItem(this.name);
+        var attr = this.xmlns ? el.getAttributeNS(this.xmlns, this.name) : el.getAttribute(this.name);
         if (attr == null) {
             return undefined;
         } else {
-            return attr.value;
+            return attr;
         }
     };
 

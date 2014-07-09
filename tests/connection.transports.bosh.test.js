@@ -3,13 +3,18 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/connection.transports.bosh',
     function(jslix, stanzas, BOSH, JID, Dispatcher, Bind, Session){
     buster.testCase('ConnectionTransportsBOSHTest', {
         setUp: function(){
+            this.parser = new DOMParser();
+            this.options = {
+                'jid': new JID('user@server.com'),
+                'password': 'password',
+                'bosh_uri': '/http-base/'
+            };
             this.dispatcher = new Dispatcher();
-            this.connection = new BOSH(this.dispatcher,
-                new JID('user@server.com'), 'password', '/http-base/');
+            this.connection = new BOSH(this.dispatcher, this.options);
             assert(this.connection._dispatcher instanceof Dispatcher);
             assert(this.connection.jid instanceof JID);
-            assert(this.connection.password == 'password');
-            assert(this.connection.http_base == '/http-base/');
+            assert(this.connection.password == this.options['password']);
+            assert(this.connection.uri == this.options['bosh_uri']);
             this.dispatcher.connection = this.connection;
             this.server = sinon.fakeServer.create();
             this.clock = sinon.useFakeTimers();
@@ -56,10 +61,11 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/connection.transports.bosh',
                 test = this;
             assert.match(req, {
                 method: 'POST',
-                url: '/http-base/'
+                url: this.options['bosh_uri']
             });
             refute.exception(function(){
-                jslix.parse(req.requestBody, test.connection.RequestStanza);
+                var doc = test.parser.parseFromString(req.requestBody, 'text/xml');
+                jslix.parse(doc, test.connection.RequestStanza);
             });
             req.respond(200, this.headers, this.responses['connect']);
             assert(this.connection.established);
@@ -80,10 +86,11 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/connection.transports.bosh',
                 test = this;
             assert.match(req, {
                 method: 'POST',
-                url: '/http-base/'
+                url: this.options['bosh_uri']
             });
             refute.exception(function(){
-                stanza = jslix.parse(req.requestBody, test.connection.EmptyStanza);
+                var doc = test.parser.parseFromString(req.requestBody, 'text/xml');
+                stanza = jslix.parse(doc, test.connection.EmptyStanza);
             });
             assert(stanza != null && stanza.type == 'terminate');
         },
