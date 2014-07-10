@@ -59,16 +59,16 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
             if(top.type == 'terminate'){
                 if(this.established){
                     this.established = false;
-                }else{
-                    // TODO: Abstract exception here
-                    this._connection_deferred.reject(top.condition);
                 }
+                // TODO: Abstract exception here
+                this._connection_deferred.reject(top.condition);
                 this._connection_deferred = null;
-                return stanzas.BreakStanza.create()
+                return stanzas.BreakStanza.create();
             }
             for(var i=0; i<top.childs.length; i++){
                 this._dispatcher.dispatch(top.childs[i]);
             }
+            return stanzas.BreakStanza.create();
         }
     });
 
@@ -122,11 +122,10 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 this.polling = top.polling;
                 this._sid = top.sid;
                 this.established = true;
-                this._dispatcher.addHandler(this.BodyStanza, this, this._name);
                 this._dispatcher.addHandler(this.FeaturesStanza, this, this._name);
-                // TODO: Maybe just pass el to handler?
-                this._dispatcher.dispatch(jslix.build(top));
+                this._dispatcher.addHandler(this.BodyStanza, this, this._name);
             }
+            return bosh.BodyStanza.handler.call(this, top);
         }
     }, [bosh.BaseStanza]);
 
@@ -206,6 +205,9 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     bosh.process_queue = function(timestamp){
+        if(!this.established && timestamp){
+            return;
+        }
         this.clean_slots();
         if(this.established && 
                 !(this._slots.length || this._queue.length) && 
