@@ -157,7 +157,10 @@ define(['jslix/exceptions'],
             var f = obj.__definition__[k];
             if (typeof(f) == 'object' && 'field' in f && obj[k] !== undefined) {
                 var value = obj[k];
-                put(value);
+                if (f.listed)
+                    for (var i=0; i<value.length; i++)
+                        put(value[i]);
+                else put(value);
             }
         }
         for (var i=0; i<obj.__links__.length; i++) {
