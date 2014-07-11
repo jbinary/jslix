@@ -91,7 +91,11 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     websocket.connect = function(){
         if(this._connection_deferred) return this._connection_deferred;
         this._connection_deferred = $.Deferred();
-        this.socket = new WebSocket(this.uri, 'xmpp');
+        try{
+            this.socket = new WebSocket(this.uri, 'xmpp');
+        }catch(e){
+            return this._connection_deferred.reject(e);
+        }
         var connection = this;
         this.socket.onopen = function(evt){
             connection._onopen(evt);
