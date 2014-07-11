@@ -196,11 +196,9 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
                     var node = doc.createElementNS(xmlns, this.name);
                 }
                 var text_node = doc.createTextNode(value);
+                node.appendChild(text_node);
                 if (!this.self) {
-                    node.appendChild(text_node);
                     stanza.appendChild(node);
-                } else {
-                    stanza.appendChild(text_node);
                 }
             },
             get_from_el: function(el) {
