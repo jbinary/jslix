@@ -118,6 +118,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/connection.transports.bosh',
                     bind: true,
                     session: true
                 });
+            this.dispatcher.addHandler(this.connection.FeaturesStanza, this.connection, this.connection._name);
             this.dispatcher.dispatch(jslix.build(features));
             assert(Bind.prototype._name in this.dispatcher.plugins);
             assert(Session.prototype._name in this.dispatcher.plugins);
@@ -134,7 +135,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/connection.transports.bosh',
             var req = this.connection.create_request();
             req.onreadystatechange = null;
             req.respond(200, this.headers, this.responses['wrong features']);
-            assert(!this.connection.process_response(req));
+            assert(this.connection.process_response(req));
             this.connection.connect();
             req = this.server.requests[this.server.requests.length-1];
             req.respond(200, this.headers, this.responses['connect']);
