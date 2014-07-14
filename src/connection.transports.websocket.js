@@ -16,7 +16,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this._serializer = new XMLSerializer();
         this._parser = new DOMParser();
         this._dispatcher.addHandler(this.CloseStanza, this, this._name);
-        this.sasl = this._dispatcher.registerPlugin(SASL);
+        this.sasl = this._dispatcher.registerPlugin(SASL, options);
         var that = this;
         this.sasl.deferred.done(function(){
             dispatcher.send(that.restart());

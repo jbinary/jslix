@@ -22,7 +22,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this.uri = options['bosh_uri'];
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.ResponseStanza, this, this._name);
-        this.sasl = this._dispatcher.registerPlugin(SASL);
+        this.sasl = this._dispatcher.registerPlugin(SASL, options);
         var that = this;
         this.sasl.deferred.done(function() {
             dispatcher.send(that.restart());
