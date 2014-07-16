@@ -26,7 +26,7 @@ define(['jslix/fields', 'jslix/stanzas', 'jslix/class', 'jslix/exceptions', 'lib
         MechanismIsNotSupported: Class(exceptions.Error, function(msg){
             exceptions.Error.call(this, msg);
             this.name = 'MechanismIsNotSupported';
-        }
+        })
     };
 
     plugin.mechanisms = {};
