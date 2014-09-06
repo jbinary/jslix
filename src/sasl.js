@@ -1,13 +1,14 @@
 "use strict";
-define(['jslix/fields', 'jslix/stanzas', 'libs/jquery'],
-    function(fields, stanzas, $){
+define(['jslix/fields', 'jslix/stanzas', 'jslix/class', 'jslix/exceptions', 'libs/jquery'],
+    function(fields, stanzas, Class, exceptions, $){
 
-    var plugin = function(dispatcher){
+    var plugin = function(dispatcher, options){
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.MechanismsStanza, this, this._name);
         this._dispatcher.addHandler(this.SuccessStanza, this, this._name);
         this._dispatcher.addHandler(this.FailureStanza, this, this._name);
         this._mechanism = null;
+        this.preferred_mechanism = (options['preferred_mechanism'] || '').toUpperCase();
         this.deferred = $.Deferred();
     }
 
@@ -20,6 +21,13 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/jquery'],
                 new Date().getTime())*(tab.length-1)));
         return result;
     }
+
+    plugin.exceptions = {
+        MechanismIsNotSupported: Class(exceptions.Error, function(msg){
+            exceptions.Error.call(this, msg);
+            this.name = 'MechanismIsNotSupported';
+        })
+    };
 
     plugin.mechanisms = {};
 
@@ -78,12 +86,24 @@ define(['jslix/fields', 'jslix/stanzas', 'libs/jquery'],
         parent_element: stanzas.FeaturesStanza,
         handler: function(top){
             if(!this._mechanism){
-                for(var i=0; i<top.mechanisms.length; i++){
-                    var mechanism = top.mechanisms[i];
-                    if(plugin.mechanisms[mechanism]){
-                        this._mechanism = new plugin.mechanisms[mechanism](
-                            this._dispatcher);
-                        break;
+                if(this.preferred_mechanism){
+                    if(plugin.mechanisms[this.preferred_mechanism]){
+                        this._mechanism = new plugin.mechanisms[this.preferred_mechanism];
+                    }else{
+                        this.deferred.reject(
+                            new plugin.exceptions.MechanismIsNotSupported(
+                                'Selected mechanism is not supported'
+                            )
+                        );
+                    }
+                }else{
+                    for(var i=0; i<top.mechanisms.length; i++){
+                        var mechanism = top.mechanisms[i];
+                        if(plugin.mechanisms[mechanism]){
+                            this._mechanism = new plugin.mechanisms[mechanism](
+                                this._dispatcher);
+                            break;
+                        }
                     }
                 }
             }

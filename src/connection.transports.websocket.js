@@ -16,7 +16,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this._serializer = new XMLSerializer();
         this._parser = new DOMParser();
         this._dispatcher.addHandler(this.CloseStanza, this, this._name);
-        this.sasl = this._dispatcher.registerPlugin(SASL);
+        this.sasl = this._dispatcher.registerPlugin(SASL, options);
         var that = this;
         this.sasl.deferred.done(function(){
             dispatcher.send(that.restart());
@@ -91,7 +91,11 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     websocket.connect = function(){
         if(this._connection_deferred) return this._connection_deferred;
         this._connection_deferred = $.Deferred();
-        this.socket = new WebSocket(this.uri, 'xmpp');
+        try{
+            this.socket = new WebSocket(this.uri, 'xmpp');
+        }catch(e){
+            return this._connection_deferred.reject(e);
+        }
         var connection = this;
         this.socket.onopen = function(evt){
             connection._onopen(evt);

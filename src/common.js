@@ -75,7 +75,7 @@ define(['jslix/exceptions'],
             el = eel;
             if (!link){
                 throw new exceptions.WrongElement(
-                    'Can\'t find "' + eel.xmlns + ':' + eel.element_name + '" child'
+                    'Can\'t find "' + link_def.xmlns + ':' + link_def.element_name + '" child'
                 );
             }
             if (parent) {
@@ -140,12 +140,12 @@ define(['jslix/exceptions'],
     };
 
     jslix.build = function(obj, element_needed, parent) {
-        var element_name = obj.__definition__.element_name;
+        var element_name = obj.__definition__.element_name,
+            ns = obj.__definition__.xmlns || (parent ? parent.namespaceURI : null);
         if (element_name && element_name[0] == ':') {
             element_name = obj[element_name.slice(1)];
         }
-        var doc = document.implementation.createDocument(
-            obj.__definition__.xmlns || parent.namespaceURI, element_name, null);
+        var doc = document.implementation.createDocument(ns, element_name, null);
         var stanza = doc.firstChild;
         function put(value) {
             if (f.type)
