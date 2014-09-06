@@ -12,9 +12,10 @@ define(['jslix/sasl', 'cryptojs/core',
     var plain = auth_plugin.prototype;
 
     plain.getPlainMessage = function(){
+        var zero = String.fromCharCode(0);
         return CryptoJS.enc.Base64.stringify(
             CryptoJS.enc.Latin1.parse(
-                this._dispatcher.connection.jid.bare() + '\0' + this._dispatcher.connection.jid.node + '\0' + this._dispatcher.connection.password));
+                this._dispatcher.connection.jid.bare() + zero + this._dispatcher.connection.jid.node + zero + this._dispatcher.connection.password));
     }
 
     plain.auth = function(){

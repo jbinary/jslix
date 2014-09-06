@@ -67,8 +67,9 @@ define(['jslix/exceptions'],
                     link = jslix._parse(eel, path[i]);
                     break;
                 } catch (e) {
-                    if (e instanceof exceptions.WrongElement) continue;
-                    throw (e);
+                    if (!(e instanceof exceptions.WrongElement)) {
+                        throw (e);
+                    }
                 }
             }
             el = eel;

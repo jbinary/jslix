@@ -133,18 +133,20 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
                 d.resolve(r_el);
             } else if (top.type == 'error') {
                 var exception = new Error('Could not parse error'),
+                    exception_got = false,
                     error_class = r_el.__definition__.error_class || 
                                     errors.ErrorStanza;
                 for (var i=0; i<el.childNodes.length; i++) {
                     try {
                         exception = jslix.parse(el.childNodes[i], error_class).get_exception(top);
-                        break;
+                        exception_got = true;
                     } catch(e) {
                         if (!(e instanceof exceptions.WrongElement)) {
                             exception = e;
-                            break;
+                            exception_got = true;
                         }
                     }
+                    if (exception_got) break;
                 }
                 d.reject(exception);
             }
