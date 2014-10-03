@@ -23,6 +23,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.ResponseStanza, this, this._name);
         this.sasl = this._dispatcher.registerPlugin(SASL, options);
+        this.timeout = null;
         var that = this;
         this.sasl.deferred.done(function() {
             dispatcher.send(that.restart());
@@ -157,7 +158,10 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     bosh.connect = function(){
         if (this._connection_deferred) return this._connection_deferred;
-        this._connection_deferred = $.Deferred();
+        var that = this;
+        this._connection_deferred = $.Deferred().fail(function(){
+            that.disconnect();
+        });
         this.send(jslix.build(
             this.RequestStanza.create({
                 rid: this._rid,
@@ -205,9 +209,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     bosh.process_queue = function(timestamp){
-        if(!this.established && timestamp){
-            return;
-        }
         this.clean_slots();
         if(this.established && 
                 !(this._slots.length || this._queue.length) && 
@@ -227,7 +228,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         }
         var connection = this;
         if(this._queue.length || this._slots.length || this.established){
-            setTimeout(function(){
+            this.timeout = setTimeout(function(){
                 connection.process_queue(timestamp);
             }, this.queue_check_interval);
         }
@@ -297,6 +298,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     bosh.disconnect = function(){
         this.established = false;
+        clearTimeout(this.timeout);
         return this.EmptyStanza.create({
             sid: this._sid,
             rid: this._rid,
