@@ -291,17 +291,23 @@ define(['jslix/common', 'jslix/class', 'jslix/types', 'jslix/exceptions'],
 
     fields.ConditionNode = Class(
         fields.Node,
-        function(uri, required) {
+        function(uri, required, possible_values) {
             fields.Node.call(this, undefined, uri, required);
             this.type = types.StringType;
+            this.possible_values = possible_values;
         },
         {
             'get_from_el': function(el) {
-                var value = fields.Node.prototype.get_from_el.call(this, el);
-                if (!value && this.required) {
+                var node = new Node(undefined, this.xmlns, false, true),
+                value = node.get_from_el(el) || [],
+                that = this;
+                value = value.filter(function(node) {
+                    return that.possible_values.indexOf(jslix.get_local_name(node)) >= 0;
+                });
+                if (!value.length && this.required) {
                     throw new exceptions.ElementParseError();
                 } else if (value) {
-                    return jslix.get_local_name(value);
+                    return jslix.get_local_name(value[0]);
                 }
             },
             'put_to_el': function(el, value) {
