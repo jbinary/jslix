@@ -15,7 +15,8 @@ define(['jslix/jid', 'jslix/sasl', 'libs/signals', 'libs/jquery'],
     var connection = plugin.prototype;
 
     connection.signals = {
-        disconnect: new signals.Signal()
+        disconnect: new signals.Signal(),
+        fail: new signals.Signal()
     };
 
     connection.connect = function(dispatcher, index){

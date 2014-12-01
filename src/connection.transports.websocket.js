@@ -1,8 +1,8 @@
 "use strict";
 define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         'jslix/session', 'jslix/bind', 'jslix/connection', 'jslix/jid',
-        'libs/signals', 'libs/jquery'],
-    function(jslix, fields, stanzas, SASL, Session, Bind, connection, JID, signals, $){
+        'libs/jquery'],
+    function(jslix, fields, stanzas, SASL, Session, Bind, connection, JID, $){
 
     var plugin = function(dispatcher, options){
         this._dispatcher = dispatcher;
@@ -34,10 +34,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         Element = stanzas.Element;
 
     websocket._name = 'jslix.connection.transports.WebSocket';
-
-    websocket.signals = {
-        fail: new signals.Signal()
-    };
 
     websocket.XMPP_FRAMING_NS = 'urn:ietf:params:xml:ns:xmpp-framing';
 
@@ -151,6 +147,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket._onerror = function(evt){
+        this._dispatcher.connection.signals.fail.dispatch(evt);
     }
 
     websocket._onclose = function(evt){
