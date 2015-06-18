@@ -10,7 +10,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         this.password = options['password'];
         this.uri = options['websocket_uri'];
         this.established = false;
-        this.fix = true;
         this.socket = null;
         this._connection_deferred = null;
         this._serializer = new XMLSerializer();
@@ -47,7 +46,11 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     });
 
     websocket.OpenStanza = Element({
-        element_name: 'open'
+        element_name: 'open',
+        handler: function(top){
+            this._dispatcher.addHandler(this.FeaturesStanza, this, this._name);
+            this.established = true;
+        }
     }, [websocket.BaseStanza])
 
     websocket.CloseStanza = Element({
@@ -57,13 +60,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
             this.socket.close();
         }
     }, [websocket.BaseStanza]);
-
-    websocket.StreamStanza = Element({
-        handler: function(top){
-            this._dispatcher.addHandler(this.FeaturesStanza, this, this._name);
-            this.established = true;
-        }
-    }, [stanzas.StreamStanza]);
 
     websocket.FeaturesStanza = Element({
         bind: new fields.FlagNode('bind', false, Bind.prototype.BIND_NS),
@@ -114,7 +110,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket.restart = function(){
-        this.fix = true;
         return websocket.OpenStanza.create({
             to: this.jid.domain
         });
@@ -125,7 +120,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket._onopen = function(evt){
-        this._dispatcher.addHandler(this.StreamStanza, this, this._name);
+        this._dispatcher.addHandler(this.OpenStanza, this, this._name);
         this.send(
             jslix.build(
                 this.OpenStanza.create({
@@ -137,10 +132,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     websocket._onmessage = function(evt){
         var str = evt.data;
-        if(this.fix){
-            str += '</stream:stream>'
-            this.fix = false;
-        }
         var doc = this._parser.parseFromString(str, 'text/xml');
         // TODO: Handler parse errors
         this._dispatcher.dispatch(doc);
