@@ -2,8 +2,8 @@
 define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         'jslix/session', 'jslix/bind', 'jslix/exceptions', 'jslix/connection',
         'jslix/jid',
-        'libs/signals', 'libs/jquery'],
-    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, connection, JID, signals, $){
+        'libs/jquery'],
+    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, connection, JID, $){
 
     var plugin = function(dispatcher, options){
         this.queue_check_interval = 250;
@@ -43,10 +43,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     bosh._name = 'jslix.connection.transports.Bosh';
 
-    bosh.signals = {
-        fail: new signals.Signal()
-    };
-    
     bosh.BOSH_NS = 'http://jabber.org/protocol/httpbind';
     bosh.XBOSH_NS = 'urn:xmpp:xbosh';
 
@@ -246,7 +242,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 this._connection_deferred.reject();
                 this._connection_deferred = null;
                 this.established = false;
-                this.signals.fail.dispatch(response.status, this.suspend());
+                this._dispatcher.connection.signals.fail.dispatch(response.status, this.suspend());
             }
             response.closed = true;
         }
