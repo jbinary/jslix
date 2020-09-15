@@ -271,12 +271,13 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
         return d;
     }
 
-    dispatcher.check_hooks = function(el, top) {
+    dispatcher.check_hooks = function(el, top, hook_to_check) {
         // TODO: optimisation here can be done, we don't need to build
         // document and then parse it again, some light validation can
         // be applied
         if (el instanceof stanzas.EmptyStanza) return el;
-        var hooks = this.hooks['send'];
+        var hook_to_check = hook_to_check || 'send',
+            hooks = this.hooks[hook_to_check];
         if(hooks instanceof Array){
             for (var i=0; i<hooks.length; i++) {
                 var doc = jslix.build(top),
