@@ -240,24 +240,33 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
             loop();
     }
 
-    dispatcher.send = function(els) {
+    dispatcher.send = function(els, skip_hooks) {
         if(els.length === undefined) els = [els];
         var d = null;
         for (var i=0; i<els.length; i++) {
             var el = els[i],
                 top = el.getTop();
             // TODO: BreakStanza
-            var el = this.check_hooks(el, top);
-            if(el instanceof stanzas.EmptyStanza) {
-                continue;
+            if(skip_hooks){
+                var result = [el];
+            }else{
+                var result = this.check_hooks(el, top);
             }
-            if (top.__definition__.element_name == 'iq' && 
-                ['get', 'set'].indexOf(top.type) != -1) {
-                d = new $.Deferred();
-                this.deferreds[top.id] = [d, el];
-                // TODO: implement timeouts
+            if(result.length === undefined) result = [result];
+            for(var j=0; j<result.length; j++){
+                var el = result[j];
+                if(el instanceof stanzas.EmptyStanza) {
+                    continue;
+                }
+                var new_top = el.getTop();
+                if (new_top.__definition__.element_name == 'iq' && 
+                    ['get', 'set'].indexOf(new_top.type) != -1) {
+                    d = new $.Deferred();
+                    this.deferreds[new_top.id] = [d, el];
+                    // TODO: implement timeouts
+                }
+                this.connection.send(jslix.build(new_top));
             }
-            this.connection.send(jslix.build(top));
         }
         return d;
     }

@@ -1,8 +1,9 @@
 "use strict";
 define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         'jslix/session', 'jslix/bind', 'jslix/connection', 'jslix/jid',
+        'jslix/sm',
         'libs/jquery'],
-    function(jslix, fields, stanzas, SASL, Session, Bind, connection, JID, $){
+    function(jslix, fields, stanzas, SASL, Session, Bind, Connection, JID, StreamManagement, $){
 
     var plugin = function(dispatcher, options){
         this._dispatcher = dispatcher;
@@ -27,7 +28,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     plugin.is_supported = 'WebSocket' in window ? true : false;
 
-    connection.transports.push(plugin);
+    Connection.transports.push(plugin);
 
     var websocket = plugin.prototype,
         Element = stanzas.Element;
@@ -64,6 +65,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     websocket.FeaturesStanza = Element({
         bind: new fields.FlagNode('bind', false, Bind.prototype.BIND_NS),
         session: new fields.FlagNode('session', false, Session.prototype.SESSION_NS),
+        sm: new fields.FlagNode('sm', false, StreamManagement.prototype.STREAM_MANAGEMENT_NS),
         handler: function(top){
             if(top.bind)
                 this._dispatcher.registerPlugin(Bind);
@@ -76,6 +78,9 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                     that._dispatcher(that.disconnect());
                     that._connection_deferred.reject(reason);
                 })
+            }
+            if(top.sm){
+                this._dispatcher.registerPlugin(StreamManagement);
             }
         }
     }, [stanzas.FeaturesStanza]);
