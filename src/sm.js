@@ -72,8 +72,8 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
         handler: function(top){
             for(var i=0; i<this.queue.length; i++){
                 if(this.queue[i][0]<=top.h){
-                    this.dispatcher.send(
-                        this.dispatcher.check_hooks(top, top, 'send-acked'),
+                    this._dispatcher.send(
+                        this._dispatcher.check_hooks(top, top, 'send-acked'),
                         true
                     );
                 }
