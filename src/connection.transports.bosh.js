@@ -56,10 +56,13 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
             if(top.type == 'terminate'){
                 if(this.established){
                     this.established = false;
+                    clearTimeout(this.timeout);
                 }
                 // TODO: Abstract exception here
-                this._connection_deferred.reject(top.condition);
-                this._connection_deferred = null;
+                var that = this;
+                this._connection_deferred.reject(top.condition).fail(function(){
+                    that._connection_deferred = null;
+                });
                 return stanzas.BreakStanza.create();
             }
             for(var i=0; i<top.childs.length; i++){
@@ -297,8 +300,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     bosh.disconnect = function(){
-        this.established = false;
-        clearTimeout(this.timeout);
         return this.EmptyStanza.create({
             sid: this._sid,
             rid: this._rid,
