@@ -1,6 +1,6 @@
 "use strict";
-define(['jslix/common', 'jslix/stanzas', 'jslix/fields', 'jslix/bind', 'jslix/connection'],
-    function(jslix, stanzas, fields, Bind, Connection){
+define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
+    function(stanzas, fields, Bind){
 
     var plugin = function(dispatcher){
         this.send = null;
