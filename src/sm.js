@@ -3,8 +3,8 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
     function(stanzas, fields, Bind){
 
     var plugin = function(dispatcher){
-        this.send = null;
-        this.received = null;
+        this.outbound_count = null;
+        this.inbound_count = null;
         this._dispatcher = dispatcher;
         this._dispatcher.addHandler(this.BindResultStanza, this, this._name);
     };
@@ -20,6 +20,8 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
         handler: function(top){
             this._dispatcher.addHandler(this.EnabledStanza, this, this._name);
             this._dispatcher.addHandler(this.FailedStanza, this, this._name);
+            this.outbound_count = 0;
+            this.outbound_queue = [];
             return this.EnableStanza.create();
         }
     }, [Bind.prototype.ResponseStanza])
@@ -33,9 +35,7 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
         xmlns: sm.STREAM_MANAGEMENT_NS,
         element_name: 'enabled',
         handler: function(top){
-            this.send = 0;
-            this.received = 0;
-            this.queue = [];
+            this.inbound_count= 0;
             var stanzas = [this.MessageStanza, this.IQStanza, this.PresenceStanza];
             for(var i=0; i<stanzas.length; i++){
                 this._dispatcher.addHandler(stanzas[i], this, this._name);
@@ -43,7 +43,7 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
             }
             this._dispatcher.addHandler(this.AnswerStanza, this, this._name);
             this._dispatcher.addHandler(this.RequestStanza, this, this._name);
-            if(this.queue.length){
+            if(this.outbound_queue.length){
                 return this.RequestStanza.create();
             }
         }
@@ -61,7 +61,7 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
         xmlns: sm.STREAM_MANAGEMENT_NS,
         element_name: 'r',
         handler: function(top){
-            return this.AnswerStanza.create({h: this.received});
+            return this.AnswerStanza.create({h: this.inbound_count});
         }
     });
 
@@ -70,48 +70,49 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
         element_name: 'a',
         h: new fields.IntegerAttr('h', true),
         handler: function(top){
-            for(var i=0; i<this.queue.length; i++){
-                if(this.queue[i][0]<=top.h){
+            for(var i=0; i<this.outbound_queue.length; i++){
+                if(this.outbound_queue[i][0]<=top.h){
                     this._dispatcher.send(
                         this._dispatcher.check_hooks(top, top, 'send-acked'),
                         true
                     );
                 }
             }
-            this.queue = this.queue.filter(function(els){
+            this.outbound_queue= this.outbound_queue.filter(function(els){
                 return els[0] > top.h;
             });
-            if(this.send > top.h){
-                for(var i=0; i<this.queue.length; i++){
-                    this.dispatcher.send(this.queue[i][1], true);
+            if(this.outbound_count > top.h){
+                debugger;
+                for(var i=0; i<this.outbound_queue.length; i++){
+                    this._dispatcher.send(this.outbound_queue[i][1], true);
                 }
                 return sm.RequestStanza.create();
             }
         }
     });
 
-    sm.count_received_stanzas = function(top){
-        this.received++;
+    sm.process_inbound_stanzas = function(top){
+        this.inbound_count++;
     };
 
-    sm.process_send_stanzas = function(el, top){
-        this.queue.push([++this.send, el]);
+    sm.process_outbound_stanzas = function(el, top){
+        this.outbound_queue.push([++this.outbound_count, el]);
         return [el, sm.RequestStanza.create()];
     };
 
     sm.MessageStanza = Element({
-        handler: sm.count_received_stanzas,
-        anyHandler: sm.process_send_stanzas
+        handler: sm.process_inbound_stanzas,
+        anyHandler: sm.process_outbound_stanzas
     }, [stanzas.MessageStanza]);
 
     sm.IQStanza = Element({
-        handler: sm.count_received_stanzas,
-        anyHandler: sm.process_send_stanzas
+        handler: sm.process_inbound_stanzas,
+        anyHandler: sm.process_outbound_stanzas
     }, [stanzas.IQStanza]);
 
     sm.PresenceStanza = Element({
-        handler: sm.count_received_stanzas,
-        anyHandler: sm.process_send_stanzas
+        handler: sm.process_inbound_stanzas,
+        anyHandler: sm.process_outbound_stanzas
     }, [stanzas.PresenceStanza]);
 
     return plugin;
