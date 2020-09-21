@@ -121,7 +121,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket.disconnect = function(){
-        return this.CloseStanza.create({});
+        return this.CloseStanza.create();
     }
 
     websocket._onopen = function(evt){
