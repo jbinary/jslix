@@ -72,13 +72,13 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
         handler: function(top){
             for(var i=0; i<this.outbound_queue.length; i++){
                 if(this.outbound_queue[i][0]<=top.h){
+                    var el = this._dispatcher.check_hooks(
+                        this.outbound_queue[i][1],
+                        this.outbound_queue[i][2],
+                        'send-acked'
+                    );
                     this._dispatcher.send(
-                        this._dispatcher.check_hooks(
-                            this.outbound_queue[i][1],
-                            this.outbound_queue[i][2],
-                            'send-acked'
-                        ),
-                        true
+                        el || stanzas.EmptyStanza.create(), true
                     );
                 }
             }
