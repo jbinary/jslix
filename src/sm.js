@@ -73,7 +73,11 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
             for(var i=0; i<this.outbound_queue.length; i++){
                 if(this.outbound_queue[i][0]<=top.h){
                     this._dispatcher.send(
-                        this._dispatcher.check_hooks(top, top, 'send-acked'),
+                        this._dispatcher.check_hooks(
+                            this.outbound_queue[i][1],
+                            this.outbound_queue[i][2],
+                            'send-acked'
+                        ),
                         true
                     );
                 }
@@ -82,7 +86,6 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
                 return els[0] > top.h;
             });
             if(this.outbound_count > top.h){
-                debugger;
                 for(var i=0; i<this.outbound_queue.length; i++){
                     this._dispatcher.send(this.outbound_queue[i][1], true);
                 }
@@ -96,8 +99,12 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
     };
 
     sm.process_outbound_stanzas = function(el, top){
-        this.outbound_queue.push([++this.outbound_count, el]);
-        return [el, sm.RequestStanza.create()];
+        this.outbound_queue.push([++this.outbound_count, el, top]);
+        var dispatcher = this._dispatcher;
+        setTimeout(function(){
+            dispatcher.send(sm.RequestStanza.create());
+        }, 300);
+        return el;
     };
 
     sm.MessageStanza = Element({
