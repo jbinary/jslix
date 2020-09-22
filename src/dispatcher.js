@@ -253,7 +253,7 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
             if(el instanceof stanzas.EmptyStanza) {
                 continue;
             }
-            if (top.__definition__.element_name == 'iq' &&
+            if (!skip_hooks && top.__definition__.element_name == 'iq' &&
                 ['get', 'set'].indexOf(top.type) != -1) {
                 d = new $.Deferred();
                 this.deferreds[top.id] = [d, el];

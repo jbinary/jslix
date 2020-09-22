@@ -71,18 +71,16 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
         h: new fields.IntegerAttr('h', true),
         handler: function(top){
             for(var i=0; i<this.outbound_queue.length; i++){
-                if(this.outbound_queue[i][0]<=top.h){
+                if(this.outbound_queue[i][0] <= top.h){
                     var el = this._dispatcher.check_hooks(
                         this.outbound_queue[i][1],
                         this.outbound_queue[i][2],
                         'send-acked'
-                    );
-                    this._dispatcher.send(
-                        el || stanzas.EmptyStanza.create(), true
-                    );
+                    ) || stanzas.EmptyStanza.create();
+                    this._dispatcher.send(el, true);
                 }
             }
-            this.outbound_queue= this.outbound_queue.filter(function(els){
+            this.outbound_queue = this.outbound_queue.filter(function(els){
                 return els[0] > top.h;
             });
             if(this.outbound_count > top.h){
