@@ -85,7 +85,7 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
             });
             if(this.outbound_count > top.h){
                 for(var i=0; i<this.outbound_queue.length; i++){
-                    this._dispatcher.send(this.outbound_queue[i][1], true);
+                    this._dispatcher.send(this.outbound_queue[i][2], true);
                 }
                 return sm.RequestStanza.create();
             }
