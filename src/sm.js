@@ -74,7 +74,7 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
                 if(this.outbound_queue[i][0] <= top.h){
                     var el = this._dispatcher.check_hooks(
                         this.outbound_queue[i][1],
-                        this.outbound_queue[i][2],
+                        this.outbound_queue[i][1],
                         'send-acked'
                     ) || stanzas.EmptyStanza.create();
                     this._dispatcher.send(el, true);
@@ -85,7 +85,7 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
             });
             if(this.outbound_count > top.h){
                 for(var i=0; i<this.outbound_queue.length; i++){
-                    this._dispatcher.send(this.outbound_queue[i][2], true);
+                    this._dispatcher.send(this.outbound_queue[i][1], true);
                 }
                 return sm.RequestStanza.create();
             }
@@ -97,7 +97,7 @@ define(['jslix/stanzas', 'jslix/fields', 'jslix/bind'],
     };
 
     sm.process_outbound_stanzas = function(el, top){
-        this.outbound_queue.push([++this.outbound_count, el, top]);
+        this.outbound_queue.push([++this.outbound_count, top]);
         var dispatcher = this._dispatcher;
         setTimeout(function(){
             dispatcher.send(sm.RequestStanza.create());

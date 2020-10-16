@@ -110,8 +110,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     websocket.send = function(doc){
-        var str = this._serializer.serializeToString(doc);
-        this.socket.send(str);
+        this.socket.send(this._serializer.serializeToString(doc));
     }
 
     websocket.restart = function(){
