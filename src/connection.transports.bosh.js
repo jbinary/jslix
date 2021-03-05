@@ -57,6 +57,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                 if(this.established){
                     this.established = false;
                     clearTimeout(this.timeout);
+                    this._dispatcher.connection.signals.disconnect.dispatch(top);
                 }
                 // TODO: Abstract exception here
                 var that = this;
