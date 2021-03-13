@@ -19,7 +19,7 @@ define(['jslix/stanzas', 'jslix/bind', 'libs/jquery'],
         handler: function(top){
             var iq = stanzas.IQStanza.create({
                 type: 'set',
-                link: session.request.create({})
+                link: session.request.create()
             });
             var that = this;
             this._dispatcher.send(iq).done(function() {

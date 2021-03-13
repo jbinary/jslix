@@ -3,7 +3,7 @@ require.config({
     paths: {
         'jslix': '../src',
         'libs': '../libs',
-        'cryptojs': '../libs/cryptojs/components'
+        'cryptojs': '../libs/cryptojs/'
     },
     shim: {
         'libs/log4javascript': {

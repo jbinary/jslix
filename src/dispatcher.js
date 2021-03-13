@@ -240,18 +240,20 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
             loop();
     }
 
-    dispatcher.send = function(els) {
+    dispatcher.send = function(els, skip_hooks) {
         if(els.length === undefined) els = [els];
         var d = null;
         for (var i=0; i<els.length; i++) {
             var el = els[i],
                 top = el.getTop();
             // TODO: BreakStanza
-            var el = this.check_hooks(el, top);
+            if(!skip_hooks){
+                el = this.check_hooks(el, top);
+            }
             if(el instanceof stanzas.EmptyStanza) {
                 continue;
             }
-            if (top.__definition__.element_name == 'iq' && 
+            if (!skip_hooks && top.__definition__.element_name == 'iq' &&
                 ['get', 'set'].indexOf(top.type) != -1) {
                 d = new $.Deferred();
                 this.deferreds[top.id] = [d, el];
@@ -262,12 +264,13 @@ define(['jslix/common', 'jslix/stanzas', 'jslix/exceptions', 'jslix/logging',
         return d;
     }
 
-    dispatcher.check_hooks = function(el, top) {
+    dispatcher.check_hooks = function(el, top, hook_to_check) {
         // TODO: optimisation here can be done, we don't need to build
         // document and then parse it again, some light validation can
         // be applied
         if (el instanceof stanzas.EmptyStanza) return el;
-        var hooks = this.hooks['send'];
+        var hook_to_check = hook_to_check || 'send',
+            hooks = this.hooks[hook_to_check];
         if(hooks instanceof Array){
             for (var i=0; i<hooks.length; i++) {
                 var doc = jslix.build(top),

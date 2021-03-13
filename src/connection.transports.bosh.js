@@ -1,9 +1,9 @@
 "use strict";
 define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
         'jslix/session', 'jslix/bind', 'jslix/exceptions', 'jslix/connection',
-        'jslix/jid',
+        'jslix/jid', 'jslix/sm',
         'libs/jquery'],
-    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, connection, JID, $){
+    function(jslix, fields, stanzas, SASL, Session, Bind, exceptions, Connection, JID, StreamManagement, $){
 
     var plugin = function(dispatcher, options){
         this.queue_check_interval = 250;
@@ -36,7 +36,7 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
 
     plugin.is_supported = true;
 
-    connection.transports.push(plugin);
+    Connection.transports.push(plugin);
 
     var bosh = plugin.prototype,
         Element = stanzas.Element;
@@ -56,10 +56,14 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
             if(top.type == 'terminate'){
                 if(this.established){
                     this.established = false;
+                    clearTimeout(this.timeout);
+                    this._dispatcher.connection.signals.disconnect.dispatch(top);
                 }
                 // TODO: Abstract exception here
-                this._connection_deferred.reject(top.condition);
-                this._connection_deferred = null;
+                var that = this;
+                this._connection_deferred.reject(top.condition).fail(function(){
+                    that._connection_deferred = null;
+                });
                 return stanzas.BreakStanza.create();
             }
             for(var i=0; i<top.childs.length; i++){
@@ -136,10 +140,11 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     bosh.FeaturesStanza = Element({
         bind: new fields.FlagNode('bind', false, Bind.prototype.BIND_NS),
         session: new fields.FlagNode('session', false, Session.prototype.SESSION_NS),
+        sm: new fields.FlagNode('sm', false, StreamManagement.prototype.STREAM_MANAGEMENT_NS),
         handler: function(top){
             if(top.bind)
                 this._dispatcher.registerPlugin(Bind);
-            if(top.session) {
+            if(top.session){
                 var session = this._dispatcher.registerPlugin(Session);
                 var that = this;
                 session.deferred.done(function() {
@@ -148,6 +153,9 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
                     that._dispatcher(that.disconnect());
                     that._connection_deferred.reject(reason); // TODO: abstract exception
                 });
+            }
+            if(top.sm){
+                this._dispatcher.registerPlugin(StreamManagement);
             }
         }
     }, [stanzas.FeaturesStanza]);
@@ -293,8 +301,6 @@ define(['jslix/common', 'jslix/fields', 'jslix/stanzas', 'jslix/sasl',
     }
 
     bosh.disconnect = function(){
-        this.established = false;
-        clearTimeout(this.timeout);
         return this.EmptyStanza.create({
             sid: this._sid,
             rid: this._rid,
